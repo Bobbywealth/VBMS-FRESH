@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>VBMS CRM – Clients</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    body { background: #111; color: #fff; font-family: 'Inter', sans-serif;}
+    .sidebar { background: #161616; min-height: 100vh; padding: 20px; width: 270px; }
+    .sidebar-link { color: #bbb; padding: 12px 20px; border-radius: 8px; display: flex; align-items: center; margin-bottom: 8px; text-decoration: none; }
+    .sidebar-link.active, .sidebar-link:hover { background: #f0b90b; color: #111 !important; font-weight: bold;}
+    .sidebar-link i { margin-right: 10px;}
+    .sidebar .btn { margin-top: 40px; width: 100%; }
+    .main-content { flex: 1; padding: 2rem 2.5rem 1.5rem 2.5rem;}
+    .section-title { color: #f0b90b; font-weight: bold; font-size: 2rem; }
+    .table thead { background: #1c1c1c; color: #f0b90b; }
+    .table-striped>tbody>tr:nth-of-type(odd) { background-color: #191919; }
+    .table-striped>tbody>tr:nth-of-type(even) { background-color: #232323; }
+    .client-tag { font-size: 0.82em; border-radius: 7px; padding: 3px 9px; margin-right: 3px;}
+    .client-tag.Active { background: #18c964; color: #fff;}
+    .client-tag.Lead { background: #36f0e3; color: #222;}
+    .client-tag.VIP { background: #ffc107; color: #181818; font-weight: bold;}
+    .client-tag.Demo { background: #5c73e6; color: #fff;}
+    .client-tag.Churned { background: #ef4444; color: #fff;}
+    .client-tag.New { background: #b5f531; color: #222;}
+    .client-row.selected { background: #f0b90b22 !important; }
+    .badge-balance { background: #ed1c24; }
+    .profile-drawer {
+      position: fixed; top: 0; right: 0; height: 100vh; width: 460px;
+      background: #181818; color: #fff; box-shadow: -7px 0 40px 0 #000b, 0 0 2px 0 #f0b90b;
+      z-index: 2222; overflow-y: auto; transition: transform 0.33s cubic-bezier(.65,.05,.36,1);
+      transform: translateX(110%);
+      padding: 0; max-width: 100vw;
+    }
+    .profile-drawer.open { transform: translateX(0);}
+    /* …snip rest of your CSS… */
+  </style>
+</head>
+<body>
+<div class="d-flex">
+  <!-- Sidebar -->
+  <aside class="sidebar d-none d-md-block">
+    <div class="text-center mb-4">
+      <img src="https://iili.io/FRaYff9.png" style="max-width:130px;">
+      <h4 class="text-warning mt-2">VBMS</h4>
+    </div>
+    <nav>
+      <a href="dashboard.html" class="sidebar-link"><i class="bi bi-speedometer2"></i> Dashboard</a>
+      <a href="taskboard.html" class="sidebar-link"><i class="bi bi-clipboard-data"></i> Task Board</a>
+      <a href="orders.html" class="sidebar-link"><i class="bi bi-box-seam"></i> Orders</a>
+      <a href="clients.html" class="sidebar-link active"><i class="bi bi-person-badge"></i> Clients</a>
+      <a href="team.html" class="sidebar-link"><i class="bi bi-people"></i> Team</a>
+      <a href="settings.html" class="sidebar-link"><i class="bi bi-gear"></i> Settings</a>
+    </nav>
+    <div class="mt-4 text-center">
+      <button class="btn btn-warning fw-bold" onclick="logout()">Logout</button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content w-100">
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
+      <span class="section-title"><i class="bi bi-person-badge"></i> Client Management</span>
+      <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#addClientModal">
+        <i class="bi bi-person-plus"></i> Add Client
+      </button>
+    </div>
+
+    <!-- Filters/Search -->
+    <div class="row g-2 mb-3">
+      <div class="col-md-4">
+        <input type="text" id="searchInput" class="form-control" placeholder="Search clients..." />
+      </div>
+      <div class="col-md-3">
+        <select id="tagFilter" class="form-select">
+          <option value="">All Status/Tags</option>
+          <option>Active</option>
+          <option>Lead</option>
+          <option>VIP</option>
+          <option>Demo</option>
+          <option>Churned</option>
+          <option>New</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <button class="btn btn-outline-light w-100" id="exportBtn">
+          <i class="bi bi-download"></i> Export
+        </button>
+      </div>
+      <div class="col-md-3">
+        <button class="btn btn-outline-danger w-100" id="bulkDeleteBtn">
+          <i class="bi bi-trash"></i> Bulk Delete
+        </button>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-responsive">
+      <table class="table table-dark table-striped align-middle" id="clientTable">
+        <thead>
+          <tr>
+            <th><input type="checkbox" id="selectAll"/></th>
+            <th>Name</th>
+            <th>Company</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Status/Tags</th>
+            <th>Balance</th>
+            <th>Payment</th>
+            <th>Last Update</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="clientList"></tbody>
+      </table>
+    </div>
+
+    <div id="emptyState" class="empty-state" style="display:none;">
+      <i class="bi bi-person-plus"></i>
+      <div class="mt-2 mb-1 fw-bold">No clients yet!</div>
+      <div>Add your first client above.</div>
+    </div>
+
+    <footer class="mt-5 text-center text-secondary">&copy; 2025 VBMS. All rights reserved.</footer>
+  </main>
+</div>
+
+<!-- Add Client Modal (unchanged) -->
+<div class="modal fade" id="addClientModal" tabindex="-1">
+  <!-- …your modal markup… -->
+</div>
+
+<!-- Profile Drawer (unchanged) -->
+<div class="profile-drawer" id="profileDrawer">
+  <!-- …drawer markup… -->
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // === CRM DATA LAYER (API) ===
+  const API_BASE = window.location.hostname === 'localhost'
+    ? 'http://localhost:5050'
+    : 'https://vbms-backend.onrender.com';
+
+  let clients = [];
+  let selectedIds = new Set();
+
+  async function loadClients() {
+    const token = localStorage.getItem('vbmsToken');
+    const res = await fetch(`${API_BASE}/api/users?role=client`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    if (!res.ok) {
+      console.error('Failed to load clients', res.status, await res.text());
+      return;
+    }
+    clients = await res.json();
+    renderClients();
+  }
+
+  function renderClients() {
+    const searchVal = (document.getElementById("searchInput").value || "").toLowerCase();
+    const tagVal    = document.getElementById("tagFilter").value || "";
+    const tbody     = document.getElementById("clientList");
+
+    let filtered = clients.filter(c =>
+      (!tagVal || (c.tags && c.tags.includes(tagVal))) &&
+      (!searchVal ||
+        c.name.toLowerCase().includes(searchVal) ||
+        c.company.toLowerCase().includes(searchVal) ||
+        c.email.toLowerCase().includes(searchVal) ||
+        c.phone.toLowerCase().includes(searchVal))
+    );
+
+    tbody.innerHTML = "";
+    if (!filtered.length) {
+      document.getElementById("emptyState").style.display = "block";
+      return;
+    }
+    document.getElementById("emptyState").style.display = "none";
+
+    filtered.forEach(c => {
+      const isSelected = selectedIds.has(c.id);
+      const paidBadge  = c.paid
+        ? '<span class="badge bg-success">Paid</span>'
+        : '<span class="badge bg-danger">Unpaid</span>';
+
+      tbody.innerHTML += `
+        <tr class="client-row ${isSelected ? "selected" : ""}" onclick="openDrawer(${c.id})">
+          <td>
+            <input type="checkbox"
+                   onclick="toggleSelect(event,${c.id})"
+                   ${isSelected ? "checked" : ""}/>
+          </td>
+          <td>${c.name}</td>
+          <td>${c.company}</td>
+          <td><a href="mailto:${c.email}" class="text-warning">${c.email}</a></td>
+          <td><a href="tel:${c.phone}" class="text-light">${c.phone}</a></td>
+          <td>${(c.tags||[]).map(t=>`<span class="client-tag ${t}">${t}</span>`).join(" ")}</td>
+          <td>${c.balance
+            ? `<span class="badge badge-balance">$${c.balance.toFixed(2)}</span>`
+            : "—"}</td>
+          <td>${paidBadge}</td>
+          <td>${c.lastUpdate || "-"}</td>
+          <td>
+            <button class="btn btn-sm btn-outline-light"
+                    onclick="event.stopPropagation(); openDrawer(${c.id})">
+              <i class="bi bi-eye"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-warning"
+                    onclick="event.stopPropagation(); editClient(${c.id})">
+              <i class="bi bi-pencil"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-danger"
+                    onclick="event.stopPropagation(); deleteClient(${c.id})">
+              <i class="bi bi-trash"></i>
+            </button>
+          </td>
+        </tr>`;
+    });
+  }
+
+  function toggleSelect(e, id) {
+    e.stopPropagation();
+    e.target.checked ? selectedIds.add(id) : selectedIds.delete(id);
+    renderClients();
+  }
+
+  document.getElementById("selectAll").addEventListener("change", function(){
+    this.checked
+      ? clients.forEach(c=>selectedIds.add(c.id))
+      : selectedIds.clear();
+    renderClients();
+  });
+
+  document.getElementById("searchInput").addEventListener("input", renderClients);
+  document.getElementById("tagFilter").addEventListener("change", renderClients);
+
+  document.getElementById("bulkDeleteBtn").addEventListener("click", async ()=>{
+    if (!selectedIds.size) return alert("Select clients first.");
+    if (!confirm("Delete selected clients?")) return;
+    // call your DELETE API here if desired…
+    clients = clients.filter(c=>!selectedIds.has(c.id));
+    selectedIds.clear();
+    renderClients();
+  });
+
+  document.getElementById("exportBtn").addEventListener("click", ()=>{
+    const rows = [["Name","Company","Email","Phone","Status/Tags","Balance","Payment"]];
+    clients.forEach(c=>{
+      rows.push([
+        c.name,
+        c.company,
+        c.email,
+        c.phone,
+        (c.tags||[]).join(";"),
+        c.balance,
+        c.paid ? "Paid" : "Unpaid"
+      ]);
+    });
+    const csv = rows.map(r=>r.join(",")).join("\n");
+    const a = document.createElement("a");
+    a.href = "data:text/csv;charset=utf-8," + encodeURIComponent(csv);
+    a.download = "clients_export.csv";
+    a.click();
+  });
+
+  function logout(){
+    localStorage.removeItem("vbmsToken");
+    window.location.href = "login.html";
+  }
+
+  // …keep your drawer + add/edit/delete-client handlers here…
+  // (unchanged from your original)
+
+  // Load from API on page load
+  loadClients();
+</script>
+</body>
+</html>

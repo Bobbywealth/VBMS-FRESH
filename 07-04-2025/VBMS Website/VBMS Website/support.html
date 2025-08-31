@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Support - VBMS</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+        :root {
+            --accent: #f0b90b;
+            --accent-light: #ffd700;
+            --accent-glow: rgba(240, 185, 11, 0.4);
+            --primary-dark: #d4a109;
+            --secondary: #2c3e50;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --purple: #a855f7;
+            --cyan: #06b6d4;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --glass: rgba(255,255,255,0.95);
+            --glass-glow: rgba(240, 185, 11, 0.15);
+            --border: #e9ecef;
+            --text: #212529;
+            --text-muted: #6c757d;
+            --card-bg: #ffffff;
+            --card-shadow: 0 8px 32px rgba(240, 185, 11, 0.1);
+            --bg: linear-gradient(135deg, #f8f9fa 0%, #f0f8ff 50%, #f8f4ff 100%);
+            --sidebar-bg: rgba(255,255,255,0.98);
+            --sidebar-link: #333;
+            --sidebar-link-active: #000;
+        }
+
+        /* Light theme - Enhanced */
+        [data-theme="light"] {
+            --bg: linear-gradient(135deg, #ffffff 0%, #f8fafc 30%, #e2e8f0 100%);
+            --light: #1a202c;
+            --dark: #ffffff;
+            --text: #2d3748;
+            --text-muted: #718096;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            --border: #e2e8f0;
+            --glass: rgba(255, 255, 255, 0.95);
+            --glass-glow: rgba(240, 185, 11, 0.12);
+            --sidebar-bg: rgba(255, 255, 255, 0.98);
+            --sidebar-link: #4a5568;
+            --sidebar-link-active: #1a202c;
+            --accent: #f59e0b;
+            --accent-light: #fbbf24;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --purple: #8b5cf6;
+            --cyan: #06b6d4;
+        }
+
+        /* Dark theme */
+        [data-theme="dark"] {
+            --bg: linear-gradient(135deg, #2d3748 0%, #1a202c 50%, #171923 100%);
+            --light: #ffffff;
+            --dark: #171923;
+            --text: #ffffff;
+            --text-muted: #a0aec0;
+            --card-bg: rgba(45, 55, 72, 0.95);
+            --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            --border: rgba(255, 255, 255, 0.1);
+            --glass: rgba(45, 55, 72, 0.95);
+            --glass-glow: rgba(240, 185, 11, 0.15);
+            --sidebar-bg: rgba(45, 55, 72, 0.98);
+            --sidebar-link: #ffffff;
+            --sidebar-link-active: #000;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+            transition: all 0.3s ease;
+            position: relative;
+            min-height: 100vh;
+        }
+
+        /* Enhanced Background Animation */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(240, 185, 11, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(59, 130, 246, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.03) 0%, transparent 60%);
+            animation: enhancedGlow 25s ease-in-out infinite;
+        }
+
+        [data-theme="light"] body::before {
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(240, 185, 11, 0.12) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.06) 0%, transparent 60%);
+        }
+
+        @keyframes enhancedGlow {
+            0%, 100% {
+                opacity: 0.6;
+                transform: rotate(0deg) scale(1);
+            }
+            33% {
+                opacity: 0.8;
+                transform: rotate(120deg) scale(1.05);
+            }
+            66% {
+                opacity: 0.7;
+                transform: rotate(240deg) scale(0.95);
+            }
+        }
+
+    .main { margin-left: 280px; padding: 2rem; min-height: 100vh; }
+    .ticket-card { 
+      background: var(--card-bg); 
+      border: 1px solid var(--border); 
+      border-radius: 10px; 
+      padding: 20px; 
+      margin-bottom: 20px; 
+      box-shadow: var(--card-shadow);
+      backdrop-filter: blur(10px);
+    }
+    .ticket-form { 
+      background: var(--card-bg); 
+      border: 1px solid var(--border); 
+      border-radius: 10px; 
+      padding: 20px; 
+      box-shadow: var(--card-shadow);
+      backdrop-filter: blur(10px);
+    }
+    .priority-high { border-left: 4px solid var(--danger); }
+    .priority-medium { border-left: 4px solid var(--warning); }
+    .priority-low { border-left: 4px solid var(--success); }
+    .status-open { color: var(--success); }
+    .status-pending { color: var(--warning); }
+    .status-closed { color: var(--text-muted); }
+  </style>
+</head>
+<body>
+  <!-- Theme Controls -->
+  <div class="theme-controls">
+    <button onclick="toggleTheme()" class="theme-toggle-btn" title="Toggle Dark/Light Mode">
+      <i class="bi bi-moon-fill" id="themeIcon"></i>
+    </button>
+  </div>
+
+  <!-- Sidebar Container -->
+  <div id="sidebar-container"></div>
+
+  <!-- Main Content -->
+  <main class="main">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2><i class="bi bi-headset"></i> Support Center</h2>
+      <button class="btn btn-warning" onclick="showNewTicketForm()">
+        <i class="bi bi-plus-circle"></i> New Ticket
+      </button>
+    </div>
+
+    <!-- New Ticket Form -->
+    <div id="newTicketForm" class="ticket-form mb-4" style="display: none;">
+      <h4><i class="bi bi-ticket-perforated"></i> Create New Support Ticket</h4>
+      <form id="ticketForm">
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label class="form-label">Subject</label>
+            <input type="text" class="form-control bg-dark text-white border-secondary" id="ticketSubject" required>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Priority</label>
+            <select class="form-select bg-dark text-white border-secondary" id="ticketPriority">
+              <option value="low">Low</option>
+              <option value="medium" selected>Medium</option>
+              <option value="high">High</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Category</label>
+            <select class="form-select bg-dark text-white border-secondary" id="ticketCategory">
+              <option value="technical">Technical Issue</option>
+              <option value="billing">Billing Question</option>
+              <option value="feature">Feature Request</option>
+              <option value="general">General Support</option>
+            </select>
+          </div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Description</label>
+          <textarea class="form-control bg-dark text-white border-secondary" rows="5" id="ticketDescription" required placeholder="Please describe your issue in detail..."></textarea>
+        </div>
+        <div class="d-flex gap-2">
+          <button type="submit" class="btn btn-warning">
+            <i class="bi bi-send"></i> Submit Ticket
+          </button>
+          <button type="button" class="btn btn-secondary" onclick="hideNewTicketForm()">Cancel</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Existing Tickets -->
+    <div class="mb-4">
+      <h4>My Support Tickets</h4>
+      <div id="ticketsList">
+        <!-- Tickets will be loaded here -->
+      </div>
+    </div>
+  </main>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="auth.js"></script>
+  <script src="load-sidebar.js"></script>
+  <script>
+    // Authentication check
+    document.addEventListener('DOMContentLoaded', function() {
+      if (!vbmsAuth.isAuthenticated()) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      const userRole = vbmsAuth.getCurrentRole();
+      // Allow admin, main_admin, customer, and client access to support
+      const allowedRoles = ['admin', 'main_admin', 'customer', 'client'];
+      if (userRole && !allowedRoles.includes(userRole.toLowerCase())) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      loadTickets();
+    });
+
+    function logout() {
+      vbmsAuth.logout();
+    }
+
+    function showNewTicketForm() {
+      document.getElementById('newTicketForm').style.display = 'block';
+      document.getElementById('ticketSubject').focus();
+    }
+
+    function hideNewTicketForm() {
+      document.getElementById('newTicketForm').style.display = 'none';
+      document.getElementById('ticketForm').reset();
+    }
+
+    // Sample tickets data (in real app, this would come from API)
+    let tickets = JSON.parse(localStorage.getItem('customerTickets')) || [];
+
+    function loadTickets() {
+      const ticketsList = document.getElementById('ticketsList');
+
+      if (tickets.length === 0) {
+        ticketsList.innerHTML = `
+          <div class="ticket-card">
+            <div class="text-center text-muted">
+              <i class="bi bi-inbox display-4"></i>
+              <p class="mt-2">No support tickets yet</p>
+              <p class="small">Click "New Ticket" to create your first support request</p>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      ticketsList.innerHTML = tickets.map(ticket => `
+        <div class="ticket-card priority-${ticket.priority}">
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <h5 class="mb-0">${ticket.subject}</h5>
+            <div class="d-flex gap-2">
+              <span class="badge bg-secondary">${ticket.category}</span>
+              <span class="badge ${getPriorityBadgeClass(ticket.priority)}">${ticket.priority.toUpperCase()}</span>
+              <span class="status-${ticket.status}">#${ticket.id}</span>
+            </div>
+          </div>
+          <p class="text-muted mb-2">${ticket.description}</p>
+          <div class="d-flex justify-content-between align-items-center">
+            <small class="text-muted">
+              <i class="bi bi-calendar"></i> ${ticket.created}
+            </small>
+            <span class="status-${ticket.status}">
+              <i class="bi bi-circle-fill"></i> ${ticket.status.toUpperCase()}
+            </span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function getPriorityBadgeClass(priority) {
+      switch(priority) {
+        case 'high': return 'bg-danger';
+        case 'medium': return 'bg-warning text-dark';
+        case 'low': return 'bg-success';
+        default: return 'bg-secondary';
+      }
+    }
+
+    // Handle ticket form submission
+    document.getElementById('ticketForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const newTicket = {
+        id: 'TKT-' + Date.now().toString().slice(-6),
+        subject: document.getElementById('ticketSubject').value,
+        description: document.getElementById('ticketDescription').value,
+        priority: document.getElementById('ticketPriority').value,
+        category: document.getElementById('ticketCategory').value,
+        status: 'open',
+        created: new Date().toLocaleDateString(),
+        customer: vbmsAuth.getCurrentUser()?.name || 'Customer'
+      };
+
+      tickets.unshift(newTicket);
+      localStorage.setItem('customerTickets', JSON.stringify(tickets));
+
+      // Add to admin notifications
+      addAdminNotification(newTicket);
+
+      // Show success message
+      showSuccessAlert('Ticket created successfully! You will receive updates via email.');
+
+      hideNewTicketForm();
+      loadTickets();
+    });
+
+    function addAdminNotification(ticket) {
+      // Add notification for admin dashboard
+      const adminNotifications = JSON.parse(localStorage.getItem('adminNotifications')) || [];
+      adminNotifications.unshift({
+        id: Date.now(),
+        type: 'ticket',
+        title: 'New Support Ticket',
+        message: `${ticket.customer} created ticket: ${ticket.subject}`,
+        priority: ticket.priority,
+        ticketId: ticket.id,
+        timestamp: new Date().toISOString(),
+        read: false
+      });
+
+      // Keep only last 50 notifications
+      if (adminNotifications.length > 50) {
+        adminNotifications.splice(50);
+      }
+
+      localStorage.setItem('adminNotifications', JSON.stringify(adminNotifications));
+    }
+
+    function showSuccessAlert(message) {
+      const alert = document.createElement('div');
+      alert.className = 'alert alert-success alert-dismissible fade show position-fixed';
+      alert.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+      alert.innerHTML = `
+        <i class="bi bi-check-circle"></i> ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      `;
+      document.body.appendChild(alert);
+
+      setTimeout(() => {
+        if (alert.parentNode) alert.remove();
+      }, 5000);
+    }
+  </script>
+</body>
+</html>

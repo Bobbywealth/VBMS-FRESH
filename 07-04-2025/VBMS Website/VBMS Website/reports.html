@@ -1,0 +1,1450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Admin Reports - VBMS Admin</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+        :root {
+            --accent: #f0b90b;
+            --accent-light: #ffd700;
+            --accent-glow: rgba(240, 185, 11, 0.4);
+            --primary-dark: #d4a109;
+            --secondary: #2c3e50;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --purple: #a855f7;
+            --cyan: #06b6d4;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --glass: rgba(255,255,255,0.95);
+            --glass-glow: rgba(240, 185, 11, 0.15);
+            --border: #e9ecef;
+            --text: #212529;
+            --text-muted: #6c757d;
+            --card-bg: #ffffff;
+            --card-shadow: 0 8px 32px rgba(240, 185, 11, 0.1);
+            --bg: linear-gradient(135deg, #f8f9fa 0%, #f0f8ff 50%, #f8f4ff 100%);
+            --sidebar-bg: rgba(255,255,255,0.98);
+            --sidebar-link: #333;
+            --sidebar-link-active: #000;
+        }
+
+        /* Light theme - Enhanced */
+        [data-theme="light"] {
+            --bg: linear-gradient(135deg, #ffffff 0%, #f8fafc 30%, #e2e8f0 100%);
+            --light: #1a202c;
+            --dark: #ffffff;
+            --text: #2d3748;
+            --text-muted: #718096;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            --border: #e2e8f0;
+            --glass: rgba(255, 255, 255, 0.95);
+            --glass-glow: rgba(240, 185, 11, 0.12);
+            --sidebar-bg: rgba(255, 255, 255, 0.98);
+            --sidebar-link: #4a5568;
+            --sidebar-link-active: #1a202c;
+            --accent: #f59e0b;
+            --accent-light: #fbbf24;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --purple: #8b5cf6;
+            --cyan: #06b6d4;
+        }
+
+        /* Dark theme - Modern Black/Gray with Energy */
+        [data-theme="dark"] {
+            --bg: linear-gradient(135deg, #000000 0%, #0a0a0a 25%, #1a1a1a 50%, #0f0f0f 100%);
+            --light: #ffffff;
+            --dark: #000000;
+            --text: #ffffff;
+            --text-muted: #a1a1aa;
+            --card-bg: rgba(20, 20, 20, 0.95);
+            --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.8), 0 0 20px rgba(240, 185, 11, 0.15);
+            --border: rgba(64, 64, 64, 0.4);
+            --glass: rgba(18, 18, 18, 0.95);
+            --glass-glow: rgba(240, 185, 11, 0.2);
+            --sidebar-bg: rgba(12, 12, 12, 0.98);
+            --sidebar-link: #d4d4d8;
+            --sidebar-link-active: #ffffff;
+            --accent: #f0b90b;
+            --accent-light: #ffd700;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --purple: #a855f7;
+            --cyan: #06b6d4;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+            transition: all 0.3s ease;
+            position: relative;
+            min-height: 100vh;
+        }
+
+        /* Enhanced Background Animation */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(240, 185, 11, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(59, 130, 246, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.03) 0%, transparent 60%);
+            animation: enhancedGlow 25s ease-in-out infinite;
+        }
+
+        [data-theme="light"] body::before {
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(240, 185, 11, 0.12) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.06) 0%, transparent 60%);
+        }
+
+        /* Dark theme animated background */
+        [data-theme="dark"] body::before {
+            background: 
+                radial-gradient(circle at 15% 25%, rgba(240, 185, 11, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 85% 75%, rgba(128, 128, 128, 0.06) 0%, transparent 60%),
+                radial-gradient(circle at 50% 50%, rgba(64, 64, 64, 0.05) 0%, transparent 70%),
+                radial-gradient(circle at 70% 20%, rgba(240, 185, 11, 0.04) 0%, transparent 55%);
+            animation: darkThemeGlow 25s ease-in-out infinite;
+        }
+
+        /* Floating particles effect for dark theme */
+        [data-theme="dark"] body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background:
+                radial-gradient(circle 1.5px at 10% 20%, rgba(240, 185, 11, 0.4) 0%, transparent 50%),
+                radial-gradient(circle 1px at 90% 30%, rgba(128, 128, 128, 0.3) 0%, transparent 50%),
+                radial-gradient(circle 1px at 30% 80%, rgba(240, 185, 11, 0.2) 0%, transparent 50%),
+                radial-gradient(circle 0.5px at 70% 60%, rgba(96, 96, 96, 0.2) 0%, transparent 50%),
+                radial-gradient(circle 1px at 20% 70%, rgba(255, 215, 0, 0.15) 0%, transparent 50%);
+            animation: floatingParticles 20s linear infinite;
+        }
+
+        @keyframes enhancedGlow {
+            0%, 100% {
+                opacity: 0.6;
+                transform: rotate(0deg) scale(1);
+            }
+            33% {
+                opacity: 0.8;
+                transform: rotate(120deg) scale(1.05);
+            }
+            66% {
+                opacity: 0.7;
+                transform: rotate(240deg) scale(0.95);
+            }
+        }
+
+        @keyframes darkThemeGlow {
+            0%, 100% {
+                opacity: 0.8;
+                transform: rotate(0deg) scale(1);
+            }
+            25% {
+                opacity: 1;
+                transform: rotate(90deg) scale(1.1);
+            }
+            50% {
+                opacity: 0.9;
+                transform: rotate(180deg) scale(1.05);
+            }
+            75% {
+                opacity: 1;
+                transform: rotate(270deg) scale(1.08);
+            }
+        }
+
+        @keyframes floatingParticles {
+            0% {
+                transform: translateY(0px) rotate(0deg);
+                opacity: 1;
+            }
+            25% {
+                transform: translateY(-10px) rotate(90deg);
+                opacity: 0.8;
+            }
+            50% {
+                transform: translateY(-5px) rotate(180deg);
+                opacity: 0.6;
+            }
+            75% {
+                transform: translateY(-15px) rotate(270deg);
+                opacity: 0.9;
+            }
+            100% {
+                transform: translateY(0px) rotate(360deg);
+                opacity: 1;
+            }
+        }
+
+        .main-content {
+            margin-left: 320px;
+            padding: 30px;
+            min-height: 100vh;
+            background: transparent;
+            transition: all 0.3s ease;
+        }
+
+        /* Mobile content adjustments */
+        @media (max-width: 1024px) {
+            .main-content {
+                margin-left: 280px;
+                padding: 25px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+                padding: 80px 15px 15px 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-content {
+                padding: 75px 10px 10px 10px;
+            }
+        }
+
+        @media (max-width: 320px) {
+            .main-content {
+                padding: 70px 8px 8px 8px;
+            }
+        }
+
+        /* Header Styling */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 30px;
+            padding: 20px 0;
+        }
+
+        .header-left h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text);
+            margin: 0 0 10px 0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .header-left h1 i {
+            color: var(--accent);
+            font-size: 2rem;
+        }
+
+        .datetime-info {
+            display: flex;
+            gap: 20px;
+            margin-top: 8px;
+        }
+
+        .current-date, .current-time {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        /* Theme Toggle */
+        .btn-outline-warning {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px;
+            color: var(--accent);
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-warning:hover {
+            background: var(--glass-glow);
+            border-color: var(--accent);
+            color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--glass);
+            backdrop-filter: blur(15px);
+            padding: 25px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            box-shadow: var(--card-shadow);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent), var(--accent-light));
+            opacity: 0.8;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(240, 185, 11, 0.2);
+            border-color: var(--accent);
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .stat-info {
+            flex: 1;
+        }
+
+        .stat-number {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 5px;
+            line-height: 1;
+        }
+
+        .stat-trend {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .stat-card[data-trend="up"] .stat-trend {
+            color: var(--success);
+        }
+
+        .stat-card[data-trend="down"] .stat-trend {
+            color: var(--danger);
+        }
+
+        .stat-icon {
+            font-size: 2.5rem;
+            color: var(--accent);
+            opacity: 0.7;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover .stat-icon {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-progress {
+            height: 4px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        [data-theme="dark"] .stat-progress {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--accent-light));
+            border-radius: 2px;
+            transition: width 1s ease;
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 20px;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3));
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-20px); }
+            100% { transform: translateX(20px); }
+        }
+
+        /* Report Cards */
+        .report-card {
+            background: var(--glass);
+            backdrop-filter: blur(15px);
+            padding: 25px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            box-shadow: var(--card-shadow);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 25px;
+        }
+
+        .report-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent), var(--accent-light));
+            opacity: 0.8;
+        }
+
+        .report-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 
+                0 20px 50px rgba(240, 185, 11, 0.25),
+                0 0 30px rgba(240, 185, 11, 0.15);
+            border-color: var(--accent);
+        }
+
+        /* Enhanced Card Stack Animations */
+        .report-card {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .report-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(240, 185, 11, 0.15), transparent);
+            transition: left 0.6s ease;
+            z-index: 1;
+        }
+
+        .report-card:hover::after {
+            left: 100%;
+        }
+
+        /* Staggered Card Entrance Animation */
+        .stat-card:nth-child(1) { animation: slideInUp 0.6s ease 0.1s both; }
+        .stat-card:nth-child(2) { animation: slideInUp 0.6s ease 0.2s both; }
+        .stat-card:nth-child(3) { animation: slideInUp 0.6s ease 0.3s both; }
+        .stat-card:nth-child(4) { animation: slideInUp 0.6s ease 0.4s both; }
+
+        .report-card:nth-child(1) { animation: slideInUp 0.8s ease 0.2s both; }
+        .report-card:nth-child(2) { animation: slideInUp 0.8s ease 0.4s both; }
+        .report-card:nth-child(3) { animation: slideInUp 0.8s ease 0.6s both; }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .report-card h3 {
+            color: var(--accent);
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Chart Container */
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-bottom: 20px;
+        }
+
+        .chart-container canvas {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 10px;
+        }
+
+        /* Action Buttons */
+        .action-btn {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 16px;
+            color: var(--text);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            margin-right: 10px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .action-btn:hover {
+            background: var(--glass-glow);
+            color: var(--accent);
+            border-color: var(--accent);
+            text-decoration: none;
+            transform: translateY(-2px);
+        }
+
+        .action-btn.btn-generate {
+            background: var(--accent);
+            color: #000;
+            border-color: var(--accent);
+        }
+
+        .action-btn.btn-generate:hover {
+            background: var(--accent-light);
+            color: #000;
+            border-color: var(--accent-light);
+        }
+
+        /* Reports Grid */
+        .reports-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        /* Report Section Headers */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px 0;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .section-header h2 {
+            color: var(--text);
+            font-size: 1.8rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .section-header h2 i {
+            color: var(--accent);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .header-left h1 {
+                font-size: 2rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .reports-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .section-header {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+            }
+        }
+
+        /* Dark theme card enhancements */
+        [data-theme="dark"] .report-card,
+        [data-theme="dark"] .stat-card {
+            border: 1px solid rgba(64, 64, 64, 0.4);
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.8),
+                0 0 20px rgba(240, 185, 11, 0.1),
+                inset 0 1px 0 rgba(128, 128, 128, 0.1);
+        }
+
+        [data-theme="dark"] .report-card:hover,
+        [data-theme="dark"] .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 
+                0 12px 40px rgba(0, 0, 0, 0.9),
+                0 0 30px rgba(240, 185, 11, 0.2),
+                0 0 10px rgba(255, 215, 0, 0.15),
+                inset 0 1px 0 rgba(240, 185, 11, 0.2);
+            border-color: rgba(240, 185, 11, 0.3);
+        }
+
+        /* Export Controls */
+        .export-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .date-range {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .date-range input {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: var(--text);
+        }
+
+        .date-range input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(240, 185, 11, 0.1);
+        }
+  </style>
+</head>
+<body>
+<!-- Universal Sidebar Container -->
+<div id="sidebar-container"></div>
+
+<!-- MAIN -->
+<main class="main-content">
+  <!-- Header -->
+  <div class="header">
+    <div class="header-left">
+      <h1><i class="bi bi-bar-chart-line"></i> Admin Reports</h1>
+      <div class="datetime-info">
+        <div id="currentDate" class="current-date"></div>
+        <div id="currentTime" class="current-time"></div>
+      </div>
+    </div>
+    <div class="header-right">
+      <button class="btn btn-outline-warning btn-sm" onclick="toggleTheme()" title="Toggle light/dark theme">
+        <i id="themeIcon" class="bi bi-moon-fill"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Reports Stats Grid -->
+  <div class="stats-grid">
+    <div class="stat-card" data-trend="up">
+      <div class="stat-header">
+        <div class="stat-info">
+          <div class="stat-number" id="totalReports">156</div>
+          <div class="stat-trend">
+            <i class="bi bi-arrow-up"></i>
+            <span>+18.2%</span>
+          </div>
+        </div>
+        <i class="bi bi-file-earmark-bar-graph stat-icon"></i>
+      </div>
+      <div class="stat-label">Total Reports</div>
+      <div class="stat-progress">
+        <div class="progress-fill" style="width: 89%"></div>
+      </div>
+    </div>
+
+    <div class="stat-card" data-trend="up">
+      <div class="stat-header">
+        <div class="stat-info">
+          <div class="stat-number" id="automatedReports">89</div>
+          <div class="stat-trend">
+            <i class="bi bi-arrow-up"></i>
+            <span>+24.1%</span>
+          </div>
+        </div>
+        <i class="bi bi-gear-fill stat-icon"></i>
+      </div>
+      <div class="stat-label">Automated Reports</div>
+      <div class="stat-progress">
+        <div class="progress-fill" style="width: 76%"></div>
+      </div>
+    </div>
+
+    <div class="stat-card" data-trend="up">
+      <div class="stat-header">
+        <div class="stat-info">
+          <div class="stat-number" id="dataAccuracy">99.2%</div>
+          <div class="stat-trend">
+            <i class="bi bi-arrow-up"></i>
+            <span>+0.8%</span>
+          </div>
+        </div>
+        <i class="bi bi-check-circle-fill stat-icon"></i>
+      </div>
+      <div class="stat-label">Data Accuracy</div>
+      <div class="stat-progress">
+        <div class="progress-fill" style="width: 99%"></div>
+      </div>
+    </div>
+
+    <div class="stat-card" data-trend="up">
+      <div class="stat-header">
+        <div class="stat-info">
+          <div class="stat-number" id="lastUpdated">Real-time</div>
+          <div class="stat-trend">
+            <i class="bi bi-arrow-up"></i>
+            <span>Live</span>
+          </div>
+        </div>
+        <i class="bi bi-arrow-clockwise stat-icon"></i>
+      </div>
+      <div class="stat-label">Last Updated</div>
+      <div class="stat-progress">
+        <div class="progress-fill" style="width: 100%"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Financial Reports Section -->
+  <div class="section-header">
+    <h2><i class="bi bi-currency-dollar"></i> Financial Reports</h2>
+    <div class="export-controls">
+      <div class="date-range">
+        <input type="date" id="startDate" title="Start Date">
+        <input type="date" id="endDate" title="End Date">
+      </div>
+      <button class="action-btn btn-generate" onclick="generateFinancialReport()">
+        <i class="bi bi-play-fill"></i> Generate
+      </button>
+      <button class="action-btn" onclick="exportReport('financial')">
+        <i class="bi bi-download"></i> Export
+      </button>
+    </div>
+  </div>
+
+  <div class="reports-grid">
+    <div class="report-card">
+      <h3><i class="bi bi-graph-up"></i> Revenue Analytics</h3>
+      <div class="chart-container">
+        <canvas id="revenueChart"></canvas>
+      </div>
+      <div class="export-controls">
+        <button class="action-btn" onclick="viewReportDetails('revenue')">
+          <i class="bi bi-eye"></i> View Details
+        </button>
+        <button class="action-btn" onclick="scheduleReport('revenue')">
+          <i class="bi bi-calendar-plus"></i> Schedule
+        </button>
+      </div>
+    </div>
+
+    <div class="report-card">
+      <h3><i class="bi bi-pie-chart"></i> Profit Breakdown</h3>
+      <div class="chart-container">
+        <canvas id="profitChart"></canvas>
+      </div>
+      <div class="export-controls">
+        <button class="action-btn" onclick="viewReportDetails('profit')">
+          <i class="bi bi-eye"></i> View Details
+        </button>
+        <button class="action-btn" onclick="scheduleReport('profit')">
+          <i class="bi bi-calendar-plus"></i> Schedule
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Customer Reports Section -->
+  <div class="section-header">
+    <h2><i class="bi bi-people"></i> Customer Reports</h2>
+    <div class="export-controls">
+      <button class="action-btn btn-generate" onclick="generateCustomerReport()">
+        <i class="bi bi-play-fill"></i> Generate
+      </button>
+      <button class="action-btn" onclick="exportReport('customer')">
+        <i class="bi bi-download"></i> Export
+      </button>
+    </div>
+  </div>
+
+  <div class="reports-grid">
+    <div class="report-card">
+      <h3><i class="bi bi-person-plus"></i> Customer Acquisition</h3>
+      <div class="chart-container">
+        <canvas id="acquisitionChart"></canvas>
+      </div>
+      <div class="export-controls">
+        <button class="action-btn" onclick="viewReportDetails('acquisition')">
+          <i class="bi bi-eye"></i> View Details
+        </button>
+        <button class="action-btn" onclick="scheduleReport('acquisition')">
+          <i class="bi bi-calendar-plus"></i> Schedule
+        </button>
+      </div>
+    </div>
+
+    <div class="report-card">
+      <h3><i class="bi bi-heart-fill"></i> Customer Retention</h3>
+      <div class="chart-container">
+        <canvas id="retentionChart"></canvas>
+      </div>
+      <div class="export-controls">
+        <button class="action-btn" onclick="viewReportDetails('retention')">
+          <i class="bi bi-eye"></i> View Details
+        </button>
+        <button class="action-btn" onclick="scheduleReport('retention')">
+          <i class="bi bi-calendar-plus"></i> Schedule
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Operations Reports Section -->
+  <div class="section-header">
+    <h2><i class="bi bi-gear"></i> Operations Reports</h2>
+    <div class="export-controls">
+      <button class="action-btn btn-generate" onclick="generateOperationsReport()">
+        <i class="bi bi-play-fill"></i> Generate
+      </button>
+      <button class="action-btn" onclick="exportReport('operations')">
+        <i class="bi bi-download"></i> Export
+      </button>
+    </div>
+  </div>
+
+  <div class="reports-grid">
+    <div class="report-card">
+      <h3><i class="bi bi-speedometer2"></i> Performance Metrics</h3>
+      <div class="chart-container">
+        <canvas id="performanceChart"></canvas>
+      </div>
+      <div class="export-controls">
+        <button class="action-btn" onclick="viewReportDetails('performance')">
+          <i class="bi bi-eye"></i> View Details
+        </button>
+        <button class="action-btn" onclick="scheduleReport('performance')">
+          <i class="bi bi-calendar-plus"></i> Schedule
+        </button>
+      </div>
+    </div>
+
+    <div class="report-card">
+      <h3><i class="bi bi-box"></i> Order Analytics</h3>
+      <div class="chart-container">
+        <canvas id="orderChart"></canvas>
+      </div>
+      <div class="export-controls">
+        <button class="action-btn" onclick="viewReportDetails('orders')">
+          <i class="bi bi-eye"></i> View Details
+        </button>
+        <button class="action-btn" onclick="scheduleReport('orders')">
+          <i class="bi bi-calendar-plus"></i> Schedule
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- System Reports Section -->
+  <div class="section-header">
+    <h2><i class="bi bi-cpu"></i> System Reports</h2>
+    <div class="export-controls">
+      <button class="action-btn btn-generate" onclick="generateSystemReport()">
+        <i class="bi bi-play-fill"></i> Generate
+      </button>
+      <button class="action-btn" onclick="exportReport('system')">
+        <i class="bi bi-download"></i> Export
+      </button>
+    </div>
+  </div>
+
+  <div class="reports-grid">
+    <div class="report-card">
+      <h3><i class="bi bi-activity"></i> System Health</h3>
+      <div class="chart-container">
+        <canvas id="systemHealthChart"></canvas>
+      </div>
+      <div class="export-controls">
+        <button class="action-btn" onclick="viewReportDetails('system-health')">
+          <i class="bi bi-eye"></i> View Details
+        </button>
+        <button class="action-btn" onclick="scheduleReport('system-health')">
+          <i class="bi bi-calendar-plus"></i> Schedule
+        </button>
+      </div>
+    </div>
+
+    <div class="report-card">
+      <h3><i class="bi bi-shield-check"></i> Security Audit</h3>
+      <div class="chart-container">
+        <canvas id="securityChart"></canvas>
+      </div>
+      <div class="export-controls">
+        <button class="action-btn" onclick="viewReportDetails('security')">
+          <i class="bi bi-eye"></i> View Details
+        </button>
+        <button class="action-btn" onclick="scheduleReport('security')">
+          <i class="bi bi-calendar-plus"></i> Schedule
+        </button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="auth.js"></script>
+<script src="load-sidebar.js"></script>
+<script>
+console.log('🚀 BASIC TEST: JavaScript is running!');
+
+// Debug script to check sidebar state
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 BASIC TEST: DOMContentLoaded fired!');
+    console.log('🔍 [SIDEBAR DEBUG] Page loaded, checking sidebar...');
+    
+    const sidebarContainer = document.getElementById('sidebar-container');
+    console.log('🔍 [SIDEBAR DEBUG] Sidebar container exists:', !!sidebarContainer);
+    
+    if (sidebarContainer) {
+        setTimeout(() => {
+            console.log('🔍 [SIDEBAR DEBUG] Sidebar HTML length:', sidebarContainer.innerHTML.length);
+            console.log('🔍 [SIDEBAR DEBUG] Contains "My Inventory":', sidebarContainer.innerHTML.includes('My Inventory'));
+            console.log('🔍 [SIDEBAR DEBUG] Contains "customer-inventory":', sidebarContainer.innerHTML.includes('customer-inventory'));
+            console.log('🔍 [SIDEBAR DEBUG] Contains "Inventory" (admin):', sidebarContainer.innerHTML.includes('href="inventory.html"'));
+            
+            // List all sidebar links
+            const links = sidebarContainer.querySelectorAll('.sidebar-link');
+            console.log('🔍 [SIDEBAR DEBUG] Found', links.length, 'sidebar links:');
+            links.forEach((link, index) => {
+                console.log(`🔍 [SIDEBAR DEBUG] Link ${index + 1}:`, link.textContent.trim(), '→', link.href);
+            });
+        }, 1000);
+    }
+});
+</script>
+<script src="theme-manager.js"></script>
+<script src="notifications-manager.js"></script>
+<script src="activity-tracker.js"></script>
+<script src="api-simulation.js"></script>
+
+<script>
+// Authentication check
+function checkAuthWithRetry(maxRetries = 3, delay = 100) {
+  let retries = 0;
+  
+  function attemptAuth() {
+    if (!vbmsAuth.isAuthenticated()) {
+      window.location.href = 'login.html';
+      return;
+    }
+
+    const userRole = vbmsAuth.getCurrentRole();
+    
+    if ((!userRole || userRole === '') && retries < maxRetries) {
+      retries++;
+      setTimeout(attemptAuth, delay);
+      return;
+    }
+    
+    if (!userRole || userRole === '') {
+      console.log('Auth check failed - no role found after retries');
+      window.location.href = 'login.html';
+      return;
+    }
+    
+    if (!vbmsAuth.isAdmin()) {
+      alert('Access Denied: Admin access required');
+      if (userRole === 'customer' || userRole === 'client') {
+        window.location.href = 'customer-dashboard.html';
+      } else {
+        window.location.href = 'login.html';
+      }
+      return;
+    }
+    
+    initializeReports();
+  }
+  
+  attemptAuth();
+}
+
+function initializeReports() {
+  // Update date and time
+  function updateDateTime() {
+    const now = new Date();
+    const dateOptions = { 
+      weekday: 'long', 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    };
+    const timeOptions = { 
+      hour: '2-digit', 
+      minute: '2-digit',
+      second: '2-digit'
+    };
+    
+    const currentDate = document.getElementById('currentDate');
+    const currentTime = document.getElementById('currentTime');
+    
+    if (currentDate) {
+      currentDate.textContent = now.toLocaleDateString('en-US', dateOptions);
+    }
+    if (currentTime) {
+      currentTime.textContent = now.toLocaleTimeString('en-US', timeOptions);
+    }
+  }
+
+  updateDateTime();
+  setInterval(updateDateTime, 1000);
+
+  // Initialize date inputs with current date
+  const today = new Date();
+  const startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+  const endDate = today;
+  
+  document.getElementById('startDate').value = startDate.toISOString().split('T')[0];
+  document.getElementById('endDate').value = endDate.toISOString().split('T')[0];
+
+  // Initialize all charts
+  initializeCharts();
+  
+  // Track page access
+  if (window.activityTracker) {
+    activityTracker.trackPageView('Admin Reports');
+  }
+}
+
+function initializeCharts() {
+  // Chart configuration with theme-aware colors
+  const chartColors = {
+    primary: '#f0b90b',
+    secondary: '#ffd700',
+    success: '#22c55e',
+    danger: '#ef4444',
+    info: '#3b82f6',
+    purple: '#a855f7',
+    cyan: '#06b6d4'
+  };
+
+  // Revenue Chart
+  new Chart(document.getElementById('revenueChart'), {
+    type: 'line',
+    data: {
+      labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+      datasets: [{
+        label: 'Revenue ($)',
+        data: [45000, 52000, 48000, 61000, 67000, 73000],
+        borderColor: chartColors.primary,
+        backgroundColor: chartColors.primary + '20',
+        borderWidth: 3,
+        fill: true,
+        tension: 0.4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: true,
+          position: 'bottom'
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            callback: function(value) {
+              return '$' + value.toLocaleString();
+            }
+          }
+        }
+      }
+    }
+  });
+
+  // Profit Chart
+  new Chart(document.getElementById('profitChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Gross Profit', 'Operating Costs', 'Taxes', 'Net Profit'],
+      datasets: [{
+        data: [45, 25, 8, 22],
+        backgroundColor: [
+          chartColors.success,
+          chartColors.danger,
+          chartColors.info,
+          chartColors.primary
+        ],
+        borderWidth: 0
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom'
+        }
+      }
+    }
+  });
+
+  // Acquisition Chart
+  new Chart(document.getElementById('acquisitionChart'), {
+    type: 'bar',
+    data: {
+      labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+      datasets: [{
+        label: 'New Customers',
+        data: [28, 32, 25, 45, 38, 52],
+        backgroundColor: chartColors.info,
+        borderRadius: 8
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: true,
+          position: 'bottom'
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  });
+
+  // Retention Chart
+  new Chart(document.getElementById('retentionChart'), {
+    type: 'line',
+    data: {
+      labels: ['Month 1', 'Month 2', 'Month 3', 'Month 4', 'Month 5', 'Month 6'],
+      datasets: [{
+        label: 'Retention Rate (%)',
+        data: [100, 85, 78, 72, 68, 65],
+        borderColor: chartColors.success,
+        backgroundColor: chartColors.success + '20',
+        borderWidth: 3,
+        fill: true,
+        tension: 0.4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: true,
+          position: 'bottom'
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 100,
+          ticks: {
+            callback: function(value) {
+              return value + '%';
+            }
+          }
+        }
+      }
+    }
+  });
+
+  // Performance Chart
+  new Chart(document.getElementById('performanceChart'), {
+    type: 'radar',
+    data: {
+      labels: ['Efficiency', 'Quality', 'Speed', 'Customer Satisfaction', 'Cost Control'],
+      datasets: [{
+        label: 'Current Performance',
+        data: [85, 92, 78, 88, 82],
+        borderColor: chartColors.purple,
+        backgroundColor: chartColors.purple + '20',
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: true,
+          position: 'bottom'
+        }
+      },
+      scales: {
+        r: {
+          beginAtZero: true,
+          max: 100
+        }
+      }
+    }
+  });
+
+  // Order Chart
+  new Chart(document.getElementById('orderChart'), {
+    type: 'bar',
+    data: {
+      labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+      datasets: [{
+        label: 'Orders',
+        data: [145, 189, 167, 201, 224, 298, 205],
+        backgroundColor: chartColors.cyan,
+        borderRadius: 8
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: true,
+          position: 'bottom'
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  });
+
+  // System Health Chart
+  new Chart(document.getElementById('systemHealthChart'), {
+    type: 'line',
+    data: {
+      labels: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00'],
+      datasets: [
+        {
+          label: 'CPU Usage (%)',
+          data: [45, 52, 68, 82, 75, 58],
+          borderColor: chartColors.danger,
+          backgroundColor: chartColors.danger + '20',
+          borderWidth: 2
+        },
+        {
+          label: 'Memory Usage (%)',
+          data: [38, 42, 55, 61, 58, 45],
+          borderColor: chartColors.info,
+          backgroundColor: chartColors.info + '20',
+          borderWidth: 2
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: true,
+          position: 'bottom'
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 100
+        }
+      }
+    }
+  });
+
+  // Security Chart
+  new Chart(document.getElementById('securityChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Secure', 'Low Risk', 'Medium Risk', 'High Risk'],
+      datasets: [{
+        data: [78, 15, 5, 2],
+        backgroundColor: [
+          chartColors.success,
+          chartColors.primary,
+          chartColors.info,
+          chartColors.danger
+        ],
+        borderWidth: 0
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom'
+        }
+      }
+    }
+  });
+}
+
+// Report generation functions
+function generateFinancialReport() {
+  if (window.activityTracker) {
+    activityTracker.trackCustomActivity('financial_report_generated', 'Financial report generation initiated', {
+      priority: 'high',
+      module: 'Reports'
+    });
+  }
+  
+  // Show loading state
+  const btn = event.target;
+  const originalText = btn.innerHTML;
+  btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Generating...';
+  btn.disabled = true;
+  
+  setTimeout(() => {
+    btn.innerHTML = originalText;
+    btn.disabled = false;
+    alert('Financial report generated successfully! Download ready.');
+  }, 2000);
+}
+
+function generateCustomerReport() {
+  if (window.activityTracker) {
+    activityTracker.trackCustomActivity('customer_report_generated', 'Customer report generation initiated', {
+      priority: 'medium',
+      module: 'Reports'
+    });
+  }
+  
+  // Show loading state
+  const btn = event.target;
+  const originalText = btn.innerHTML;
+  btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Generating...';
+  btn.disabled = true;
+  
+  setTimeout(() => {
+    btn.innerHTML = originalText;
+    btn.disabled = false;
+    alert('Customer report generated successfully! Download ready.');
+  }, 2000);
+}
+
+function generateOperationsReport() {
+  if (window.activityTracker) {
+    activityTracker.trackCustomActivity('operations_report_generated', 'Operations report generation initiated', {
+      priority: 'medium',
+      module: 'Reports'
+    });
+  }
+  alert('Generating operations report...');
+}
+
+function generateSystemReport() {
+  if (window.activityTracker) {
+    activityTracker.trackCustomActivity('system_report_generated', 'System report generation initiated', {
+      priority: 'high',
+      module: 'Reports'
+    });
+  }
+  alert('Generating system report...');
+}
+
+function exportReport(type) {
+  if (window.activityTracker) {
+    activityTracker.trackCustomActivity('report_exported', `${type} report exported`, {
+      priority: 'low',
+      module: 'Reports',
+      reportType: type
+    });
+  }
+  alert(`Exporting ${type} report...`);
+}
+
+function viewReportDetails(reportType) {
+  if (window.activityTracker) {
+    activityTracker.trackCustomActivity('report_details_viewed', `${reportType} report details viewed`, {
+      priority: 'low',
+      module: 'Reports',
+      reportType: reportType
+    });
+  }
+  alert(`Viewing ${reportType} report details...`);
+}
+
+function scheduleReport(reportType) {
+  if (window.activityTracker) {
+    activityTracker.trackCustomActivity('report_scheduled', `${reportType} report scheduled`, {
+      priority: 'medium',
+      module: 'Reports',
+      reportType: reportType
+    });
+  }
+  alert(`Scheduling ${reportType} report...`);
+}
+
+// Logout function
+function logout() {
+  vbmsAuth.logout();
+}
+
+// Start authentication check
+checkAuthWithRetry();
+</script>
+
+</body>
+</html>

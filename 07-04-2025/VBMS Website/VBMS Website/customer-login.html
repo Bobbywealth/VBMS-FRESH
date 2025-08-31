@@ -1,0 +1,578 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Customer Login - VBMS</title>
+  <!-- Minimal inline critical styles -->
+  <style>
+    /* Inline critical CSS for instant loading */
+    :root {
+      --primary: #f0b90b;
+      --primary-dark: #d4a109;
+      --primary-light: #ffd700;
+      --secondary: #2c3e50;
+      --success: #27ae60;
+      --danger: #e74c3c;
+      --dark: #1a1a2e;
+      --darker: #16213e;
+      --glass: rgba(255,255,255,0.1);
+      --glass-border: rgba(255,255,255,0.2);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #1a1a2e;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      position: relative;
+    }
+
+
+    .login-container {
+      perspective: 1000px;
+      padding: 20px;
+      z-index: 1;
+    }
+
+    .login-card {
+      background: rgba(26,26,46,0.95);
+      border: 1px solid rgba(255,255,255,0.1);
+      padding: 40px;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      max-width: 420px;
+      width: 100%;
+      text-align: center;
+      margin: 20px;
+    }
+
+
+
+    .vbms-logo {
+      max-width: 100px;
+      margin-bottom: 25px;
+      filter: drop-shadow(0 0 20px rgba(240,185,11,0.4));
+    }
+
+    .customer-badge {
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      color: #000;
+      padding: 8px 20px;
+      border-radius: 25px;
+      font-size: 0.85em;
+      font-weight: 700;
+      display: inline-block;
+      margin-bottom: 25px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      box-shadow: 0 4px 15px rgba(240,185,11,0.3);
+    }
+
+    .login-card h2 {
+      color: #fff;
+      font-weight: 800;
+      margin-bottom: 10px;
+      font-size: 2.4rem;
+      background: linear-gradient(135deg, #fff, #f0f0f0);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      color: #bdc3c7;
+      font-size: 1.1em;
+      margin-bottom: 35px;
+      font-weight: 400;
+      line-height: 1.5;
+    }
+
+    .form-group {
+      position: relative;
+      margin-bottom: 25px;
+      text-align: left;
+    }
+
+    .form-label {
+      color: #fff !important;
+      font-weight: 600;
+      font-size: 1.05em;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .form-control {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      color: #333;
+      font-size: 16px;
+      padding: 12px 16px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .form-control:focus {
+      border-color: #f0b90b;
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(240,185,11,0.2);
+    }
+
+    .password-toggle {
+      position: absolute;
+      right: 15px;
+      top: 50px;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: #666;
+      cursor: pointer;
+      font-size: 1.2em;
+      transition: color 0.3s ease;
+    }
+
+    .password-toggle:hover {
+      color: var(--primary);
+    }
+
+    .form-options {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+      font-size: 0.95em;
+    }
+
+    .form-check {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .form-check-input {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--primary);
+    }
+
+    .form-check-label {
+      color: #ecf0f1;
+      font-weight: 500;
+    }
+
+    .forgot-link {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .forgot-link:hover {
+      color: var(--primary-light);
+      text-decoration: underline;
+    }
+
+    .btn-login {
+      background: #f0b90b;
+      color: #000;
+      font-weight: 700;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      padding: 12px 24px;
+      width: 100%;
+      margin-bottom: 20px;
+      cursor: pointer;
+    }
+
+    .btn-login:hover {
+      background: #ffd700;
+    }
+
+    .btn-login:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .spinner-border-sm {
+      width: 18px;
+      height: 18px;
+    }
+
+    .error-message {
+      background: rgba(231,76,60,0.1);
+      border: 1px solid rgba(231,76,60,0.3);
+      color: #ff6b6b;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-weight: 500;
+      display: none;
+      animation: shake 0.5s ease-in-out;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+
+    .footer-links {
+      color: #7f8c8d;
+      font-size: 0.9em;
+      margin-bottom: 20px;
+    }
+
+    .footer-links a {
+      color: #3498db;
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.3s ease;
+    }
+
+    .footer-links a:hover {
+      color: #5dade2;
+    }
+
+    .signup-link {
+      margin-bottom: 25px;
+    }
+
+    .signup-link a {
+      color: #3498db;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 1.1em;
+      transition: all 0.3s ease;
+    }
+
+    .signup-link a:hover {
+      color: #5dade2;
+      text-decoration: underline;
+    }
+
+    .role-switch {
+      background: rgba(240,185,11,0.1);
+      border: 1px solid rgba(240,185,11,0.3);
+      border-radius: 12px;
+      padding: 15px;
+      transition: all 0.3s ease;
+    }
+
+    .role-switch:hover {
+      background: rgba(240,185,11,0.15);
+      border-color: rgba(240,185,11,0.4);
+    }
+
+    .role-switch a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .role-switch a:hover {
+      color: var(--primary-light);
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 480px) {
+      .login-card {
+        padding: 30px 25px;
+        margin: 10px;
+      }
+      
+      .login-card h2 {
+        font-size: 2rem;
+      }
+      
+      .vbms-logo {
+        max-width: 80px;
+      }
+      
+      .form-control {
+        padding: 12px 15px;
+        font-size: 1rem;
+      }
+    }
+
+    /* Loading state */
+    .loading {
+      pointer-events: none;
+    }
+
+    .loading .login-card {
+      opacity: 0.8;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="login-card" id="loginCard">
+      <img src="https://iili.io/FRaYff9.md.png" alt="VBMS Logo" class="vbms-logo" loading="eager" width="100" height="auto" />
+      <div class="customer-badge">
+        <i class="bi bi-person-circle"></i> Customer Portal
+      </div>
+      <h2>Welcome Back!</h2>
+      <p class="subtitle">Access your personalized dashboard and manage your business</p>
+      
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="email" class="form-label">
+            <i class="bi bi-envelope"></i> Email Address
+          </label>
+          <input type="email" id="email" class="form-control" placeholder="Enter your email" required />
+        </div>
+        
+        <div class="form-group">
+          <label for="password" class="form-label">
+            <i class="bi bi-lock"></i> Password
+          </label>
+          <input type="password" id="password" class="form-control" placeholder="Enter your password" required />
+          <button type="button" class="password-toggle" id="passwordToggle">
+            <i class="bi bi-eye"></i>
+          </button>
+        </div>
+        
+        <div class="form-options">
+          <div class="form-check">
+            <input type="checkbox" id="rememberMe" class="form-check-input" />
+            <label for="rememberMe" class="form-check-label">Remember me</label>
+          </div>
+          <a href="forgot-password.html" class="forgot-link">Forgot password?</a>
+        </div>
+        
+        <div class="error-message" id="loginError"></div>
+        
+        <button type="submit" class="btn-login" id="loginBtn">
+          <span id="loginText">Sign In</span>
+          <span id="loginSpinner" style="display:none">⟳</span>
+        </button>
+      </form>
+      
+      <div class="footer-links">
+        By signing in, you agree to our <a href="#">Terms of Service</a> & <a href="#">Privacy Policy</a>
+      </div>
+      
+      <div class="signup-link">
+        <a href="register.html">
+          <i class="bi bi-person-plus"></i> Don't have an account? Sign up
+        </a>
+      </div>
+      
+      <div class="role-switch">
+        <a href="login.html">
+          <i class="bi bi-arrow-left"></i> Switch to Admin/Staff Login
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = window.location.hostname === 'localhost'
+      ? 'http://localhost:5050'
+      : 'https://vbms-backend.onrender.com';
+
+    // Defer non-critical scripts
+    setTimeout(() => {
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap';
+      document.head.appendChild(link);
+    }, 100);
+
+    // Password toggle functionality
+    document.getElementById("passwordToggle").addEventListener("click", function () {
+      const passwordInput = document.getElementById("password");
+      const icon = this.querySelector('i');
+      
+      if (passwordInput.type === "password") {
+        passwordInput.type = "text";
+        icon.classList.replace('bi-eye', 'bi-eye-slash');
+      } else {
+        passwordInput.type = "password";
+        icon.classList.replace('bi-eye-slash', 'bi-eye');
+      }
+    });
+
+    // Enhanced form validation
+    function validateForm(email, password) {
+      const errors = [];
+      
+      if (!email) {
+        errors.push("Email is required");
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        errors.push("Please enter a valid email address");
+      }
+      
+      if (!password) {
+        errors.push("Password is required");
+      } else if (password.length < 6) {
+        errors.push("Password must be at least 6 characters long");
+      }
+      
+      return errors;
+    }
+
+    // Show error message with animation
+    function showError(message) {
+      const errorDiv = document.getElementById("loginError");
+      errorDiv.textContent = message;
+      errorDiv.style.display = "block";
+      setTimeout(() => {
+        errorDiv.classList.add('show');
+      }, 10);
+    }
+
+    // Hide error message
+    function hideError() {
+      const errorDiv = document.getElementById("loginError");
+      errorDiv.style.display = "none";
+      errorDiv.classList.remove('show');
+    }
+
+    // Set loading state
+    function setLoading(loading) {
+      const spinner = document.getElementById("loginSpinner");
+      const text = document.getElementById("loginText");
+      const btn = document.getElementById("loginBtn");
+      const card = document.getElementById("loginCard");
+      
+      if (loading) {
+        spinner.style.display = "inline-block";
+        text.textContent = "Signing In...";
+        btn.disabled = true;
+        document.body.classList.add('loading');
+      } else {
+        spinner.style.display = "none";
+        text.textContent = "Sign In";
+        btn.disabled = false;
+        document.body.classList.remove('loading');
+      }
+    }
+
+    // Login form submission
+    document.getElementById("loginForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+      
+      const email = document.getElementById("email").value.trim().toLowerCase();
+      const password = document.getElementById("password").value;
+      const remember = document.getElementById("rememberMe").checked;
+      
+      hideError();
+      
+      // Client-side validation
+      const validationErrors = validateForm(email, password);
+      if (validationErrors.length > 0) {
+        showError(validationErrors.join(". "));
+        return;
+      }
+      
+      setLoading(true);
+
+      try {
+        const response = await fetch(`${API_BASE}/api/auth/login`, {
+          method: "POST",
+          headers: { 
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+          },
+          body: JSON.stringify({ email, password })
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+          throw new Error(data.message || "Login failed");
+        }
+        
+        // Store authentication data
+        const storage = remember ? localStorage : sessionStorage;
+        localStorage.setItem("vbmsToken", data.token);
+        localStorage.setItem("vbmsUser", JSON.stringify(data.user));
+        localStorage.setItem("vbmsRole", data.user.role);
+        localStorage.setItem("vbmsLoggedIn", "true");
+        localStorage.setItem("vbmsLoginTime", new Date().toISOString());
+        
+        if (remember) {
+          localStorage.setItem("vbmsRememberMe", "true");
+        }
+        
+        console.log('Login API response:', data);
+        
+        // Role-based redirect for customer login
+        if (data.user && data.user.role) {
+          const role = data.user.role.toLowerCase();
+          console.log("User role:", role);
+
+          if (role === "client" || role === "customer") {
+            // Success animation
+            document.getElementById("loginCard").classList.add('success');
+            
+            setTimeout(() => {
+              console.log("Redirecting to client dashboard");
+              window.location.href = "customer-dashboard.html";
+            }, 600);
+          } else {
+            throw new Error("Please use the admin/staff login page for your account type.");
+          }
+        } else {
+          throw new Error("Invalid user data received.");
+        }
+        
+      } catch (err) {
+        console.error('Login error:', err);
+        showError(err.message || "Network error. Please check your connection and try again.");
+      } finally {
+        setLoading(false);
+      }
+    });
+
+    // Auto-focus first input
+    document.addEventListener('DOMContentLoaded', function() {
+      document.getElementById('email').focus();
+      
+      // Check for remembered credentials
+      const rememberedEmail = localStorage.getItem('vbmsRememberedEmail');
+      if (rememberedEmail) {
+        document.getElementById('email').value = rememberedEmail;
+        document.getElementById('rememberMe').checked = true;
+        document.getElementById('password').focus();
+      }
+    });
+
+    // Remember email on form change
+    document.getElementById('email').addEventListener('change', function() {
+      if (document.getElementById('rememberMe').checked) {
+        localStorage.setItem('vbmsRememberedEmail', this.value);
+      }
+    });
+
+    document.getElementById('rememberMe').addEventListener('change', function() {
+      const email = document.getElementById('email').value;
+      if (this.checked && email) {
+        localStorage.setItem('vbmsRememberedEmail', email);
+      } else {
+        localStorage.removeItem('vbmsRememberedEmail');
+      }
+    });
+  </script>
+</body>
+</html>

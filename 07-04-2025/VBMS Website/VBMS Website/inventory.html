@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>VBMS Inventory Pro</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --accent: #f0b90b;
+      --sidebar-bg: #111214;
+      --table-bg: #181818;
+      --table-head: #222;
+      --text-light: #fff;
+      --card-bg: #181818;
+      --border: #272727;
+      --danger: #ff4949;
+      --success: #19d619;
+      --lowstock: #faae24;
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(120deg, #1b1b1b 40%, #222 100%);
+      color: var(--text-light);
+      min-height: 100vh;
+      margin: 0;
+      transition: background .3s;
+    }
+    .light-mode {
+      background: linear-gradient(120deg, #fcfcfc 40%, #f5f3e6 100%);
+      color: #222;
+    }
+    .vbms-sidebar {
+      background: var(--sidebar-bg);
+      color: #bbb;
+      min-height: 100vh;
+      width: 240px;
+      padding: 28px 16px 18px 16px;
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      border-right: 1px solid var(--border);
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      transition: background .3s;
+    }
+    .light-mode .vbms-sidebar {
+      background: #fff;
+      color: #333;
+      border-color: #eee;
+    }
+    .sidebar-logo img { width: 60px; margin-bottom: 8px; }
+    .sidebar-logo h4 { color: var(--accent); font-weight: bold; letter-spacing: 1px; margin-bottom: 32px; }
+    .vbms-nav {
+      flex: 1;
+      margin-bottom: 16px;
+    }
+    .vbms-nav .sidebar-link {
+      display: flex;
+      align-items: center;
+      padding: 10px 14px;
+      color: inherit;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      font-size: 1.05em;
+      transition: .18s;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .sidebar-link.active,
+    .sidebar-link:hover {
+      background: var(--accent);
+      color: #181818 !important;
+    }
+    .sidebar-link .bi { margin-right: 10px; }
+    .sidebar-logout {
+      margin-top: 20px;
+    }
+    .theme-toggle-btn {
+      position: absolute;
+      bottom: 30px; left: 50%;
+      transform: translateX(-50%);
+      background: var(--card-bg);
+      border: none; color: var(--accent);
+      border-radius: 50%; width: 38px; height: 38px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2em;
+      box-shadow: 0 2px 6px #0002;
+      transition: background .25s;
+    }
+    .theme-toggle-btn:hover { background: var(--accent); color: #181818; }
+    .light-mode .theme-toggle-btn { background: #f7f7f7; color: #b89909; }
+    /* Main Content */
+    .main-content {
+      margin-left: 240px;
+      padding: 36px 24px 24px 24px;
+      min-height: 100vh;
+      background: none;
+      transition: background .3s;
+    }
+    .motivational-banner {
+      background: linear-gradient(90deg, #f0b90b 0%, #ffe566 100%);
+      color: #191919;
+      padding: 14px 32px;
+      border-radius: 13px;
+      font-weight: 700;
+      font-size: 1.19em;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 18px #0002;
+      letter-spacing: .2px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .light-mode .motivational-banner {
+      background: linear-gradient(90deg, #ffe188 0%, #fffbd2 100%);
+      color: #232323;
+    }
+    .analytics-cards {
+      display: flex;
+      gap: 24px;
+      margin-bottom: 22px;
+      flex-wrap: wrap;
+    }
+    .analytics-card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 22px 30px;
+      flex: 1 1 180px;
+      min-width: 180px;
+      display: flex; flex-direction: column; align-items: flex-start;
+      border: 1px solid var(--border);
+      box-shadow: 0 2px 6px #0002;
+      font-size: 1.02em;
+    }
+    .analytics-title { font-weight: 700; font-size: 1.13em; color: var(--accent); margin-bottom: 6px; }
+    .analytics-value { font-size: 1.7em; font-weight: 800; letter-spacing: 1px; }
+    .analytics-desc { font-size: .97em; color: #a0a0a0; }
+    .analytics-card.outofstock .analytics-value { color: var(--danger); }
+    .analytics-card.lowstock .analytics-value { color: var(--lowstock); }
+    /* Controls/Filters */
+    .inventory-controls {
+      display: flex; align-items: center; flex-wrap: wrap; justify-content: space-between; margin-bottom: 18px;
+      gap: 10px;
+    }
+    .inventory-controls .form-control, .inventory-controls .form-select {
+      background: #141414; color: #fff; border: 1px solid #393939; max-width: 210px;
+    }
+    .light-mode .inventory-controls .form-control, .light-mode .inventory-controls .form-select {
+      background: #fff; color: #222; border-color: #ddd;
+    }
+    .btn-additem { background: var(--accent); color: #181818; border: none; }
+    .btn-additem:hover { background: #fff100; color: #181818; }
+    .btn-export { border: 1px solid var(--accent); color: var(--accent); background: none; }
+    .btn-export:hover { background: var(--accent); color: #181818; }
+    .btn-import { border: 1px solid #12e48e; color: #12e48e; background: none; }
+    .btn-import:hover { background: #1affbb; color: #181818; }
+    /* Table / Actions */
+    .table-inventory {
+      background: var(--table-bg);
+      color: var(--text-light);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px #0003;
+      min-width: 780px;
+    }
+    .table-inventory th {
+      background: var(--table-head);
+      color: var(--accent);
+      border: none;
+      font-weight: 700;
+      font-size: 1.04em;
+    }
+    .table-inventory td, .table-inventory th {
+      border: none;
+      vertical-align: middle;
+      padding: 12px 16px;
+    }
+    .table-inventory tr {
+      transition: background .18s;
+    }
+    .table-inventory tbody tr:hover {
+      background: #222;
+    }
+    .item-image-thumb {
+      width: 38px; height: 38px; border-radius: 8px; object-fit: cover; margin-right: 8px; background: #222;
+      border: 1.5px solid #313131;
+      box-shadow: 0 1px 4px #0003;
+    }
+    .category-badge {
+      background: #262525; color: #f0b90b; border-radius: 8px; padding: 2px 8px; font-size: 0.99em; font-weight: 600;
+      margin-left: 2px;
+    }
+    .light-mode .category-badge { background: #fff8c8; color: #b89909; }
+    .action-btns .btn { margin-right: 4px; }
+    .toast-vbms {
+      position: fixed; top: 30px; right: 30px; z-index: 9999;
+      background: #23231d;
+      color: #fff;
+      padding: 14px 28px;
+      border-radius: 10px;
+      font-size: 1.02em;
+      display: flex; align-items: center;
+      box-shadow: 0 2px 10px #0005;
+      gap: 8px;
+      opacity: 0.97;
+      pointer-events: none;
+      animation: fadein .22s;
+    }
+    @keyframes fadein { from {opacity:0;transform:translateY(-18px);} to {opacity:.97;transform:none;} }
+    .modal-content.bg-dark { background: #222 !important; color: #fff; }
+    .modal-content.bg-light { background: #fafaf7 !important; color: #222; }
+    /* Logs Drawer */
+    .logs-drawer {
+      position: fixed; right: -400px; top: 0; width: 400px; max-width: 100vw; height: 100vh;
+      background: #19191a; color: #fff; box-shadow: -2px 0 18px #0006; z-index: 2222;
+      padding: 28px 18px 10px 18px;
+      transition: right .25s cubic-bezier(.87,0,.13,1);
+      overflow-y: auto;
+      border-left: 2px solid #f0b90b22;
+      font-size: 1.08em;
+    }
+    .logs-drawer.show { right: 0; }
+    .logs-title { font-weight: 800; color: var(--accent); font-size: 1.22em; margin-bottom: 18px; }
+    .logs-list { list-style: none; padding: 0; margin: 0; }
+    .logs-list li { margin-bottom: 14px; border-bottom: 1px solid #282828; padding-bottom: 10px; }
+    .logs-list .log-date { font-size: 0.93em; color: #a9a9a9; }
+    .logs-list .log-reason { color: var(--accent); font-weight: 500; margin-left: 8px; }
+    .logs-list .log-user { color: #33db8b; font-weight: 600; margin-right: 5px; }
+    /* Attachment thumbnail in table */
+    .attach-thumb {
+      width: 30px; height: 30px; object-fit: cover; border-radius: 6px; margin-left: 2px; margin-right: 1px;
+      border: 1px solid #333;
+      cursor: pointer;
+      transition: transform .12s;
+    }
+    .attach-thumb:hover { transform: scale(1.13); box-shadow: 0 2px 7px #0003; }
+    /* Portal link */
+    .portal-link-btn {
+      border: none; background: none; color: #f0b90b; font-weight: 700;
+      text-decoration: underline; cursor: pointer; font-size: 1.02em;
+      margin-left: 2px;
+    }
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 10px; background: #181818; }
+    ::-webkit-scrollbar-thumb { background: #292929; border-radius: 5px; }
+    .light-mode ::-webkit-scrollbar-thumb { background: #e0e0e0; }
+    @media (max-width: 1000px) {
+      .analytics-cards { flex-direction: column; gap: 16px;}
+      .main-content { padding: 24px 6px 20px 6px; }
+      .table-inventory { min-width: 520px; }
+      .logs-drawer { width: 98vw; }
+    }
+    @media (max-width: 700px) {
+      .vbms-sidebar { position: static; width: 100%; height: auto; min-height: 0; flex-direction: row; }
+      .main-content { margin-left: 0; padding: 12px 4px; }
+      .analytics-card { padding: 14px 8px; }
+      .table-inventory { font-size: .97em; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <aside class="vbms-sidebar">
+    <div class="sidebar-logo text-center mb-3">
+      <img src="https://iili.io/FRaYff9.png" alt="VBMS Logo">
+      <h4>VBMS</h4>
+    </div>
+    <nav class="vbms-nav">
+      <a href="dashboard.html" class="sidebar-link"><i class="bi bi-speedometer2"></i> Dashboard</a>
+      <a href="orders.html" class="sidebar-link"><i class="bi bi-box-seam"></i> Orders</a>
+      <a href="monitoring.html" class="sidebar-link"><i class="bi bi-camera-video"></i> Monitoring</a>
+      <a href="reports.html" class="sidebar-link"><i class="bi bi-bar-chart-line"></i> Reports</a>
+      <a href="team.html" class="sidebar-link"><i class="bi bi-people"></i> Team</a>
+      <a href="clients.html" class="sidebar-link"><i class="bi bi-person-badge"></i> Clients</a>
+      <a href="leads.html" class="sidebar-link"><i class="bi bi-person-lines-fill"></i> Leads</a>
+      <a href="settings.html" class="sidebar-link"><i class="bi bi-gear"></i> Settings</a>
+      <a href="#" class="sidebar-link active"><i class="bi bi-archive"></i> Inventory</a>
+    </nav>
+    <button class="btn btn-warning sidebar-logout fw-bold w-100 mt-auto" onclick="logout()"><i class="bi bi-box-arrow-left"></i> Logout</button>
+    <button class="theme-toggle-btn" id="themeToggleBtn" title="Toggle light/dark">
+      <i class="bi bi-moon-stars"></i>
+    </button>
+  </aside>
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Motivational Banner -->
+    <div class="motivational-banner"><i class="bi bi-stars"></i> Crush it today, Team!</div>
+    <h2 class="mb-4" style="color:var(--accent); font-weight: 800;"><i class="bi bi-archive"></i> Inventory Management</h2>
+    <!-- Analytics Cards -->
+    <div class="analytics-cards mb-3">
+      <div class="analytics-card">
+        <div class="analytics-title">Total Items</div>
+        <div class="analytics-value" id="totalItems">0</div>
+        <div class="analytics-desc">All inventory</div>
+      </div>
+      <div class="analytics-card lowstock">
+        <div class="analytics-title">Low Stock (&lt; 5)</div>
+        <div class="analytics-value" id="lowStock">0</div>
+        <div class="analytics-desc">Needs restock</div>
+      </div>
+      <div class="analytics-card outofstock">
+        <div class="analytics-title">Out of Stock</div>
+        <div class="analytics-value" id="outStock">0</div>
+        <div class="analytics-desc">Zero left</div>
+      </div>
+      <div class="analytics-card">
+        <div class="analytics-title">Clients</div>
+        <div class="analytics-value" id="clientCount">0</div>
+        <div class="analytics-desc">With inventory</div>
+      </div>
+    </div>
+    <!-- Controls/Filters -->
+    <div class="inventory-controls mb-3 flex-wrap">
+      <input type="search" class="form-control" id="inventorySearch" placeholder="🔍 Search item/client..." style="max-width:180px;">
+      <select id="categoryFilter" class="form-select" style="max-width:135px;">
+        <option value="">All Categories</option>
+        <option value="Food">Food</option>
+        <option value="Supplies">Supplies</option>
+        <option value="Equipment">Equipment</option>
+        <option value="Cleaning">Cleaning</option>
+      </select>
+      <select id="stockFilter" class="form-select" style="max-width:135px;">
+        <option value="">All Stock</option>
+        <option value="low">Low (&lt;5)</option>
+        <option value="out">Out of stock</option>
+        <option value="ok">In stock</option>
+      </select>
+      <select id="clientFilter" class="form-select" style="max-width:135px;">
+        <option value="">All Clients</option>
+      </select>
+      <div class="d-flex align-items-center gap-2 ms-auto flex-wrap">
+        <button class="btn btn-import" data-bs-toggle="modal" data-bs-target="#importModal"><i class="bi bi-upload"></i> Import</button>
+        <button class="btn btn-export" onclick="exportCSV()"><i class="bi bi-download"></i> Export</button>
+        <button class="btn btn-additem fw-bold" data-bs-toggle="modal" data-bs-target="#addItemModal"><i class="bi bi-plus-circle"></i> Add Item</button>
+      </div>
+    </div>
+    <!-- Inventory Table -->
+    <div class="table-responsive mb-2">
+      <table class="table table-inventory align-middle mb-0" id="inventoryTable">
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th>Image</th>
+            <th>Qty</th>
+            <th>Category</th>
+            <th>Client</th>
+            <th>Attachments</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="inventoryBody">
+        </tbody>
+      </table>
+    </div>
+    <div class="mt-2 mb-2 text-end">
+      <small class="text-muted">Tip: Click <i class="bi bi-eye"></i> to see item logs/history.</small>
+    </div>
+    <!-- Modals / Drawers / Toasts (part 2 below) -->
+    <!-- === MODALS & DRAWERS & HIDDEN FIELDS === -->
+    <!-- Add/Edit Item Modal -->
+    <div class="modal fade" id="addItemModal" tabindex="-1" aria-labelledby="addItemLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <form class="modal-content bg-dark text-light" id="itemForm" autocomplete="off" onsubmit="return saveItem(event)">
+          <div class="modal-header">
+            <h5 class="modal-title" id="addItemLabel"><span id="modalItemMode">Add</span> Inventory Item</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <input type="hidden" id="itemEditIndex" value="-1">
+            <div class="mb-2">
+              <label>Item Name</label>
+              <input type="text" class="form-control" id="itemName" maxlength="80" required>
+            </div>
+            <div class="mb-2">
+              <label>Quantity</label>
+              <input type="number" class="form-control" id="itemQty" min="0" max="10000" required>
+            </div>
+            <div class="mb-2">
+              <label>Category</label>
+              <select class="form-select" id="itemCategory" required>
+                <option value="">Select category</option>
+                <option value="Food">Food</option>
+                <option value="Supplies">Supplies</option>
+                <option value="Equipment">Equipment</option>
+                <option value="Cleaning">Cleaning</option>
+              </select>
+            </div>
+            <div class="mb-2">
+              <label>Client</label>
+              <select class="form-select" id="itemClient" required>
+                <option value="">Select client</option>
+              </select>
+            </div>
+            <div class="mb-2">
+              <label>Image</label>
+              <input type="file" accept="image/*" class="form-control" id="itemImage">
+              <img id="itemImagePreview" src="" alt="" style="display:none;width:58px;margin-top:5px;border-radius:8px;">
+            </div>
+            <div class="mb-2">
+              <label>Attachments <small>(images only, optional)</small></label>
+              <input type="file" accept="image/*" class="form-control" id="itemAttachments" multiple>
+              <div id="attachPreview" style="margin-top:6px;display:flex;gap:6px;"></div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-warning fw-bold" type="submit"><i class="bi bi-save"></i> Save Item</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Adjustment Reason Modal -->
+    <div class="modal fade" id="reasonModal" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <form class="modal-content bg-dark text-light" id="reasonForm" onsubmit="return submitAdjustment(event)">
+          <div class="modal-header">
+            <h5 class="modal-title">Adjust Quantity</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <input type="hidden" id="reasonIndex">
+            <input type="hidden" id="reasonDelta">
+            <label>Reason for adjustment:</label>
+            <input type="text" class="form-control" id="reasonInput" maxlength="100" placeholder="(e.g. Restock, Correction, Lost)">
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-warning" type="submit">Confirm</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Import Modal -->
+    <div class="modal fade" id="importModal" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <form class="modal-content bg-dark text-light" id="importForm" onsubmit="return doImport(event)">
+          <div class="modal-header">
+            <h5 class="modal-title">Import Inventory (CSV)</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <input type="file" id="importFile" accept=".csv" class="form-control mb-2" required>
+            <div>
+              <small>Format: <b>Item,Quantity,Category,Client</b> (Header optional)</small>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-success" type="submit"><i class="bi bi-upload"></i> Import</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Attachments Lightbox -->
+    <div class="modal fade" id="lightboxModal" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content bg-dark">
+          <div class="modal-body text-center" id="lightboxBody"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Logs Drawer -->
+    <div class="logs-drawer" id="logsDrawer">
+      <div class="logs-title"><i class="bi bi-clock-history"></i> Item History</div>
+      <ul class="logs-list" id="logsList"></ul>
+      <button class="btn btn-outline-warning mt-3" onclick="closeLogsDrawer()"><i class="bi bi-x-lg"></i> Close</button>
+    </div>
+
+    <!-- Portal Link Modal -->
+    <div class="modal fade" id="portalModal" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-light">
+          <div class="modal-header">
+            <h5 class="modal-title">Client Inventory Portal Link</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <label>Share this link with the client:</label>
+            <input type="text" class="form-control mb-2" id="portalLink" readonly>
+            <button class="btn btn-warning w-100" onclick="copyPortalLink()"><i class="bi bi-link-45deg"></i> Copy Link</button>
+            <hr>
+            <small class="text-muted">This is a demo link (for real portals, integrate with backend).</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toastArea"></div>
+
+    <!-- SCRIPTS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    // Sample data
+    const inventory = [
+      { name: "Chicken Wings", category: "Protein", quantity: 50, unit: "lbs", cost: 3.5, supplier: "FreshCorp", expiry: "2025-01-15" },
+      { name: "Lettuce", category: "Vegetables", quantity: 25, unit: "heads", cost: 2.0, supplier: "GreenFarms", expiry: "2025-01-10" },
+      { name: "Burger Buns", category: "Bread", quantity: 100, unit: "pieces", cost: 0.5, supplier: "BreadCo", expiry: "2025-01-08" },
+      { name: "Cheese Slices", category: "Dairy", quantity: 200, unit: "slices", cost: 0.25, supplier: "DairyCorp", expiry: "2025-01-20" },
+      { name: "Tomatoes", category: "Vegetables", quantity: 30, unit: "lbs", cost: 2.5, supplier: "GreenFarms", expiry: "2025-01-12" }
+    ];
+
+    function renderInventory(items = inventory) {
+      const tbody = document.getElementById('inventoryTable');
+      if (!tbody) return;
+
+      tbody.innerHTML = items.map(item => `
+        <tr class="${item.quantity < 20 ? 'table-warning' : ''}">
+          <td>${item.name}</td>
+          <td><span class="badge bg-secondary">${item.category}</span></td>
+          <td>${item.quantity} ${item.unit}</td>
+          <td>$${item.cost.toFixed(2)}</td>
+          <td>${item.supplier}</td>
+          <td>${item.expiry}</td>
+          <td>
+            <button class="btn btn-sm btn-outline-primary" onclick="editItem('${item.name}')">Edit</button>
+            <button class="btn btn-sm btn-outline-danger" onclick="deleteItem('${item.name}')">Delete</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function filterInventory() {
+      const searchInput = document.getElementById('searchInput');
+      const categoryFilter = document.getElementById('categoryFilter');
+
+      if (!searchInput || !categoryFilter) return;
+
+      const search = searchInput.value.toLowerCase();
+      const category = categoryFilter.value;
+
+      const filtered = inventory.filter(item => {
+        const matchesSearch = item.name.toLowerCase().includes(search);
+        const matchesCategory = !category || item.category === category;
+        return matchesSearch && matchesCategory;
+      });
+
+      renderInventory(filtered);
+    }
+
+    function editItem(name) {
+      alert(`Edit ${name} - Feature coming soon`);
+    }
+
+    function deleteItem(name) {
+      if (confirm(`Delete ${name}?`)) {
+        const index = inventory.findIndex(item => item.name === name);
+        if (index > -1) {
+          inventory.splice(index, 1);
+          renderInventory();
+        }
+      }
+    }
+
+    function logout() {
+      localStorage.removeItem("vbmsLoggedIn");
+      localStorage.removeItem("vbmsToken");
+      sessionStorage.removeItem("vbmsLoggedIn");
+      window.location.href = "login.html";
+    }
+
+    function toggleSidebar() {
+      const sidebar = document.querySelector('.sidebar');
+      if (sidebar) {
+        sidebar.classList.toggle('open');
+      }
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      renderInventory();
+
+      const searchInput = document.getElementById('searchInput');
+      const categoryFilter = document.getElementById('categoryFilter');
+
+      if (searchInput) {
+        searchInput.addEventListener('input', filterInventory);
+      }
+
+      if (categoryFilter) {
+        categoryFilter.addEventListener('change', filterInventory);
+      }
+    });
+  </script>
+  </main>
+  <script src="theme-manager.js"></script>
+</body>
+</html>

@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>VBMS Full Calendar</title>
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet"/>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+    <style>
+      body { background: #101012; color: #fff; font-family: 'Inter', sans-serif; }
+      #calendar { max-width: 900px; margin: 3rem auto; background: #18181b; border-radius: 15px; padding: 1.2em; box-shadow: 0 0 16px #0004; }
+      .fc-toolbar-title, .fc-col-header-cell-cushion { color: #f0b90b !important; }
+      .fc-daygrid-event { background: #f0b90b; color: #101012; }
+      .fc-button-primary { background: #f0b90b !important; border: none !important; color: #18181b !important; }
+      .fc-button-primary:hover { background: #e0a800 !important; }
+      /* Header styling */
+      .vbms-header { display: flex; align-items: center; justify-content: space-between; max-width: 900px; margin: 2.2rem auto 0 auto; background: #18181b; border-radius: 15px 15px 0 0; padding: 1.3em 2em 1em 2em; box-shadow: 0 0 14px #0002; }
+      .vbms-logo { height: 48px; margin-right: 18px; }
+      .vbms-title { color: #f0b90b; font-size: 2.2rem; font-weight: 900; letter-spacing: .2px; margin: 0; }
+      .vbms-link { color: #fff; background: #f0b90b; text-decoration: none; font-weight: bold; border-radius: 9px; padding: .6em 1.5em; margin-left: 1.2em; transition: background .17s; }
+      .vbms-link:hover { background: #e0a800; color: #101012; }
+      /* Modal Styling */
+      #eventModal {
+        display:none; position:fixed; z-index:999; left:0; top:0; width:100vw; height:100vh; background:#000a; align-items:center; justify-content:center;
+      }
+      #eventModal .modal-content {
+        background:#222; padding:2em; border-radius:12px; max-width:400px; margin:auto; color:#fff;
+        box-shadow:0 6px 32px #0009;
+      }
+      #eventModal input, #eventModal select, #eventModal textarea, #eventModal button { width:100%; margin-bottom:1em; padding:.6em; border-radius:7px; border:1px solid #333; background: #28282c; color: #fff; }
+      #eventModal textarea { min-height: 56px; resize: vertical; }
+      #eventModal button { background:#f0b90b; color:#18181b; font-weight:bold; }
+      #eventModal button.delete { background:#d9534f; color:#fff; margin-top:0; }
+      /* === Sidebar restyle (light) === */
+    .sidebar {
+      background: #161616;
+      height: 100vh;
+      padding: 2rem 1rem 1rem 1.25rem;
+      border-right: 1px solid #333;
+      box-shadow: 2px 0 14px rgba(0,0,0,0.3);
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: #f0b90b #333;
+    }
+    .sidebar::-webkit-scrollbar {
+      width: 8px;
+    }
+    .sidebar::-webkit-scrollbar-track {
+      background: #333;
+      border-radius: 4px;
+    }
+    .sidebar::-webkit-scrollbar-thumb {
+      background: #f0b90b;
+      border-radius: 4px;
+    }
+    .sidebar::-webkit-scrollbar-thumb:hover {
+      background: #e0a800;
+    }
+    </style>
+  </head>
+  <body>
+    <div class="d-flex">
+      <!-- Sidebar -->
+      <aside class="sidebar d-none d-md-block" style="width: 280px; background: #161616; min-height: 100vh; padding: 20px; position: fixed; top: 0; left: 0;">
+        <div class="text-center mb-4">
+          <img src="https://iili.io/F7bM6Jt.md.png" alt="VBMS Logo" style="max-width: 180px; margin-bottom: 2rem;" />
+          <h4 class="text-warning mt-2" style="color: #f0b90b; font-weight: bold;">VBMS</h4>
+        </div>
+        <nav>
+          <p style="color: #888; font-size: 0.72rem; margin: 0.8rem 0 0.4rem 0.4rem; text-transform: uppercase; font-weight: 600;">CORE</p>
+          <a href="dashboard.html" style="color: #bbb; padding: 12px 20px; border-radius: 8px; display: flex; align-items: center; margin-bottom: 8px; text-decoration: none; font-weight: 500;"><i class="bi bi-speedometer2" style="margin-right: 10px;"></i> Dashboard</a>
+          <a href="reports.html" style="color: #bbb; padding: 12px 20px; border-radius: 8px; display: flex; align-items: center; margin-bottom: 8px; text-decoration: none; font-weight: 500;"><i class="bi bi-bar-chart-line" style="margin-right: 10px;"></i> Reports</a>
+
+          <p style="color: #888; font-size: 0.72rem; margin: 0.8rem 0 0.4rem 0.4rem; text-transform: uppercase; font-weight: 600;">OPERATIONS</p>
+          <a href="orders.html" style="color: #bbb; padding: 12px 20px; border-radius: 8px; display: flex; align-items: center; margin-bottom: 8px; text-decoration: none; font-weight: 500;"><i class="bi bi-box" style="margin-right: 10px;"></i> Orders</a>
+          <a href="monitoring.html" style="color: #bbb; padding: 12px 20px; border-radius: 8px; display: flex; align-items: center; margin-bottom: 8px; text-decoration: none; font-weight: 500;"><i class="bi bi-camera-video" style="margin-right: 10px;"></i> Monitoring</a>
+          <a href="inventory.html" style="color: #bbb; padding: 12px 20px; border-radius: 8px; display: flex; align-items: center; margin-bottom: 8px; text-decoration: none; font-weight: 500;"><i class="bi bi-stack" style="margin-right: 10px;"></i> Inventory</a>
+          <a href="calendar.html" style="background: #f0b90b; color: #111 !important; font-weight: bold; padding: 12px 20px; border-radius: 8px; display: flex; align-items: center; margin-bottom: 8px; text-decoration: none;"><i class="bi bi-calendar-event" style="margin-right: 10px;"></i> Calendar</a>
+
+          <p style="color: #888; font-size: 0.72rem; margin: 0.8rem 0 0.4rem 0.4rem; text-transform: uppercase; font-weight: 600;">PEOPLE & CLIENTS</p>
+          <a href="team.html" style="color: #bbb; padding: 12px 20px; border-radius: 8px; display: flex; align-items: center; margin-bottom: 8px; text-decoration: none; font-weight: 500;"><i class="bi bi-people" style="margin-right: 10px;"></i> Team</a>
+          <a href="clients.html" style="color: #bbb; padding: 12px 20px; border-radius: 8px; display: flex; align-items: center; margin-bottom: 8px; text-decoration: none; font-weight: 500;"><i class="bi bi-person-badge" style="margin-right: 10px;"></i> Clients</a>
+          <a href="leads.html" style="color: #bbb; padding: 12px 20px; border-radius: 8px; display: flex; align-items: center; margin-bottom: 8px; text-decoration: none; font-weight: 500;"><i class="bi bi-person-lines-fill" style="margin-right: 10px;"></i> Leads</a>
+
+          <p style="color: #888; font-size: 0.72rem; margin: 0.8rem 0 0.4rem 0.4rem; text-transform: uppercase; font-weight: 600;">TASKS & COMMUNICATION</p>
+          <a href="task-board.html" style="color: #bbb; padding: 12px 20px; border-radius: 8px; display: flex; align-items: center; margin-bottom: 8px; text-decoration: none; font-weight: 500;"><i class="bi bi-kanban" style="margin-right: 10px;"></i> Task Manager</a>
+          <a href="messaging.html" style="color: #bbb; padding: 12px 20px; border-radius: 8px; display: flex; align-items: center; margin-bottom: 8px; text-decoration: none; font-weight: 500;"><i class="bi bi-chat-dots" style="margin-right: 10px;"></i> Messaging</a>
+
+          <p style="color: #888; font-size: 0.72rem; margin: 0.8rem 0 0.4rem 0.4rem; text-transform: uppercase; font-weight: 600;">AI TOOLS</p>
+          <a href="Aiphone.html" style="color: #bbb; padding: 12px 20px; border-radius: 8px; display: flex; align-items: center; margin-bottom: 8px; text-decoration: none; font-weight: 500;"><i class="bi bi-telephone" style="margin-right: 10px;"></i> AI Phone</a>
+          <a href="Aiassistant.html" style="color: #bbb; padding: 12px 20px; border-radius: 8px; display: flex; align-items: center; margin-bottom: 8px; text-decoration: none; font-weight: 500;"><i class="bi bi-robot" style="margin-right: 10px;"></i> AI Assistant</a>
+
+          <p style="color: #888; font-size: 0.72rem; margin: 0.8rem 0 0.4rem 0.4rem; text-transform: uppercase; font-weight: 600;">BUSINESS TOOLS</p>
+          <a href="billing.html" style="color: #bbb; padding: 12px 20px; border-radius: 8px; display: flex; align-items: center; margin-bottom: 8px; text-decoration: none; font-weight: 500;"><i class="bi bi-credit-card-2-front" style="margin-right: 10px;"></i> Billing</a>
+          <a href="settings.html" style="color: #bbb; padding: 12px 20px; border-radius: 8px; display: flex; align-items: center; margin-bottom: 8px; text-decoration: none; font-weight: 500;"><i class="bi bi-gear" style="margin-right: 10px;"></i> Settings</a>
+          <a href="training.html" style="color: #bbb; padding: 12px 20px; border-radius: 8px; display: flex; align-items: center; margin-bottom: 8px; text-decoration: none; font-weight: 500;"><i class="bi bi-mortarboard" style="margin-right: 10px;"></i> Training</a>
+        </nav>
+        <div style="margin-top: 40px; text-center;">
+          <button class="btn btn-warning fw-bold" onclick="logout()" style="width: 100%; background: #f0b90b; color: #111; font-weight: bold; border: none; border-radius: 6px; padding: 0.5rem 1rem;">
+            <i class="bi bi-box-arrow-left"></i> Logout
+          </button>
+        </div>
+      </aside>
+
+      <!-- Main Content -->
+      <main style="margin-left: 280px; flex: 1; padding: 2rem;">
+        <div class="vbms-header" style="display: flex; align-items: center; justify-content: space-between; max-width: none; margin: 0 0 2rem 0; background: #18181b; border-radius: 15px; padding: 1.3em 2em 1em 2em; box-shadow: 0 0 14px #0002;">
+          <div style="display:flex;align-items:center;">
+            <span class="vbms-title" style="color: #f0b90b; font-size: 2.2rem; font-weight: 900; letter-spacing: .2px; margin: 0;">VBMS Calendar</span>
+          </div>
+        </div>
+    <div id='calendar'></div>
+      </main>
+    </div>
+
+    <!-- Modal for Add/Edit -->
+    <div id="eventModal">
+      <div class="modal-content">
+        <h4 id="modalTitle">Add Event</h4>
+        <input type="text" id="eventTitle" placeholder="Event Title" />
+        <textarea id="eventDescription" placeholder="Event Description (optional)"></textarea>
+        <input type="datetime-local" id="eventStart" />
+        <input type="datetime-local" id="eventEnd" />
+        <select id="eventType">
+          <option value="">Event Type (optional)</option>
+          <option value="Meeting">Meeting</option>
+          <option value="Task">Task</option>
+          <option value="Call">Call</option>
+          <option value="Reminder">Reminder</option>
+          <option value="Birthday">Birthday</option>
+          <option value="Other">Other</option>
+        </select>
+        <input type="text" id="eventLocation" placeholder="Location (optional)" />
+        <input type="text" id="eventGuests" placeholder="Guests/Attendees (comma separated)" />
+        <button id="saveEventBtn">Save</button>
+        <button class="delete" id="deleteEventBtn" style="display:none;">Delete</button>
+        <button onclick="closeModal()">Cancel</button>
+      </div>
+    </div>
+
+    <script>
+      let currentEvent = null;
+      let calendar;
+
+      document.addEventListener('DOMContentLoaded', function() {
+        var calendarEl = document.getElementById('calendar');
+        calendar = new FullCalendar.Calendar(calendarEl, {
+          initialView: 'dayGridMonth',
+          height: "auto",
+          headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+          },
+          selectable: true,
+          editable: true,
+          events: [],
+          eventClick: function(info) {
+            currentEvent = info.event;
+            openModal('Edit Event', currentEvent.title, currentEvent.start, currentEvent.end, true, currentEvent.extendedProps);
+          },
+          select: function(info) {
+            currentEvent = null;
+            openModal('Add Event', '', info.startStr, info.endStr, false, {});
+          }
+        });
+        calendar.render();
+
+        document.getElementById('saveEventBtn').onclick = saveEvent;
+        document.getElementById('deleteEventBtn').onclick = deleteEvent;
+      });
+
+      function openModal(title, eventTitle, start, end, isEdit, extendedProps={}) {
+        document.getElementById('modalTitle').textContent = title;
+        document.getElementById('eventTitle').value = eventTitle || '';
+        document.getElementById('eventDescription').value = extendedProps.description || '';
+        document.getElementById('eventStart').value = start ? formatForInput(start) : '';
+        document.getElementById('eventEnd').value = end ? formatForInput(end) : '';
+        document.getElementById('eventType').value = extendedProps.type || '';
+        document.getElementById('eventLocation').value = extendedProps.location || '';
+        document.getElementById('eventGuests').value = extendedProps.guests || '';
+        document.getElementById('eventModal').style.display = 'flex';
+        document.getElementById('deleteEventBtn').style.display = isEdit ? 'block' : 'none';
+      }
+      function closeModal() {
+        document.getElementById('eventModal').style.display = 'none';
+      }
+      function saveEvent() {
+        const title = document.getElementById('eventTitle').value;
+        const description = document.getElementById('eventDescription').value;
+        const start = document.getElementById('eventStart').value;
+        const end = document.getElementById('eventEnd').value;
+        const type = document.getElementById('eventType').value;
+        const location = document.getElementById('eventLocation').value;
+        const guests = document.getElementById('eventGuests').value;
+
+        const eventProps = {
+          title,
+          start,
+          end,
+          extendedProps: {
+            description,
+            type,
+            location,
+            guests
+          }
+        };
+        if (currentEvent) {
+          currentEvent.setProp('title', title);
+          currentEvent.setStart(start);
+          currentEvent.setEnd(end);
+          currentEvent.setExtendedProp('description', description);
+          currentEvent.setExtendedProp('type', type);
+          currentEvent.setExtendedProp('location', location);
+          currentEvent.setExtendedProp('guests', guests);
+        } else {
+          calendar.addEvent(eventProps);
+        }
+        closeModal();
+      }
+      function deleteEvent() {
+        if (currentEvent) {
+          currentEvent.remove();
+        }
+        closeModal();
+      }
+      function formatForInput(dateObj) {
+        if (typeof dateObj === 'string') return dateObj.slice(0, 16); // if already string
+        const dt = new Date(dateObj);
+        return dt.toISOString().slice(0, 16);
+      }
+
+      function logout() {
+        localStorage.removeItem("vbmsLoggedIn");
+        localStorage.removeItem("vbmsToken");
+        sessionStorage.removeItem("vbmsLoggedIn");
+        window.location.href = "login.html";
+      }
+
+      // Mobile sidebar toggle
+      function toggleSidebar() {
+        const sidebar = document.querySelector('.sidebar');
+        if (sidebar) {
+          sidebar.classList.toggle('open');
+        }
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,1213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Course Management - VBMS Admin</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+        :root {
+            --accent: #f0b90b;
+            --accent-light: #ffd700;
+            --accent-glow: rgba(240, 185, 11, 0.4);
+            --primary-dark: #d4a109;
+            --secondary: #2c3e50;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --purple: #a855f7;
+            --cyan: #06b6d4;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --glass: rgba(255,255,255,0.95);
+            --glass-glow: rgba(240, 185, 11, 0.15);
+            --border: #e9ecef;
+            --text: #212529;
+            --text-muted: #6c757d;
+            --card-bg: #ffffff;
+            --card-shadow: 0 8px 32px rgba(240, 185, 11, 0.1);
+            --bg: linear-gradient(135deg, #f8f9fa 0%, #f0f8ff 50%, #f8f4ff 100%);
+            --sidebar-bg: rgba(255,255,255,0.98);
+            --sidebar-link: #333;
+            --sidebar-link-active: #000;
+        }
+
+        /* Light theme - Enhanced */
+        [data-theme="light"] {
+            --bg: linear-gradient(135deg, #ffffff 0%, #f8fafc 30%, #e2e8f0 100%);
+            --light: #1a202c;
+            --dark: #ffffff;
+            --text: #2d3748;
+            --text-muted: #718096;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            --border: #e2e8f0;
+            --glass: rgba(255, 255, 255, 0.95);
+            --glass-glow: rgba(240, 185, 11, 0.12);
+            --sidebar-bg: rgba(255, 255, 255, 0.98);
+            --sidebar-link: #4a5568;
+            --sidebar-link-active: #1a202c;
+            --accent: #f59e0b;
+            --accent-light: #fbbf24;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --purple: #8b5cf6;
+            --cyan: #06b6d4;
+        }
+
+        /* Dark theme - Modern Black/Gray with Energy */
+        [data-theme="dark"] {
+            --bg: linear-gradient(135deg, #000000 0%, #0a0a0a 25%, #1a1a1a 50%, #0f0f0f 100%);
+            --light: #ffffff;
+            --dark: #000000;
+            --text: #ffffff;
+            --text-muted: #a1a1aa;
+            --card-bg: rgba(20, 20, 20, 0.95);
+            --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.8), 0 0 20px rgba(240, 185, 11, 0.15);
+            --border: rgba(64, 64, 64, 0.4);
+            --glass: rgba(18, 18, 18, 0.95);
+            --glass-glow: rgba(240, 185, 11, 0.2);
+            --sidebar-bg: rgba(12, 12, 12, 0.98);
+            --sidebar-link: #d4d4d8;
+            --sidebar-link-active: #ffffff;
+            --accent: #f0b90b;
+            --accent-light: #ffd700;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --purple: #a855f7;
+            --cyan: #06b6d4;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+            transition: all 0.3s ease;
+            position: relative;
+            min-height: 100vh;
+        }
+
+        /* Enhanced Background Animation */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(240, 185, 11, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(59, 130, 246, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.03) 0%, transparent 60%);
+            animation: enhancedGlow 25s ease-in-out infinite;
+        }
+
+        [data-theme="light"] body::before {
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(240, 185, 11, 0.12) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.06) 0%, transparent 60%);
+        }
+
+        /* Dark theme animated background */
+        [data-theme="dark"] body::before {
+            background: 
+                radial-gradient(circle at 15% 25%, rgba(240, 185, 11, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 85% 75%, rgba(128, 128, 128, 0.06) 0%, transparent 60%),
+                radial-gradient(circle at 50% 50%, rgba(64, 64, 64, 0.05) 0%, transparent 70%),
+                radial-gradient(circle at 70% 20%, rgba(240, 185, 11, 0.04) 0%, transparent 55%);
+            animation: darkThemeGlow 25s ease-in-out infinite;
+        }
+
+        /* Floating particles effect for dark theme */
+        [data-theme="dark"] body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background:
+                radial-gradient(circle 1.5px at 10% 20%, rgba(240, 185, 11, 0.4) 0%, transparent 50%),
+                radial-gradient(circle 1px at 90% 30%, rgba(128, 128, 128, 0.3) 0%, transparent 50%),
+                radial-gradient(circle 1px at 30% 80%, rgba(240, 185, 11, 0.2) 0%, transparent 50%),
+                radial-gradient(circle 0.5px at 70% 60%, rgba(96, 96, 96, 0.2) 0%, transparent 50%),
+                radial-gradient(circle 1px at 20% 70%, rgba(255, 215, 0, 0.15) 0%, transparent 50%);
+            animation: floatingParticles 20s linear infinite;
+        }
+
+        @keyframes enhancedGlow {
+            0%, 100% {
+                opacity: 0.6;
+                transform: rotate(0deg) scale(1);
+            }
+            33% {
+                opacity: 0.8;
+                transform: rotate(120deg) scale(1.05);
+            }
+            66% {
+                opacity: 0.7;
+                transform: rotate(240deg) scale(0.95);
+            }
+        }
+
+        @keyframes darkThemeGlow {
+            0%, 100% {
+                opacity: 0.8;
+                transform: rotate(0deg) scale(1);
+            }
+            25% {
+                opacity: 1;
+                transform: rotate(90deg) scale(1.1);
+            }
+            50% {
+                opacity: 0.9;
+                transform: rotate(180deg) scale(1.05);
+            }
+            75% {
+                opacity: 1;
+                transform: rotate(270deg) scale(1.08);
+            }
+        }
+
+        @keyframes floatingParticles {
+            0% {
+                transform: translateY(0px) rotate(0deg);
+                opacity: 1;
+            }
+            25% {
+                transform: translateY(-10px) rotate(90deg);
+                opacity: 0.8;
+            }
+            50% {
+                transform: translateY(-5px) rotate(180deg);
+                opacity: 0.6;
+            }
+            75% {
+                transform: translateY(-15px) rotate(270deg);
+                opacity: 0.9;
+            }
+            100% {
+                transform: translateY(0px) rotate(360deg);
+                opacity: 1;
+            }
+        }
+
+        .main-content {
+            margin-left: 320px;
+            padding: 30px;
+            min-height: 100vh;
+            background: transparent;
+            transition: all 0.3s ease;
+        }
+
+        /* Mobile content adjustments */
+        @media (max-width: 1024px) {
+            .main-content {
+                margin-left: 280px;
+                padding: 25px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+                padding: 80px 15px 15px 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-content {
+                padding: 75px 10px 10px 10px;
+            }
+        }
+
+        @media (max-width: 320px) {
+            .main-content {
+                padding: 70px 8px 8px 8px;
+            }
+        }
+
+        /* Header Styling */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 30px;
+            padding: 20px 0;
+        }
+
+        .header-left h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text);
+            margin: 0 0 10px 0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .header-left h1 i {
+            color: var(--accent);
+            font-size: 2rem;
+        }
+
+        .datetime-info {
+            display: flex;
+            gap: 20px;
+            margin-top: 8px;
+        }
+
+        .current-date, .current-time {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        /* Theme Toggle */
+        .btn-outline-warning {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px;
+            color: var(--accent);
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-warning:hover {
+            background: var(--glass-glow);
+            border-color: var(--accent);
+            color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--glass);
+            backdrop-filter: blur(15px);
+            padding: 25px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            box-shadow: var(--card-shadow);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent), var(--accent-light));
+            opacity: 0.8;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(240, 185, 11, 0.2);
+            border-color: var(--accent);
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .stat-info {
+            flex: 1;
+        }
+
+        .stat-number {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 5px;
+            line-height: 1;
+        }
+
+        .stat-trend {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .stat-card[data-trend="up"] .stat-trend {
+            color: var(--success);
+        }
+
+        .stat-card[data-trend="down"] .stat-trend {
+            color: var(--danger);
+        }
+
+        .stat-icon {
+            font-size: 2.5rem;
+            color: var(--accent);
+            opacity: 0.7;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover .stat-icon {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-progress {
+            height: 4px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        [data-theme="dark"] .stat-progress {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--accent-light));
+            border-radius: 2px;
+            transition: width 1s ease;
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 20px;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3));
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-20px); }
+            100% { transform: translateX(20px); }
+        }
+
+        /* Training Table Card */
+        .training-card {
+            background: var(--glass);
+            backdrop-filter: blur(15px);
+            padding: 25px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            box-shadow: var(--card-shadow);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 25px;
+        }
+
+        .training-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent), var(--accent-light));
+            opacity: 0.8;
+        }
+
+        .training-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(240, 185, 11, 0.2);
+            border-color: var(--accent);
+        }
+
+        .training-card h3 {
+            color: var(--accent);
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Filter Section */
+        .filter-section {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-section select,
+        .filter-section input {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: var(--text);
+            min-width: 150px;
+        }
+
+        .filter-section select:focus,
+        .filter-section input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(240, 185, 11, 0.1);
+        }
+
+        /* Training Table */
+        .training-table {
+            background: var(--glass);
+            border-radius: 15px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            box-shadow: var(--card-shadow);
+        }
+
+        .training-table table {
+            margin: 0;
+        }
+
+        .training-table th {
+            background: var(--accent);
+            color: #000;
+            font-weight: 700;
+            padding: 15px;
+            border: none;
+        }
+
+        .training-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text);
+        }
+
+        .training-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .training-table tr:hover {
+            background: var(--glass-glow);
+        }
+
+        /* Course Icon */
+        .course-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--accent-light));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #000;
+            font-weight: 700;
+            font-size: 1rem;
+            margin-right: 10px;
+        }
+
+        /* Badge Styling */
+        .badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-basics {
+            background: var(--success);
+            color: white;
+        }
+
+        .badge-advanced {
+            background: var(--warning);
+            color: #000;
+        }
+
+        .badge-management {
+            background: var(--purple);
+            color: white;
+        }
+
+        .badge-active {
+            background: var(--success);
+            color: white;
+        }
+
+        .badge-inactive {
+            background: var(--danger);
+            color: white;
+        }
+
+        /* Action Buttons */
+        .action-btn {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 6px 12px;
+            color: var(--text);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 0.85rem;
+            margin-right: 5px;
+        }
+
+        .action-btn:hover {
+            background: var(--glass-glow);
+            color: var(--accent);
+            border-color: var(--accent);
+            text-decoration: none;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .header-left h1 {
+                font-size: 2rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .filter-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .filter-section select,
+            .filter-section input {
+                min-width: auto;
+            }
+
+            .training-table {
+                font-size: 0.85rem;
+            }
+
+            .training-table th,
+            .training-table td {
+                padding: 8px 10px;
+            }
+        }
+
+        /* Dark theme card enhancements */
+        [data-theme="dark"] .training-card,
+        [data-theme="dark"] .stat-card {
+            border: 1px solid rgba(64, 64, 64, 0.4);
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.8),
+                0 0 20px rgba(240, 185, 11, 0.1),
+                inset 0 1px 0 rgba(128, 128, 128, 0.1);
+        }
+
+        [data-theme="dark"] .training-card:hover,
+        [data-theme="dark"] .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 
+                0 12px 40px rgba(0, 0, 0, 0.9),
+                0 0 30px rgba(240, 185, 11, 0.2),
+                0 0 10px rgba(255, 215, 0, 0.15),
+                inset 0 1px 0 rgba(240, 185, 11, 0.2);
+            border-color: rgba(240, 185, 11, 0.3);
+        }
+  </style>
+</head>
+<body>
+<!-- Universal Sidebar Container -->
+<div id="sidebar-container"></div>
+
+<!-- MAIN -->
+<main class="main-content">
+  <!-- Header -->
+  <div class="header">
+    <div class="header-left">
+      <h1><i class="bi bi-mortarboard"></i> Course Management</h1>
+      <div class="datetime-info">
+        <div id="currentDate" class="current-date"></div>
+        <div id="currentTime" class="current-time"></div>
+      </div>
+    </div>
+    <div class="header-right">
+      <button class="btn btn-outline-warning btn-sm" onclick="toggleTheme()" title="Toggle light/dark theme">
+        <i id="themeIcon" class="bi bi-moon-fill"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Training Stats Grid -->
+  <div class="stats-grid">
+    <div class="stat-card" data-trend="up">
+      <div class="stat-header">
+        <div class="stat-info">
+          <div class="stat-number" id="totalCourses">24</div>
+          <div class="stat-trend">
+            <i class="bi bi-arrow-up"></i>
+            <span>+8.3%</span>
+          </div>
+        </div>
+        <i class="bi bi-book stat-icon"></i>
+      </div>
+      <div class="stat-label">Total Courses</div>
+      <div class="stat-progress">
+        <div class="progress-fill" style="width: 88%"></div>
+      </div>
+    </div>
+
+    <div class="stat-card" data-trend="up">
+      <div class="stat-header">
+        <div class="stat-info">
+          <div class="stat-number" id="activeStudents">156</div>
+          <div class="stat-trend">
+            <i class="bi bi-arrow-up"></i>
+            <span>+12.1%</span>
+          </div>
+        </div>
+        <i class="bi bi-people stat-icon"></i>
+      </div>
+      <div class="stat-label">Active Students</div>
+      <div class="stat-progress">
+        <div class="progress-fill" style="width: 76%"></div>
+      </div>
+    </div>
+
+    <div class="stat-card" data-trend="up">
+      <div class="stat-header">
+        <div class="stat-info">
+          <div class="stat-number" id="completionRate">87%</div>
+          <div class="stat-trend">
+            <i class="bi bi-arrow-up"></i>
+            <span>+5.2%</span>
+          </div>
+        </div>
+        <i class="bi bi-check-circle stat-icon"></i>
+      </div>
+      <div class="stat-label">Completion Rate</div>
+      <div class="stat-progress">
+        <div class="progress-fill" style="width: 87%"></div>
+      </div>
+    </div>
+
+    <div class="stat-card" data-trend="up">
+      <div class="stat-header">
+        <div class="stat-info">
+          <div class="stat-number" id="avgScore">92%</div>
+          <div class="stat-trend">
+            <i class="bi bi-arrow-up"></i>
+            <span>+3.8%</span>
+          </div>
+        </div>
+        <i class="bi bi-trophy stat-icon"></i>
+      </div>
+      <div class="stat-label">Average Score</div>
+      <div class="stat-progress">
+        <div class="progress-fill" style="width: 92%"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Training Courses Table -->
+  <div class="training-card">
+    <h3><i class="bi bi-table"></i> Course Management Dashboard</h3>
+    
+    <!-- Filter Section -->
+    <div class="filter-section">
+      <select id="categoryFilter">
+        <option value="">All Categories</option>
+        <option value="basics">Basics</option>
+        <option value="advanced">Advanced</option>
+        <option value="management">Management</option>
+      </select>
+      <select id="statusFilter">
+        <option value="">All Status</option>
+        <option value="active">Active</option>
+        <option value="inactive">Inactive</option>
+      </select>
+      <input type="search" id="searchCourses" placeholder="Search courses...">
+      <button class="action-btn" onclick="addNewCourse()" data-bs-toggle="modal" data-bs-target="#courseModal">
+        <i class="bi bi-plus-circle"></i> Add Course
+      </button>
+    </div>
+
+    <div class="training-table">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th>Course Name</th>
+            <th>Instructor</th>
+            <th>Category</th>
+            <th>Duration</th>
+            <th>Price</th>
+            <th>Students</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="coursesTableBody">
+          <tr>
+            <td>
+              <div class="d-flex align-items-center">
+                <div class="course-icon">VP</div>
+                <strong>VBMS Platform Basics</strong>
+              </div>
+            </td>
+            <td>Sarah Johnson</td>
+            <td><span class="badge badge-basics">Basics</span></td>
+            <td>4 weeks</td>
+            <td>$99</td>
+            <td><strong>48</strong></td>
+            <td><span class="badge badge-active">Active</span></td>
+            <td>
+              <a href="#" class="action-btn" onclick="viewCourse(1)"><i class="bi bi-eye"></i> View</a>
+              <a href="#" class="action-btn" onclick="editCourse(1)" data-bs-toggle="modal" data-bs-target="#courseModal"><i class="bi bi-pencil"></i> Edit</a>
+              <a href="#" class="action-btn text-danger" onclick="deleteCourse(1)"><i class="bi bi-trash"></i> Delete</a>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="d-flex align-items-center">
+                <div class="course-icon">AA</div>
+                <strong>Advanced Analytics</strong>
+              </div>
+            </td>
+            <td>Mike Chen</td>
+            <td><span class="badge badge-advanced">Advanced</span></td>
+            <td>6 weeks</td>
+            <td>$199</td>
+            <td><strong>32</strong></td>
+            <td><span class="badge badge-active">Active</span></td>
+            <td>
+              <a href="#" class="action-btn" onclick="viewCourse(1)"><i class="bi bi-eye"></i> View</a>
+              <a href="#" class="action-btn" onclick="editCourse(1)" data-bs-toggle="modal" data-bs-target="#courseModal"><i class="bi bi-pencil"></i> Edit</a>
+              <a href="#" class="action-btn text-danger" onclick="deleteCourse(1)"><i class="bi bi-trash"></i> Delete</a>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="d-flex align-items-center">
+                <div class="course-icon">CM</div>
+                <strong>Customer Management</strong>
+              </div>
+            </td>
+            <td>Lisa Rodriguez</td>
+            <td><span class="badge badge-management">Management</span></td>
+            <td>8 weeks</td>
+            <td>$299</td>
+            <td><strong>28</strong></td>
+            <td><span class="badge badge-active">Active</span></td>
+            <td>
+              <a href="#" class="action-btn" onclick="viewCourse(1)"><i class="bi bi-eye"></i> View</a>
+              <a href="#" class="action-btn" onclick="editCourse(1)" data-bs-toggle="modal" data-bs-target="#courseModal"><i class="bi bi-pencil"></i> Edit</a>
+              <a href="#" class="action-btn text-danger" onclick="deleteCourse(1)"><i class="bi bi-trash"></i> Delete</a>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="d-flex align-items-center">
+                <div class="course-icon">IS</div>
+                <strong>Inventory Systems</strong>
+              </div>
+            </td>
+            <td>David Kim</td>
+            <td><span class="badge badge-advanced">Advanced</span></td>
+            <td>5 weeks</td>
+            <td>$179</td>
+            <td><strong>22</strong></td>
+            <td><span class="badge badge-active">Active</span></td>
+            <td>
+              <a href="#" class="action-btn" onclick="viewCourse(1)"><i class="bi bi-eye"></i> View</a>
+              <a href="#" class="action-btn" onclick="editCourse(1)" data-bs-toggle="modal" data-bs-target="#courseModal"><i class="bi bi-pencil"></i> Edit</a>
+              <a href="#" class="action-btn text-danger" onclick="deleteCourse(1)"><i class="bi bi-trash"></i> Delete</a>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="d-flex align-items-center">
+                <div class="course-icon">CS</div>
+                <strong>Customer Service Excellence</strong>
+              </div>
+            </td>
+            <td>Maria Garcia</td>
+            <td><span class="badge badge-basics">Basics</span></td>
+            <td>3 weeks</td>
+            <td>$79</td>
+            <td><strong>41</strong></td>
+            <td><span class="badge badge-active">Active</span></td>
+            <td>
+              <a href="#" class="action-btn" onclick="viewCourse(1)"><i class="bi bi-eye"></i> View</a>
+              <a href="#" class="action-btn" onclick="editCourse(1)" data-bs-toggle="modal" data-bs-target="#courseModal"><i class="bi bi-pencil"></i> Edit</a>
+              <a href="#" class="action-btn text-danger" onclick="deleteCourse(1)"><i class="bi bi-trash"></i> Delete</a>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="d-flex align-items-center">
+                <div class="course-icon">RS</div>
+                <strong>Reporting Systems</strong>
+              </div>
+            </td>
+            <td>John Thompson</td>
+            <td><span class="badge badge-advanced">Advanced</span></td>
+            <td>7 weeks</td>
+            <td>$249</td>
+            <td><strong>15</strong></td>
+            <td><span class="badge badge-inactive">Inactive</span></td>
+            <td>
+              <a href="#" class="action-btn" onclick="viewCourse(1)"><i class="bi bi-eye"></i> View</a>
+              <a href="#" class="action-btn" onclick="editCourse(1)" data-bs-toggle="modal" data-bs-target="#courseModal"><i class="bi bi-pencil"></i> Edit</a>
+              <a href="#" class="action-btn text-danger" onclick="deleteCourse(1)"><i class="bi bi-trash"></i> Delete</a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<!-- Course Modal -->
+<div class="modal fade" id="courseModal" tabindex="-1" aria-labelledby="courseModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content" style="background: var(--card-bg); border: 1px solid var(--border);">
+      <div class="modal-header" style="border-bottom: 1px solid var(--border);">
+        <h5 class="modal-title" id="courseModalTitle" style="color: var(--accent);">Add New Course</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="filter: var(--text) brightness(0.8);"></button>
+      </div>
+      <form id="courseForm" onsubmit="saveCourse(event)">
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-6">
+              <label for="courseTitle" class="form-label" style="color: var(--text);">Course Title</label>
+              <input type="text" class="form-control" id="courseTitle" name="courseTitle" required 
+                     style="background: var(--glass); border: 1px solid var(--border); color: var(--text);">
+            </div>
+            <div class="col-md-6">
+              <label for="instructor" class="form-label" style="color: var(--text);">Instructor</label>
+              <input type="text" class="form-control" id="instructor" name="instructor" required
+                     style="background: var(--glass); border: 1px solid var(--border); color: var(--text);">
+            </div>
+          </div>
+          <div class="row mt-3">
+            <div class="col-md-4">
+              <label for="category" class="form-label" style="color: var(--text);">Category</label>
+              <select class="form-select" id="category" name="category" required
+                      style="background: var(--glass); border: 1px solid var(--border); color: var(--text);">
+                <option value="">Select Category</option>
+                <option value="basics">Basics</option>
+                <option value="advanced">Advanced</option>
+                <option value="management">Management</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label for="duration" class="form-label" style="color: var(--text);">Duration</label>
+              <input type="text" class="form-control" id="duration" name="duration" placeholder="e.g., 4 weeks" required
+                     style="background: var(--glass); border: 1px solid var(--border); color: var(--text);">
+            </div>
+            <div class="col-md-4">
+              <label for="price" class="form-label" style="color: var(--text);">Price</label>
+              <input type="text" class="form-control" id="price" name="price" placeholder="e.g., $99" required
+                     style="background: var(--glass); border: 1px solid var(--border); color: var(--text);">
+            </div>
+          </div>
+          <div class="row mt-3">
+            <div class="col-md-12">
+              <label for="description" class="form-label" style="color: var(--text);">Course Description</label>
+              <textarea class="form-control" id="description" name="description" rows="4" required
+                        style="background: var(--glass); border: 1px solid var(--border); color: var(--text);"></textarea>
+            </div>
+          </div>
+          <div class="row mt-3">
+            <div class="col-md-6">
+              <label for="status" class="form-label" style="color: var(--text);">Status</label>
+              <select class="form-select" id="status" name="status" required
+                      style="background: var(--glass); border: 1px solid var(--border); color: var(--text);">
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer" style="border-top: 1px solid var(--border);">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" 
+                  style="background: var(--glass); border: 1px solid var(--border); color: var(--text);">Cancel</button>
+          <button type="submit" class="btn" id="submitBtn"
+                  style="background: var(--accent); border: 1px solid var(--accent); color: #000; font-weight: 600;">Create Course</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="auth.js"></script>
+<script src="load-sidebar.js"></script>
+<script src="theme-manager.js"></script>
+<script src="notifications-manager.js"></script>
+<script src="activity-tracker.js"></script>
+<script src="api-simulation.js"></script>
+
+<script>
+// Authentication check
+function checkAuthWithRetry(maxRetries = 3, delay = 100) {
+  let retries = 0;
+  
+  function attemptAuth() {
+    if (!vbmsAuth.isAuthenticated()) {
+      window.location.href = 'login.html';
+      return;
+    }
+
+    const userRole = vbmsAuth.getCurrentRole();
+    
+    if ((!userRole || userRole === '') && retries < maxRetries) {
+      retries++;
+      setTimeout(attemptAuth, delay);
+      return;
+    }
+    
+    if (!userRole || userRole === '') {
+      console.log('Auth check failed - no role found after retries');
+      window.location.href = 'login.html';
+      return;
+    }
+    
+    // Enhanced admin check with additional validation to prevent race conditions
+    if (!vbmsAuth.isAdmin()) {
+      console.log('Admin access check failed for user role:', userRole);
+      alert('Access Denied: Admin access required');
+      
+      // Double-check the role with a slight delay to handle race conditions
+      setTimeout(() => {
+        const verifiedRole = vbmsAuth.getCurrentRole();
+        console.log('Role verification after delay:', verifiedRole);
+        
+        // Only redirect to customer dashboard if we're absolutely certain the user is a customer
+        if ((verifiedRole === 'customer' || verifiedRole === 'client') && 
+            !vbmsAuth.isAdmin() && 
+            verifiedRole === userRole) {
+          console.log('Redirecting verified customer/client to customer dashboard');
+          window.location.href = 'customer-dashboard.html';
+        } else {
+          console.log('Redirecting to login - role uncertain or changed');
+          window.location.href = 'login.html';
+        }
+      }, 150);
+      return;
+    }
+    
+    initializeTrainingCenter();
+  }
+  
+  attemptAuth();
+}
+
+function initializeTrainingCenter() {
+  // Update date and time
+  function updateDateTime() {
+    const now = new Date();
+    const dateOptions = { 
+      weekday: 'long', 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    };
+    const timeOptions = { 
+      hour: '2-digit', 
+      minute: '2-digit',
+      second: '2-digit'
+    };
+    
+    const currentDate = document.getElementById('currentDate');
+    const currentTime = document.getElementById('currentTime');
+    
+    if (currentDate) {
+      currentDate.textContent = now.toLocaleDateString('en-US', dateOptions);
+    }
+    if (currentTime) {
+      currentTime.textContent = now.toLocaleTimeString('en-US', timeOptions);
+    }
+  }
+
+  updateDateTime();
+  setInterval(updateDateTime, 1000);
+
+  // Initialize filters
+  initializeFilters();
+  
+  // Track page access
+  if (window.activityTracker) {
+    activityTracker.trackPageView('Course Management');
+  }
+}
+
+function initializeFilters() {
+  const categoryFilter = document.getElementById('categoryFilter');
+  const statusFilter = document.getElementById('statusFilter');
+  const searchInput = document.getElementById('searchCourses');
+  
+  if (categoryFilter) {
+    categoryFilter.addEventListener('change', filterCourses);
+  }
+  if (statusFilter) {
+    statusFilter.addEventListener('change', filterCourses);
+  }
+  if (searchInput) {
+    searchInput.addEventListener('input', filterCourses);
+  }
+}
+
+function filterCourses() {
+  const categoryFilter = document.getElementById('categoryFilter').value;
+  const statusFilter = document.getElementById('statusFilter').value;
+  const searchTerm = document.getElementById('searchCourses').value.toLowerCase();
+  const tableBody = document.getElementById('coursesTableBody');
+  const rows = tableBody.getElementsByTagName('tr');
+
+  for (let row of rows) {
+    const cells = row.getElementsByTagName('td');
+    if (cells.length === 0) continue;
+
+    const courseName = cells[0].textContent.toLowerCase();
+    const instructor = cells[1].textContent.toLowerCase();
+    const category = cells[2].textContent.toLowerCase();
+    const status = cells[6].textContent.toLowerCase();
+
+    let showRow = true;
+
+    // Category filter
+    if (categoryFilter && !category.includes(categoryFilter)) {
+      showRow = false;
+    }
+
+    // Status filter
+    if (statusFilter && !status.includes(statusFilter)) {
+      showRow = false;
+    }
+
+    // Search filter
+    if (searchTerm && !courseName.includes(searchTerm) && !instructor.includes(searchTerm)) {
+      showRow = false;
+    }
+
+    row.style.display = showRow ? '' : 'none';
+  }
+}
+
+function addNewCourse() {
+  // Reset form for new course
+  document.getElementById('courseForm').reset();
+  document.getElementById('courseModalTitle').textContent = 'Add New Course';
+  document.getElementById('submitBtn').textContent = 'Create Course';
+  currentCourseId = null;
+  
+  // Track course creation attempt
+  if (window.activityTracker) {
+    activityTracker.trackCustomActivity('course_creation_attempt', 'Admin initiated new course creation', {
+      priority: 'medium',
+      module: 'Course Management'
+    });
+  }
+}
+
+function editCourse(courseId) {
+  document.getElementById('courseModalTitle').textContent = 'Edit Course';
+  document.getElementById('submitBtn').textContent = 'Update Course';
+  currentCourseId = courseId;
+  
+  // Here you would load the course data and populate the form
+  // For demo purposes, we'll just show the modal
+}
+
+function viewCourse(courseId) {
+  alert(`View course details for course ID: ${courseId}`);
+}
+
+function deleteCourse(courseId) {
+  if (confirm('Are you sure you want to delete this course? This action cannot be undone.')) {
+    alert(`Course ${courseId} would be deleted`);
+    // Here you would make the actual delete API call
+  }
+}
+
+let currentCourseId = null;
+
+function saveCourse(event) {
+  event.preventDefault();
+  
+  const formData = new FormData(event.target);
+  const courseData = {
+    title: formData.get('courseTitle'),
+    instructor: formData.get('instructor'),
+    category: formData.get('category'),
+    duration: formData.get('duration'),
+    price: formData.get('price'),
+    description: formData.get('description'),
+    status: formData.get('status')
+  };
+  
+  if (currentCourseId) {
+    // Update existing course
+    console.log('Updating course:', currentCourseId, courseData);
+  } else {
+    // Create new course
+    console.log('Creating new course:', courseData);
+  }
+  
+  // Close modal
+  const modal = bootstrap.Modal.getInstance(document.getElementById('courseModal'));
+  modal.hide();
+  
+  // Show success message
+  alert(currentCourseId ? 'Course updated successfully!' : 'Course created successfully!');
+}
+
+// Logout function
+function logout() {
+  vbmsAuth.logout();
+}
+
+// Start authentication check
+checkAuthWithRetry();
+</script>
+
+</body>
+</html>
