@@ -576,6 +576,97 @@
       color: var(--info);
     }
 
+    /* Simple Sidebar Styles */
+    .master-admin-sidebar {
+      width: 320px;
+      background: rgba(255,255,255,0.98);
+      backdrop-filter: blur(20px);
+      border-right: 2px solid #dc3545;
+      padding: 20px;
+      position: fixed;
+      height: 100vh;
+      overflow-y: auto;
+      box-shadow: 2px 0 30px rgba(240, 185, 11, 0.15);
+      z-index: 1000;
+      top: 0;
+      left: 0;
+    }
+
+    .sidebar-header {
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #dc3545;
+      margin-bottom: 20px;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      padding: 15px;
+      background: rgba(220, 53, 69, 0.1);
+      border-radius: 10px;
+    }
+
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      background: #dc3545;
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+    }
+
+    .user-name {
+      font-weight: 600;
+      color: #333;
+    }
+
+    .user-role {
+      font-size: 0.8rem;
+      color: #666;
+    }
+
+    .sidebar-heading {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin: 20px 0 10px 0;
+    }
+
+    .sidebar-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      color: #333;
+      text-decoration: none;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      margin-bottom: 5px;
+    }
+
+    .sidebar-link:hover {
+      background: rgba(220, 53, 69, 0.1);
+      color: #dc3545;
+      transform: translateX(5px);
+    }
+
+    .sidebar-link.active {
+      background: #dc3545;
+      color: white;
+    }
+
     /* Mobile Responsiveness */
     @media (max-width: 768px) {
       .email-grid {
@@ -608,6 +699,18 @@
       .toast {
         min-width: auto;
       }
+
+      .master-admin-sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+        margin-bottom: 20px;
+      }
+
+      .main-content {
+        margin-left: 0;
+        padding: 15px;
+      }
     }
   </style>
 </head>
@@ -630,10 +733,7 @@
         </div>
       </div>
       <div class="header-right">
-        <button class="btn btn-outline-warning btn-sm" onclick="toggleTheme()" title="Toggle light/dark theme">
-          <i id="themeIcon" class="bi bi-moon-fill"></i>
-        </button>
-        <button class="btn btn-outline-info btn-sm ms-2" onclick="debugAuth()" title="Debug Authentication">
+        <button class="btn btn-outline-info btn-sm" onclick="debugAuth()" title="Debug Authentication">
           <i class="bi bi-bug"></i> Debug
         </button>
       </div>
@@ -802,9 +902,10 @@
     </div>
   </main>
 
-  <script src="load-sidebar.js"></script>
-  <script src="auth.js"></script>
-  <script src="theme-manager.js"></script>
+  <!-- Authentication scripts removed for testing -->
+  <!-- <script src="load-sidebar.js"></script> -->
+  <!-- <script src="auth.js"></script> -->
+  <!-- <script src="theme-manager.js"></script> -->
   <script>
     // Date and Time Display Functions
     function updateDateTime() {
@@ -1139,18 +1240,37 @@
       console.log('Page loaded successfully - no authentication required');
     });
 
-    // Load sidebar
+    // Load sidebar - DISABLED FOR TESTING
     function loadSidebar() {
+      console.log('Sidebar loading disabled for testing');
+      // Create a simple inline sidebar instead
       const sidebarContainer = document.getElementById('sidebar-container');
       if (sidebarContainer) {
-        fetch('master-admin-sidebar.html')
-          .then(response => response.text())
-          .then(html => {
-            sidebarContainer.innerHTML = html;
-          })
-          .catch(error => {
-            console.error('Error loading sidebar:', error);
-          });
+        sidebarContainer.innerHTML = `
+          <nav class="master-admin-sidebar">
+            <div class="sidebar-header">
+              <div class="logo">
+                <i class="bi bi-crown-fill"></i>
+                <span>VBMS</span>
+              </div>
+              <div class="user-info">
+                <div class="user-avatar">BA</div>
+                <div class="user-details">
+                  <div class="user-name">Bobby Admin</div>
+                  <div class="user-role">Master Admin</div>
+                </div>
+              </div>
+            </div>
+            <div class="sidebar-content">
+              <p class="sidebar-heading">MAIN</p>
+              <a class="sidebar-link" href="master-admin-analytics.html"><i class="bi bi-graph-up"></i> Analytics</a>
+              <a class="sidebar-link" href="master-admin-customers.html"><i class="bi bi-people"></i> Customers</a>
+              <a class="sidebar-link" href="master-admin-email.html"><i class="bi bi-envelope-fill"></i> Email Management</a>
+              <a class="sidebar-link" href="admin-smm-dashboard.html"><i class="bi bi-share-fill"></i> Social Media</a>
+              <a class="sidebar-link" href="admin-vapi-dashboard.html"><i class="bi bi-robot"></i> Vapi AI</a>
+            </div>
+          </nav>
+        `;
       }
     }
 
