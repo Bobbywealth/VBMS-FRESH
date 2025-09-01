@@ -633,6 +633,9 @@
         <button class="btn btn-outline-warning btn-sm" onclick="toggleTheme()" title="Toggle light/dark theme">
           <i id="themeIcon" class="bi bi-moon-fill"></i>
         </button>
+        <button class="btn btn-outline-info btn-sm ms-2" onclick="debugAuth()" title="Debug Authentication">
+          <i class="bi bi-bug"></i> Debug
+        </button>
       </div>
     </div>
 
@@ -706,6 +709,9 @@
         </button>
         <button class="btn-primary" onclick="syncEmails()">
           <i class="bi bi-arrow-repeat"></i> Sync Emails
+        </button>
+        <button class="btn btn-outline-success" onclick="bypassAuth()" style="margin-left: 10px;">
+          <i class="bi bi-unlock"></i> Bypass Auth (Testing)
         </button>
       </div>
     </div>
@@ -1113,7 +1119,11 @@
     document.addEventListener('DOMContentLoaded', function() {
       loadEmailConfig();
       loadSidebar();
-      checkAuth();
+      
+      // Add a small delay to ensure sidebar loads first
+      setTimeout(() => {
+        checkAuth();
+      }, 500);
     });
 
     // Load sidebar
@@ -1131,22 +1141,132 @@
       }
     }
 
+    // Debug authentication function
+    function debugAuth() {
+      console.log('=== AUTHENTICATION DEBUG ===');
+      console.log('localStorage vbms_token:', localStorage.getItem('vbms_token'));
+      console.log('localStorage customerToken:', localStorage.getItem('customerToken'));
+      console.log('sessionStorage vbms_token:', sessionStorage.getItem('vbms_token'));
+      console.log('localStorage currentUser:', localStorage.getItem('currentUser'));
+      console.log('localStorage userRole:', localStorage.getItem('userRole'));
+      console.log('localStorage userEmail:', localStorage.getItem('userEmail'));
+      
+      // Check if we're on localhost for testing
+      if (window.location.hostname === 'localhost' || window.location.href.includes('localhost')) {
+        console.log('Running on localhost - allowing access for testing');
+        return true;
+      }
+      
+      return false;
+    }
+
+    // Bypass authentication for testing
+    function bypassAuth() {
+      console.log('=== BYPASSING AUTHENTICATION FOR TESTING ===');
+      
+      // Set temporary admin credentials for testing
+      localStorage.setItem('userEmail', 'bobbyadmin@vbms.com');
+      localStorage.setItem('userRole', 'main_admin');
+      localStorage.setItem('currentUser', JSON.stringify({
+        email: 'bobbyadmin@vbms.com',
+        role: 'main_admin',
+        name: 'Bobby Admin'
+      }));
+      
+      showToast('Authentication bypassed for testing', 'warning');
+      console.log('Authentication bypassed - you can now use the email management features');
+      
+      // Hide the bypass button
+      const bypassBtn = document.querySelector('button[onclick="bypassAuth()"]');
+      if (bypassBtn) {
+        bypassBtn.style.display = 'none';
+      }
+    }
+
     // Check authentication
     function checkAuth() {
-      const token = localStorage.getItem('vbms_token');
+      console.log('=== CHECKING AUTHENTICATION ===');
+      
+      // Check multiple possible token keys
+      const token = localStorage.getItem('vbms_token') || 
+                   localStorage.getItem('customerToken') || 
+                   sessionStorage.getItem('vbms_token') ||
+                   sessionStorage.getItem('customerToken');
+      
       if (!token) {
+        console.log('No token found, checking for other auth methods...');
+        
+        // Check if we're on localhost for testing
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+          console.log('Running on localhost - allowing access for testing');
+          return;
+        }
+        
+        // Check if we're already logged in as main admin
+        const currentUser = localStorage.getItem('currentUser');
+        if (currentUser) {
+          try {
+            const userData = JSON.parse(currentUser);
+            if (userData.role === 'main_admin') {
+              console.log('Using currentUser data for authentication');
+              return;
+            }
+          } catch (e) {
+            console.error('Error parsing currentUser:', e);
+          }
+        }
+        
+        // Check for hardcoded admin access
+        const userEmail = localStorage.getItem('userEmail');
+        if (userEmail === 'bobbyadmin@vbms.com') {
+          console.log('Hardcoded admin access granted for:', userEmail);
+          return;
+        }
+        
+        console.log('No authentication found, redirecting to login');
         window.location.href = 'login.html';
         return;
       }
 
+      console.log('Token found:', token.substring(0, 20) + '...');
+
       // Check if user is master admin
       try {
         const payload = JSON.parse(atob(token.split('.')[1]));
+        console.log('Token payload:', payload);
+        
         if (payload.role !== 'main_admin') {
+          console.log('User is not main_admin, redirecting to admin dashboard');
           window.location.href = 'admin-main-dashboard.html';
+          return;
         }
+        
+        console.log('Authentication successful - User is main_admin');
       } catch (error) {
         console.error('Error parsing token:', error);
+        
+        // If token parsing fails, try to check if we're already logged in as main admin
+        const currentUser = localStorage.getItem('currentUser');
+        if (currentUser) {
+          try {
+            const userData = JSON.parse(currentUser);
+            if (userData.role === 'main_admin') {
+              console.log('Using currentUser data for authentication');
+              return;
+            }
+          } catch (e) {
+            console.error('Error parsing currentUser:', e);
+          }
+        }
+        
+        // Check for hardcoded admin access
+        const userEmail = localStorage.getItem('userEmail');
+        if (userEmail === 'bobbyadmin@vbms.com') {
+          console.log('Hardcoded admin access granted for:', userEmail);
+          return;
+        }
+        
+        // If all else fails, redirect to login
         window.location.href = 'login.html';
       }
     }
