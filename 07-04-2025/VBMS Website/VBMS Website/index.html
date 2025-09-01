@@ -577,12 +577,40 @@
   </style>
 </head>
 <body>
-  <!-- SUPER OBVIOUS DEPLOYMENT TEST -->
-  <div style="background: red; color: white; text-align: center; padding: 20px; font-size: 24px; font-weight: bold;">
-    🚨 DEPLOYMENT TEST #2 🚨<br>
-    IF YOU SEE THIS RED BANNER, GITHUB DEPLOYMENT IS WORKING!<br>
-    <span style="font-size: 16px;">Test Time: <script>document.write(new Date().toLocaleString());</script></span>
+  <!-- Professional Navigation Header -->
+  <nav class="navbar navbar-expand-lg navbar-dark" style="background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%); padding: 1rem 0;">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center" href="#">
+        <img src="https://iili.io/F7bM6Jt.md.png" alt="VBMS" height="40" class="me-2">
+        <span style="color: #FFD600; font-weight: bold; font-size: 1.5rem;">VBMS</span>
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="#features">Features</a></li>
+          <li class="nav-item"><a class="nav-link" href="#pricing">Pricing</a></li>
+          <li class="nav-item"><a class="nav-link" href="#about">About</a></li>
+          <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
+          <li class="nav-item ms-2">
+            <a href="login.html" class="btn btn-outline-warning btn-sm">Login</a>
+          </li>
+          <li class="nav-item ms-2">
+            <a href="main-admin-login.html" class="btn" style="background: #FFD600; color: #0a0a0a; font-weight: bold;">Admin</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  <!-- Success Announcement -->
+  <div class="alert alert-success text-center mb-0" style="border-radius: 0; background: linear-gradient(135deg, #28a745 0%, #20c997 100%); border: none;">
+    <div class="container">
+      <h5 class="mb-1">🎉 <strong>VBMS is Now Live!</strong></h5>
+      <p class="mb-0">Fully deployed with automatic updates from GitHub. <a href="main-admin-login.html" class="text-white"><u><strong>Access Admin Dashboard →</strong></u></a></p>
+    </div>
   </div>
+
   <!-- Hero Section -->
   <section class="hero-section">
     <div class="hero-bg"></div>
@@ -592,6 +620,9 @@
           <div class="hero-content">
             <img src="https://iili.io/F7bM6Jt.md.png" class="vbms-logo" alt="VBMS Logo">
             <h1 class="hero-title">Virtual Business Management System</h1>
+            <div class="badge bg-warning text-dark mb-3" style="font-size: 0.9rem;">
+              ✨ Now with Auto-Deployment & Main Admin Dashboard
+            </div>
             <p class="hero-subtitle">
               Streamline your business operations with our comprehensive management platform. 
               From inventory tracking to customer management, VBMS has everything you need to grow your business.
