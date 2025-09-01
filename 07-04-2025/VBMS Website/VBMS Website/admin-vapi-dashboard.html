@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vapi AI Management - VBMS Admin</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    :root {
+      --vbms-primary: #2c3e50;
+      --vbms-secondary: #3498db;
+      --vbms-success: #27ae60;
+      --vbms-warning: #f39c12;
+      --vbms-danger: #e74c3c;
+      --vbms-gold: #FFD600;
+    }
+
+    body {
+      background-color: #f8f9fa;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .stats-card {
+      background: white;
+      border-radius: 15px;
+      padding: 1.5rem;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+      transition: transform 0.3s ease;
+      border-left: 4px solid var(--vbms-primary);
+    }
+
+    .stats-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .stats-card.success { border-left-color: var(--vbms-success); }
+    .stats-card.warning { border-left-color: var(--vbms-warning); }
+    .stats-card.danger { border-left-color: var(--vbms-danger); }
+    .stats-card.info { border-left-color: var(--vbms-secondary); }
+
+    .call-card {
+      background: white;
+      border-radius: 15px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
+    }
+
+    .call-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+    }
+
+    .call-status {
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .call-status.ended { background: #d4edda; color: #155724; }
+    .call-status.in-progress { background: #fff3cd; color: #856404; }
+    .call-status.failed { background: #f8d7da; color: #721c24; }
+
+    .assistant-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-radius: 15px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .chart-container {
+      background: white;
+      border-radius: 15px;
+      padding: 1.5rem;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    }
+
+    .action-btn {
+      border-radius: 25px;
+      padding: 0.5rem 1.5rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .action-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    .sidebar {
+      background: var(--vbms-primary);
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+
+    .sidebar a {
+      color: #ecf0f1;
+      text-decoration: none;
+      padding: 0.75rem 1rem;
+      border-radius: 10px;
+      margin-bottom: 0.5rem;
+      display: block;
+      transition: all 0.3s ease;
+    }
+
+    .sidebar a:hover, .sidebar a.active {
+      background: var(--vbms-secondary);
+      color: white;
+    }
+
+    .main-content {
+      padding: 2rem;
+    }
+
+    .transcript-preview {
+      background: #f8f9fa;
+      border-radius: 10px;
+      padding: 1rem;
+      max-height: 150px;
+      overflow-y: auto;
+      font-size: 0.9rem;
+    }
+
+    .sentiment-positive { color: var(--vbms-success); }
+    .sentiment-neutral { color: var(--vbms-warning); }
+    .sentiment-negative { color: var(--vbms-danger); }
+  </style>
+</head>
+<body>
+  <div class="container-fluid">
+    <div class="row">
+      <!-- Sidebar -->
+      <div class="col-md-3 col-lg-2 sidebar">
+        <h4 class="text-white mb-4">
+          <i class="bi bi-robot me-2"></i>
+          Vapi AI
+        </h4>
+        <a href="#dashboard" class="active">
+          <i class="bi bi-speedometer2 me-2"></i>Dashboard
+        </a>
+        <a href="#calls">
+          <i class="bi bi-telephone me-2"></i>Call History
+        </a>
+        <a href="#assistants">
+          <i class="bi bi-cpu me-2"></i>AI Assistants
+        </a>
+        <a href="#analytics">
+          <i class="bi bi-graph-up me-2"></i>Analytics
+        </a>
+        <a href="#settings">
+          <i class="bi bi-gear me-2"></i>Settings
+        </a>
+      </div>
+
+      <!-- Main Content -->
+      <div class="col-md-9 col-lg-10 main-content">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <div>
+            <h1 class="h3 mb-0">Vapi AI Management Dashboard</h1>
+            <p class="text-muted">Monitor and manage your AI voice assistants</p>
+          </div>
+          <div>
+            <button class="btn btn-primary action-btn me-2" onclick="createNewAssistant()">
+              <i class="bi bi-plus-circle me-2"></i>New Assistant
+            </button>
+            <button class="btn btn-success action-btn" onclick="testConnection()">
+              <i class="bi bi-wifi me-2"></i>Test Connection
+            </button>
+          </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="row mb-4">
+          <div class="col-lg-3 col-md-6 mb-3">
+            <div class="stats-card success">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <h3 class="text-success mb-1" id="totalCalls">0</h3>
+                  <p class="text-muted mb-0">Total Calls</p>
+                </div>
+                <i class="bi bi-telephone-fill text-success fs-2"></i>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-3 col-md-6 mb-3">
+            <div class="stats-card info">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <h3 class="text-info mb-1" id="activeCalls">0</h3>
+                  <p class="text-muted mb-0">Active Calls</p>
+                </div>
+                <i class="bi bi-telephone-inbound-fill text-info fs-2"></i>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-3 col-md-6 mb-3">
+            <div class="stats-card warning">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <h3 class="text-warning mb-1" id="avgDuration">0m</h3>
+                  <p class="text-muted mb-0">Avg Duration</p>
+                </div>
+                <i class="bi bi-clock-fill text-warning fs-2"></i>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-3 col-md-6 mb-3">
+            <div class="stats-card">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <h3 class="text-primary mb-1" id="totalCost">$0</h3>
+                  <p class="text-muted mb-0">Total Cost</p>
+                </div>
+                <i class="bi bi-currency-dollar text-primary fs-2"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI Assistants -->
+        <div class="row mb-4">
+          <div class="col-12">
+            <h4 class="mb-3">AI Assistants</h4>
+            <div class="row" id="assistantsList">
+              <!-- Assistants will be loaded here -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Calls and Analytics -->
+        <div class="row">
+          <!-- Recent Calls -->
+          <div class="col-lg-8 mb-4">
+            <div class="card border-0 shadow-sm">
+              <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                  <i class="bi bi-clock-history me-2"></i>
+                  Recent Calls
+                </h5>
+                <button class="btn btn-outline-primary btn-sm" onclick="refreshCalls()">
+                  <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+                </button>
+              </div>
+              <div class="card-body p-0">
+                <div id="recentCalls">
+                  <!-- Recent calls will be loaded here -->
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Call Analytics -->
+          <div class="col-lg-4 mb-4">
+            <div class="chart-container">
+              <h5 class="mb-3">
+                <i class="bi bi-pie-chart me-2"></i>
+                Call Analytics
+              </h5>
+              <canvas id="callAnalyticsChart" width="400" height="200"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Call Details Modal -->
+        <div class="modal fade" id="callDetailsModal" tabindex="-1">
+          <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Call Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+              </div>
+              <div class="modal-body" id="callDetailsContent">
+                <!-- Call details will be loaded here -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Create Assistant Modal -->
+        <div class="modal fade" id="createAssistantModal" tabindex="-1">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Create New AI Assistant</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+              </div>
+              <div class="modal-body">
+                <form id="assistantForm">
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">Assistant Name</label>
+                      <input type="text" class="form-control" name="name" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">Voice</label>
+                      <select class="form-select" name="voice" required>
+                        <option value="jennifer">Jennifer (Female, US)</option>
+                        <option value="mark">Mark (Male, US)</option>
+                        <option value="emily">Emily (Female, UK)</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">System Prompt</label>
+                    <textarea class="form-control" name="prompt" rows="4" 
+                              placeholder="You are a helpful AI assistant for VBMS customers..."></textarea>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">First Message</label>
+                      <input type="text" class="form-control" name="firstMessage" 
+                             value="Hello! How can I help you today?">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">Max Duration (seconds)</label>
+                      <input type="number" class="form-control" name="maxDuration" value="300">
+                    </div>
+                  </div>
+                </form>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="saveAssistant()">Create Assistant</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <script>
+    let callAnalyticsChart;
+
+    // Initialize dashboard
+    document.addEventListener('DOMContentLoaded', function() {
+      loadDashboardData();
+      initializeChart();
+      
+      // Refresh data every 30 seconds
+      setInterval(loadDashboardData, 30000);
+    });
+
+    // Load dashboard data
+    async function loadDashboardData() {
+      try {
+        // Load stats
+        const statsResponse = await fetch('/api/vapi/stats', {
+          headers: { 'Authorization': `Bearer ${getAuthToken()}` }
+        });
+        
+        if (statsResponse.ok) {
+          const stats = await statsResponse.json();
+          updateStatsCards(stats);
+        }
+
+        // Load assistants
+        await loadAssistants();
+        
+        // Load recent calls
+        await loadRecentCalls();
+        
+      } catch (error) {
+        console.error('Error loading dashboard data:', error);
+      }
+    }
+
+    // Update stats cards
+    function updateStatsCards(stats) {
+      document.getElementById('totalCalls').textContent = stats.totalCalls || 0;
+      document.getElementById('activeCalls').textContent = stats.activeCalls || 0;
+      document.getElementById('avgDuration').textContent = formatDuration(stats.avgDuration || 0);
+      document.getElementById('totalCost').textContent = `$${(stats.totalCost / 100 || 0).toFixed(2)}`;
+    }
+
+    // Load AI assistants
+    async function loadAssistants() {
+      try {
+        const response = await fetch('/api/vapi/assistants', {
+          headers: { 'Authorization': `Bearer ${getAuthToken()}` }
+        });
+        
+        if (response.ok) {
+          const assistants = await response.json();
+          displayAssistants(assistants);
+        }
+      } catch (error) {
+        console.error('Error loading assistants:', error);
+      }
+    }
+
+    // Display assistants
+    function displayAssistants(assistants) {
+      const container = document.getElementById('assistantsList');
+      
+      if (assistants.length === 0) {
+        container.innerHTML = `
+          <div class="col-12">
+            <div class="text-center text-muted py-4">
+              <i class="bi bi-robot fs-1 mb-3"></i>
+              <p>No AI assistants configured yet.</p>
+              <button class="btn btn-primary" onclick="createNewAssistant()">Create Your First Assistant</button>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = assistants.map(assistant => `
+        <div class="col-md-6 col-lg-4 mb-3">
+          <div class="assistant-card">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <h6 class="mb-0">${assistant.name}</h6>
+              <span class="badge ${assistant.active ? 'bg-success' : 'bg-secondary'}">${assistant.active ? 'Active' : 'Inactive'}</span>
+            </div>
+            <p class="mb-2 opacity-75">${assistant.voice} • ${assistant.model}</p>
+            <div class="d-flex justify-content-between align-items-center">
+              <small>Calls: ${assistant.callCount || 0}</small>
+              <div>
+                <button class="btn btn-light btn-sm me-1" onclick="editAssistant('${assistant.id}')">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button class="btn btn-danger btn-sm" onclick="deleteAssistant('${assistant.id}')">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Load recent calls
+    async function loadRecentCalls() {
+      try {
+        const response = await fetch('/api/vapi/calls?limit=10', {
+          headers: { 'Authorization': `Bearer ${getAuthToken()}` }
+        });
+        
+        if (response.ok) {
+          const calls = await response.json();
+          displayRecentCalls(calls);
+        }
+      } catch (error) {
+        console.error('Error loading recent calls:', error);
+      }
+    }
+
+    // Display recent calls
+    function displayRecentCalls(calls) {
+      const container = document.getElementById('recentCalls');
+      
+      if (calls.length === 0) {
+        container.innerHTML = `
+          <div class="text-center text-muted py-4">
+            <i class="bi bi-telephone fs-1 mb-3"></i>
+            <p>No calls yet.</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = calls.map(call => `
+        <div class="call-card border-0" style="cursor: pointer;" onclick="viewCallDetails('${call._id}')">
+          <div class="d-flex justify-content-between align-items-start">
+            <div class="flex-grow-1">
+              <div class="d-flex align-items-center mb-2">
+                <i class="bi bi-telephone-fill text-primary me-2"></i>
+                <strong>${call.phoneNumber}</strong>
+                <span class="call-status ${call.status} ms-2">${call.status}</span>
+              </div>
+              
+              <div class="row">
+                <div class="col-md-6">
+                  <small class="text-muted">
+                    <i class="bi bi-clock me-1"></i>${new Date(call.createdAt).toLocaleString()}
+                  </small>
+                  ${call.duration ? `<br><small class="text-muted">Duration: ${formatDuration(call.duration)}</small>` : ''}
+                </div>
+                <div class="col-md-6">
+                  ${call.analysis?.sentiment ? `
+                    <small class="sentiment-${call.analysis.sentiment}">
+                      <i class="bi bi-emoji-${call.analysis.sentiment === 'positive' ? 'smile' : call.analysis.sentiment === 'negative' ? 'frown' : 'neutral'} me-1"></i>
+                      ${call.analysis.sentiment}
+                    </small>
+                  ` : ''}
+                  ${call.cost ? `<br><small class="text-muted">Cost: $${(call.cost / 100).toFixed(2)}</small>` : ''}
+                </div>
+              </div>
+              
+              ${call.summary ? `
+                <div class="transcript-preview mt-2">
+                  <strong>Summary:</strong> ${call.summary}
+                </div>
+              ` : ''}
+            </div>
+            <div class="ms-3">
+              <button class="btn btn-outline-primary btn-sm" onclick="event.stopPropagation(); viewCallDetails('${call._id}')">
+                <i class="bi bi-eye"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Initialize analytics chart
+    function initializeChart() {
+      const ctx = document.getElementById('callAnalyticsChart').getContext('2d');
+      callAnalyticsChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Successful', 'Failed', 'In Progress'],
+          datasets: [{
+            data: [0, 0, 0],
+            backgroundColor: ['#27ae60', '#e74c3c', '#f39c12'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom'
+            }
+          }
+        }
+      });
+    }
+
+    // Test Vapi connection
+    async function testConnection() {
+      try {
+        const response = await fetch('/api/vapi/test', {
+          headers: { 'Authorization': `Bearer ${getAuthToken()}` }
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          showNotification('Connection successful!', 'success');
+        } else {
+          showNotification('Connection failed: ' + result.error, 'danger');
+        }
+      } catch (error) {
+        showNotification('Connection test failed', 'danger');
+      }
+    }
+
+    // Create new assistant
+    function createNewAssistant() {
+      const modal = new bootstrap.Modal(document.getElementById('createAssistantModal'));
+      modal.show();
+    }
+
+    // Save assistant
+    async function saveAssistant() {
+      const form = document.getElementById('assistantForm');
+      const formData = new FormData(form);
+      
+      const assistantData = {
+        name: formData.get('name'),
+        voice: formData.get('voice'),
+        model: 'gpt-4',
+        firstMessage: formData.get('firstMessage'),
+        systemPrompt: formData.get('prompt'),
+        maxDurationSeconds: parseInt(formData.get('maxDuration'))
+      };
+
+      try {
+        const response = await fetch('/api/vapi/assistant', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${getAuthToken()}`
+          },
+          body: JSON.stringify(assistantData)
+        });
+
+        if (response.ok) {
+          showNotification('Assistant created successfully!', 'success');
+          const modal = bootstrap.Modal.getInstance(document.getElementById('createAssistantModal'));
+          modal.hide();
+          form.reset();
+          loadAssistants();
+        } else {
+          throw new Error('Failed to create assistant');
+        }
+      } catch (error) {
+        showNotification('Failed to create assistant', 'danger');
+      }
+    }
+
+    // View call details
+    async function viewCallDetails(callId) {
+      try {
+        const response = await fetch(`/api/vapi/call/${callId}`, {
+          headers: { 'Authorization': `Bearer ${getAuthToken()}` }
+        });
+        
+        if (response.ok) {
+          const call = await response.json();
+          displayCallDetails(call);
+        }
+      } catch (error) {
+        console.error('Error loading call details:', error);
+      }
+    }
+
+    // Display call details in modal
+    function displayCallDetails(call) {
+      const content = document.getElementById('callDetailsContent');
+      content.innerHTML = `
+        <div class="row">
+          <div class="col-md-6">
+            <h6>Call Information</h6>
+            <table class="table table-sm">
+              <tr><td><strong>Call ID:</strong></td><td>${call.vapiCallId}</td></tr>
+              <tr><td><strong>Phone:</strong></td><td>${call.phoneNumber}</td></tr>
+              <tr><td><strong>Status:</strong></td><td><span class="call-status ${call.status}">${call.status}</span></td></tr>
+              <tr><td><strong>Duration:</strong></td><td>${formatDuration(call.duration)}</td></tr>
+              <tr><td><strong>Cost:</strong></td><td>$${(call.cost / 100).toFixed(2)}</td></tr>
+              <tr><td><strong>Started:</strong></td><td>${new Date(call.startedAt).toLocaleString()}</td></tr>
+            </table>
+          </div>
+          <div class="col-md-6">
+            <h6>Analysis</h6>
+            ${call.analysis ? `
+              <p><strong>Sentiment:</strong> <span class="sentiment-${call.analysis.sentiment}">${call.analysis.sentiment}</span></p>
+              ${call.analysis.successEvaluation ? `<p><strong>Success Score:</strong> ${call.analysis.successEvaluation.score}/10</p>` : ''}
+              ${call.analysis.topics?.length ? `<p><strong>Topics:</strong> ${call.analysis.topics.join(', ')}</p>` : ''}
+            ` : '<p class="text-muted">No analysis available</p>'}
+          </div>
+        </div>
+        
+        ${call.summary ? `
+          <div class="mt-3">
+            <h6>Summary</h6>
+            <p>${call.summary}</p>
+          </div>
+        ` : ''}
+        
+        ${call.transcript ? `
+          <div class="mt-3">
+            <h6>Transcript</h6>
+            <div class="transcript-preview" style="max-height: 300px;">
+              ${call.transcript.replace(/\n/g, '<br>')}
+            </div>
+          </div>
+        ` : ''}
+        
+        ${call.analysis?.actionItems?.length ? `
+          <div class="mt-3">
+            <h6>Action Items</h6>
+            <ul>
+              ${call.analysis.actionItems.map(item => `<li>${item}</li>`).join('')}
+            </ul>
+          </div>
+        ` : ''}
+      `;
+      
+      const modal = new bootstrap.Modal(document.getElementById('callDetailsModal'));
+      modal.show();
+    }
+
+    // Utility functions
+    function formatDuration(seconds) {
+      if (!seconds) return '0s';
+      const minutes = Math.floor(seconds / 60);
+      const remainingSeconds = seconds % 60;
+      return minutes > 0 ? `${minutes}m ${remainingSeconds}s` : `${remainingSeconds}s`;
+    }
+
+    function getAuthToken() {
+      return localStorage.getItem('vbmsToken') || localStorage.getItem('token');
+    }
+
+    function refreshCalls() {
+      loadRecentCalls();
+    }
+
+    function editAssistant(assistantId) {
+      console.log('Edit assistant:', assistantId);
+      // Implementation for editing assistant
+    }
+
+    function deleteAssistant(assistantId) {
+      if (confirm('Are you sure you want to delete this assistant?')) {
+        // Implementation for deleting assistant
+        console.log('Delete assistant:', assistantId);
+      }
+    }
+
+    function showNotification(message, type) {
+      // Simple notification - you can integrate with your existing notification system
+      const alert = document.createElement('div');
+      alert.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+      alert.style.top = '20px';
+      alert.style.right = '20px';
+      alert.style.zIndex = '9999';
+      alert.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      `;
+      document.body.appendChild(alert);
+      
+      setTimeout(() => {
+        if (alert.parentNode) {
+          alert.parentNode.removeChild(alert);
+        }
+      }, 5000);
+    }
+  </script>
+</body>
+</html>
