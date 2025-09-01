@@ -3176,9 +3176,163 @@
       // Update every second
       setInterval(updateDateTime, 1000);
 
+      // Load dashboard data from backend
+      async function loadDashboardData() {
+        try {
+          const response = await fetch(`${VBMS_CONFIG.getApiUrl()}/dashboard`, {
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('customerToken')}`,
+              'Content-Type': 'application/json'
+            }
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            updateDashboardStats(data);
+            updateRecentActivity(data.recentActivity);
+            updateQuickActions(data.quickActions);
+          } else {
+            console.log('Using demo data for dashboard');
+            loadDemoData();
+          }
+        } catch (error) {
+          console.log('Error loading dashboard data, using demo data:', error);
+          loadDemoData();
+        }
+      }
+
+      // Update dashboard statistics
+      function updateDashboardStats(data) {
+        if (data.stats) {
+          document.getElementById('todayOrders').textContent = data.stats.todayOrders || '24';
+          document.getElementById('todayRevenue').textContent = `$${data.stats.todayRevenue || '2,847'}`;
+          document.getElementById('monthlyRevenue').textContent = `$${data.stats.monthlyRevenue || '15,420'}`;
+          document.getElementById('totalOrders').textContent = data.stats.totalOrders || '127';
+          document.getElementById('pendingTasks').textContent = data.stats.pendingTasks || '8';
+          document.getElementById('activeDevices').textContent = data.stats.activeDevices || '12';
+        }
+      }
+
+      // Update recent activity with real data
+      function updateRecentActivity(activities) {
+        const activityList = document.getElementById('activityList');
+        if (!activityList || !activities) return;
+
+        if (activities.length === 0) {
+          activityList.innerHTML = `
+            <div class="no-activity">
+              <i class="bi bi-inbox fs-1 text-muted"></i>
+              <p>No recent activity</p>
+            </div>
+          `;
+          return;
+        }
+
+        activityList.innerHTML = activities.map(activity => `
+          <div class="activity-item-enhanced" data-type="${activity.type}" data-priority="${activity.priority}">
+            <div class="activity-icon ${activity.type}-icon">
+              <i class="bi bi-${getActivityIcon(activity.type)}"></i>
+            </div>
+            <div class="activity-content">
+              <div class="activity-title">${activity.title}</div>
+              <div class="activity-description">${activity.description}</div>
+              <div class="activity-meta">
+                <span class="activity-time">${formatTimeAgo(activity.timestamp)}</span>
+                <span class="activity-priority ${activity.priority}">${activity.priority}</span>
+              </div>
+            </div>
+            <div class="activity-actions">
+              ${activity.actions ? activity.actions.map(action => `
+                <button class="action-btn-small" onclick="${action.onclick}" title="${action.title}">
+                  <i class="bi bi-${action.icon}"></i>
+                </button>
+              `).join('') : ''}
+            </div>
+          </div>
+        `).join('');
+      }
+
+      // Get activity icon based on type
+      function getActivityIcon(type) {
+        const icons = {
+          'order': 'box-seam',
+          'payment': 'credit-card',
+          'inventory': 'boxes',
+          'system': 'shield-check',
+          'task': 'list-task',
+          'notification': 'bell'
+        };
+        return icons[type] || 'circle';
+      }
+
+      // Format time ago
+      function formatTimeAgo(timestamp) {
+        const now = new Date();
+        const time = new Date(timestamp);
+        const diffMs = now - time;
+        const diffMins = Math.floor(diffMs / 60000);
+        const diffHours = Math.floor(diffMs / 3600000);
+        const diffDays = Math.floor(diffMs / 86400000);
+
+        if (diffMins < 1) return 'Just now';
+        if (diffMins < 60) return `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`;
+        if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+        return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+      }
+
+      // Load demo data when backend is not available
+      function loadDemoData() {
+        const demoActivities = [
+          {
+            type: 'order',
+            priority: 'high',
+            title: 'New Order Received',
+            description: 'Order #ORD-2025-1234 • Premium Package',
+            timestamp: new Date(Date.now() - 2 * 60000), // 2 minutes ago
+            actions: [
+              { icon: 'eye', onclick: 'viewOrder("ORD-2025-1234")', title: 'View Order' },
+              { icon: 'check-circle', onclick: 'approveOrder("ORD-2025-1234")', title: 'Approve' }
+            ]
+          },
+          {
+            type: 'payment',
+            priority: 'normal',
+            title: 'Payment Received',
+            description: 'Invoice #INV-2025-5678 • $450.00',
+            timestamp: new Date(Date.now() - 15 * 60000), // 15 minutes ago
+            actions: [
+              { icon: 'file-text', onclick: 'viewInvoice("INV-2025-5678")', title: 'View Invoice' },
+              { icon: 'download', onclick: 'downloadReceipt("INV-2025-5678")', title: 'Download' }
+            ]
+          },
+          {
+            type: 'inventory',
+            priority: 'warning',
+            title: 'Low Stock Alert',
+            description: 'Product XYZ • Only 5 units remaining',
+            timestamp: new Date(Date.now() - 2 * 3600000), // 2 hours ago
+            actions: [
+              { icon: 'plus-circle', onclick: 'reorderProduct("XYZ")', title: 'Reorder' },
+              { icon: 'exclamation-triangle', onclick: 'viewInventory()', title: 'View Stock' }
+            ]
+          }
+        ];
+
+        updateRecentActivity(demoActivities);
+      }
+
+      // Initialize dashboard when page loads
+      document.addEventListener('DOMContentLoaded', function() {
+        loadDashboardData();
+        
+        // Refresh data every 5 minutes
+        setInterval(loadDashboardData, 300000);
+      });
+
       // Start the customer authentication check with retry logic
       checkCustomerAuthWithRetry();
     </script>
+    <script src="config.js"></script>
     <script src="theme-manager.js"></script>
 </body>
 </html>

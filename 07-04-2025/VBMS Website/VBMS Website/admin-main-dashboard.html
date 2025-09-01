@@ -1309,10 +1309,8 @@ function filterAdmins() {
 
 async function loadMainAdminStats() {
   try {
-    // API base URL
-    const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-      ? 'http://localhost:5050'
-      : 'https://vbms-backend.onrender.com';
+    // API base URL - Now using VBMS_CONFIG
+    const API_BASE = VBMS_CONFIG.getBackendUrl();
 
     // Get auth token
     const token = localStorage.getItem('vbms_token');
@@ -1446,10 +1444,8 @@ function animateStatNumber(elementId, targetValue, prefix = '', isNumber = false
 
 async function loadAdminUsers() {
   try {
-    // API base URL
-    const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-      ? 'http://localhost:5050'
-      : 'https://vbms-backend.onrender.com';
+    // API base URL - Now using VBMS_CONFIG
+    const API_BASE = VBMS_CONFIG.getBackendUrl();
 
     // Get auth token
     const token = localStorage.getItem('vbmsToken') || sessionStorage.getItem('vbmsToken');
@@ -1789,5 +1785,6 @@ setInterval(updateDateTime, 1000);
 checkAuthWithRetry();
 </script>
 
+<script src="config.js"></script>
 </body>
 </html>
