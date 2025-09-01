@@ -95,6 +95,7 @@ const openai = new OpenAI({
   const calendarRoutes = require('./routes/calendar');
   const notificationRoutes = require('./routes/notifications');
   const smmRoutes = require('./routes/smm');
+  const emailManagementRoutes = require('./routes/email-management');
 
   // Mount routes
   app.use('/api/auth', authRoutes);
@@ -117,6 +118,7 @@ const openai = new OpenAI({
   app.use('/api/calendar', calendarRoutes);
   app.use('/api/notifications', notificationRoutes);
   app.use('/api/smm', smmRoutes);
+  app.use('/api/email-management', emailManagementRoutes);
   app.use('/api/health', healthRoutes);
   app.use('/health', healthRoutes); // Alternative path for load balancers
 
