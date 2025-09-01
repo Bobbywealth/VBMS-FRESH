@@ -787,6 +787,103 @@
     </div>
   </div>
 
+  <!-- Vapi AI Management Section -->
+  <div class="admins-card">
+    <h3><i class="bi bi-robot"></i> Vapi AI Management</h3>
+    <p class="text-muted mb-4">Monitor and manage your AI voice assistants</p>
+    
+    <div class="row g-3">
+      <!-- AI Stats Cards -->
+      <div class="col-lg-3 col-md-6">
+        <div class="card bg-primary text-white h-100">
+          <div class="card-body text-center">
+            <i class="bi bi-telephone-fill fs-2 mb-2"></i>
+            <h4 class="fw-bold" id="vapiTotalCalls">0</h4>
+            <small>Total AI Calls</small>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="card bg-success text-white h-100">
+          <div class="card-body text-center">
+            <i class="bi bi-telephone-inbound-fill fs-2 mb-2"></i>
+            <h4 class="fw-bold" id="vapiActiveCalls">0</h4>
+            <small>Active Calls</small>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="card bg-info text-white h-100">
+          <div class="card-body text-center">
+            <i class="bi bi-cpu-fill fs-2 mb-2"></i>
+            <h4 class="fw-bold" id="vapiAssistants">0</h4>
+            <small>AI Assistants</small>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6">
+        <div class="card bg-warning text-dark h-100">
+          <div class="card-body text-center">
+            <i class="bi bi-currency-dollar fs-2 mb-2"></i>
+            <h4 class="fw-bold" id="vapiTotalCost">$0</h4>
+            <small>Total Cost</small>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="row mt-4">
+      <div class="col-md-6">
+        <div class="d-grid gap-2">
+          <a href="admin-vapi-dashboard.html" class="btn btn-primary btn-lg">
+            <i class="bi bi-speedometer2 me-2"></i>
+            Open Vapi Dashboard
+          </a>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="d-grid gap-2">
+          <button class="btn btn-success btn-lg" onclick="createNewAssistant()">
+            <i class="bi bi-plus-circle me-2"></i>
+            Create AI Assistant
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Recent Calls Preview -->
+    <div class="mt-4">
+      <h5 class="mb-3">Recent AI Calls</h5>
+      <div id="vapiRecentCalls" class="table-responsive">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>Phone Number</th>
+              <th>Duration</th>
+              <th>Status</th>
+              <th>Cost</th>
+              <th>Time</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="vapiCallsTableBody">
+            <tr>
+              <td colspan="6" class="text-center text-muted py-3">
+                <i class="bi bi-telephone fs-2 mb-2"></i>
+                <br>No AI calls yet. 
+                <a href="admin-vapi-dashboard.html" class="text-primary">View Vapi Dashboard</a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
   <!-- Admin Management Table -->
   <div class="admins-card">
     <h3><i class="bi bi-shield-lock"></i> Admin Management</h3>
@@ -1470,6 +1567,126 @@ function addNewAdmin() {
 function logout() {
   vbmsAuth.logout();
 }
+
+// Vapi AI Management Functions
+async function loadVapiStats() {
+  try {
+    const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+      ? 'http://localhost:5050'
+      : 'https://vbms-backend.onrender.com';
+
+    const token = localStorage.getItem('vbmsToken') || localStorage.getItem('token');
+    if (!token) {
+      console.log('No auth token for Vapi stats');
+      return;
+    }
+
+    // Load Vapi statistics
+    const statsResponse = await fetch(`${API_BASE}/api/vapi/stats`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    
+    if (statsResponse.ok) {
+      const stats = await statsResponse.json();
+      updateVapiStats(stats);
+    }
+
+    // Load recent calls
+    const callsResponse = await fetch(`${API_BASE}/api/vapi/calls?limit=5`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    
+    if (callsResponse.ok) {
+      const calls = await callsResponse.json();
+      updateVapiRecentCalls(calls);
+    }
+
+  } catch (error) {
+    console.error('Error loading Vapi stats:', error);
+    // Show demo data
+    updateVapiStats({
+      totalCalls: 0,
+      activeCalls: 0,
+      totalAssistants: 0,
+      totalCost: 0
+    });
+  }
+}
+
+function updateVapiStats(stats) {
+  document.getElementById('vapiTotalCalls').textContent = stats.totalCalls || 0;
+  document.getElementById('vapiActiveCalls').textContent = stats.activeCalls || 0;
+  document.getElementById('vapiAssistants').textContent = stats.totalAssistants || 0;
+  document.getElementById('vapiTotalCost').textContent = `$${((stats.totalCost || 0) / 100).toFixed(2)}`;
+}
+
+function updateVapiRecentCalls(calls) {
+  const tbody = document.getElementById('vapiCallsTableBody');
+  if (!tbody) return;
+
+  if (calls.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="6" class="text-center text-muted py-3">
+          <i class="bi bi-telephone fs-2 mb-2"></i>
+          <br>No AI calls yet. 
+          <a href="admin-vapi-dashboard.html" class="text-primary">View Vapi Dashboard</a>
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  tbody.innerHTML = calls.map(call => `
+    <tr>
+      <td>${call.phoneNumber}</td>
+      <td>${formatVapiDuration(call.duration || 0)}</td>
+      <td>
+        <span class="badge ${getCallStatusBadge(call.status)}">${call.status}</span>
+      </td>
+      <td>$${((call.cost || 0) / 100).toFixed(2)}</td>
+      <td>${new Date(call.createdAt).toLocaleString()}</td>
+      <td>
+        <button class="btn btn-sm btn-outline-primary" onclick="viewVapiCall('${call._id}')">
+          <i class="bi bi-eye"></i>
+        </button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function getCallStatusBadge(status) {
+  switch(status) {
+    case 'ended': return 'bg-success';
+    case 'in-progress': return 'bg-warning';
+    case 'failed': return 'bg-danger';
+    default: return 'bg-secondary';
+  }
+}
+
+function formatVapiDuration(seconds) {
+  if (!seconds) return '0s';
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = seconds % 60;
+  return minutes > 0 ? `${minutes}m ${remainingSeconds}s` : `${remainingSeconds}s`;
+}
+
+function createNewAssistant() {
+  // Redirect to Vapi dashboard with create assistant action
+  window.location.href = 'admin-vapi-dashboard.html#create-assistant';
+}
+
+function viewVapiCall(callId) {
+  // Redirect to Vapi dashboard with specific call
+  window.location.href = `admin-vapi-dashboard.html#call-${callId}`;
+}
+
+// Load Vapi stats when page loads
+setTimeout(() => {
+  loadVapiStats();
+  // Refresh every 30 seconds
+  setInterval(loadVapiStats, 30000);
+}, 2000);
 
 // Start authentication check
 checkAuthWithRetry();
