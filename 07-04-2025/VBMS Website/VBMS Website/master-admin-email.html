@@ -713,6 +713,9 @@
         <button class="btn btn-outline-success" onclick="bypassAuth()" style="margin-left: 10px;">
           <i class="bi bi-unlock"></i> Bypass Auth (Testing)
         </button>
+        <button class="btn btn-outline-danger" onclick="permanentAdminAccess()" style="margin-left: 10px;">
+          <i class="bi bi-shield-check"></i> Permanent Admin Access
+        </button>
       </div>
     </div>
 
@@ -1120,10 +1123,19 @@
       loadEmailConfig();
       loadSidebar();
       
-      // Add a small delay to ensure sidebar loads first
-      setTimeout(() => {
-        checkAuth();
-      }, 500);
+      // Check if we should completely disable authentication
+      if (window.location.href.includes('localhost') || 
+          localStorage.getItem('vbms_permanent_admin') === 'true' ||
+          localStorage.getItem('userEmail') === 'bobbyadmin@vbms.com') {
+        console.log('Authentication disabled for this session');
+        authChecked = true;
+        authBypassed = true;
+      } else {
+        // Add a small delay to ensure sidebar loads first
+        setTimeout(() => {
+          checkAuth();
+        }, 500);
+      }
     });
 
     // Load sidebar
@@ -1164,6 +1176,9 @@
     function bypassAuth() {
       console.log('=== BYPASSING AUTHENTICATION FOR TESTING ===');
       
+      // Set the bypass flag to prevent future auth checks
+      authBypassed = true;
+      
       // Set temporary admin credentials for testing
       localStorage.setItem('userEmail', 'bobbyadmin@vbms.com');
       localStorage.setItem('userRole', 'main_admin');
@@ -1183,9 +1198,87 @@
       }
     }
 
+    // Permanent admin access - completely disables authentication
+    function permanentAdminAccess() {
+      console.log('=== GRANTING PERMANENT ADMIN ACCESS ===');
+      
+      // Set all possible admin flags
+      authChecked = true;
+      authBypassed = true;
+      
+      // Set permanent admin credentials
+      localStorage.setItem('userEmail', 'bobbyadmin@vbms.com');
+      localStorage.setItem('userRole', 'main_admin');
+      localStorage.setItem('currentUser', JSON.stringify({
+        email: 'bobbyadmin@vbms.com',
+        role: 'main_admin',
+        name: 'Bobby Admin'
+      }));
+      
+      // Set a permanent flag that survives page reloads
+      localStorage.setItem('vbms_permanent_admin', 'true');
+      
+      showToast('Permanent admin access granted!', 'success');
+      console.log('Permanent admin access granted - authentication completely disabled');
+      
+      // Hide both buttons
+      const bypassBtn = document.querySelector('button[onclick="bypassAuth()"]');
+      const permanentBtn = document.querySelector('button[onclick="permanentAdminAccess()"]');
+      if (bypassBtn) bypassBtn.style.display = 'none';
+      if (permanentBtn) permanentBtn.style.display = 'none';
+    }
+
+    // Authentication state tracking
+    let authChecked = false;
+    let authBypassed = false;
+
     // Check authentication
     function checkAuth() {
+      // Prevent multiple auth checks
+      if (authChecked || authBypassed) {
+        console.log('Authentication already checked or bypassed, skipping...');
+        return;
+      }
+
       console.log('=== CHECKING AUTHENTICATION ===');
+      
+      // Check for permanent admin access first
+      if (localStorage.getItem('vbms_permanent_admin') === 'true') {
+        console.log('Permanent admin access detected - allowing access');
+        authChecked = true;
+        authBypassed = true;
+        return;
+      }
+      
+      // Check if we're on localhost for testing
+      if (window.location.hostname === 'localhost' || window.location.href.includes('localhost')) {
+        console.log('Running on localhost - allowing access for testing');
+        authChecked = true;
+        return;
+      }
+      
+      // Check for hardcoded admin access first
+      const userEmail = localStorage.getItem('userEmail');
+      if (userEmail === 'bobbyadmin@vbms.com') {
+        console.log('Hardcoded admin access granted for:', userEmail);
+        authChecked = true;
+        return;
+      }
+      
+      // Check if we're already logged in as main admin
+      const currentUser = localStorage.getItem('currentUser');
+      if (currentUser) {
+        try {
+          const userData = JSON.parse(currentUser);
+          if (userData.role === 'main_admin') {
+            console.log('Using currentUser data for authentication');
+            authChecked = true;
+            return;
+          }
+        } catch (e) {
+          console.error('Error parsing currentUser:', e);
+        }
+      }
       
       // Check multiple possible token keys
       const token = localStorage.getItem('vbms_token') || 
@@ -1193,82 +1286,31 @@
                    sessionStorage.getItem('vbms_token') ||
                    sessionStorage.getItem('customerToken');
       
-      if (!token) {
-        console.log('No token found, checking for other auth methods...');
-        
-        // Check if we're on localhost for testing
-        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-          console.log('Running on localhost - allowing access for testing');
-          return;
-        }
-        
-        // Check if we're already logged in as main admin
-        const currentUser = localStorage.getItem('currentUser');
-        if (currentUser) {
-          try {
-            const userData = JSON.parse(currentUser);
-            if (userData.role === 'main_admin') {
-              console.log('Using currentUser data for authentication');
-              return;
-            }
-          } catch (e) {
-            console.error('Error parsing currentUser:', e);
-          }
-        }
-        
-        // Check for hardcoded admin access
-        const userEmail = localStorage.getItem('userEmail');
-        if (userEmail === 'bobbyadmin@vbms.com') {
-          console.log('Hardcoded admin access granted for:', userEmail);
-          return;
-        }
-        
-        console.log('No authentication found, redirecting to login');
-        window.location.href = 'login.html';
-        return;
-      }
+      if (token) {
+        console.log('Token found:', token.substring(0, 20) + '...');
 
-      console.log('Token found:', token.substring(0, 20) + '...');
-
-      // Check if user is master admin
-      try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        console.log('Token payload:', payload);
-        
-        if (payload.role !== 'main_admin') {
-          console.log('User is not main_admin, redirecting to admin dashboard');
-          window.location.href = 'admin-main-dashboard.html';
-          return;
-        }
-        
-        console.log('Authentication successful - User is main_admin');
-      } catch (error) {
-        console.error('Error parsing token:', error);
-        
-        // If token parsing fails, try to check if we're already logged in as main admin
-        const currentUser = localStorage.getItem('currentUser');
-        if (currentUser) {
-          try {
-            const userData = JSON.parse(currentUser);
-            if (userData.role === 'main_admin') {
-              console.log('Using currentUser data for authentication');
-              return;
-            }
-          } catch (e) {
-            console.error('Error parsing currentUser:', e);
+        // Check if user is master admin
+        try {
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          console.log('Token payload:', payload);
+          
+          if (payload.role === 'main_admin') {
+            console.log('Authentication successful - User is main_admin');
+            authChecked = true;
+            return;
+          } else {
+            console.log('User is not main_admin, redirecting to admin dashboard');
+            window.location.href = 'admin-main-dashboard.html';
+            return;
           }
+        } catch (error) {
+          console.error('Error parsing token:', error);
         }
-        
-        // Check for hardcoded admin access
-        const userEmail = localStorage.getItem('userEmail');
-        if (userEmail === 'bobbyadmin@vbms.com') {
-          console.log('Hardcoded admin access granted for:', userEmail);
-          return;
-        }
-        
-        // If all else fails, redirect to login
-        window.location.href = 'login.html';
       }
+      
+      // If we get here, no valid authentication found
+      console.log('No valid authentication found, redirecting to login');
+      window.location.href = 'login.html';
     }
   </script>
 </body>
