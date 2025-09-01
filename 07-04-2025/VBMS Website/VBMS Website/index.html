@@ -820,127 +820,243 @@
     </div>
   </section>
 
-  <!-- Interactive Demo Section -->
-  <section id="interactive-demo" class="demo-section py-5" style="background: rgba(255, 214, 0, 0.05);">
+  <!-- Modern Interactive Demo Section -->
+  <section id="interactive-demo" class="py-5" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
     <div class="container">
-      <div class="row text-center mb-5">
-        <div class="col-12">
-          <h2 class="display-5 mb-3">Try VBMS Interactive Demo</h2>
-          <p class="lead">Experience our platform's power with real-time interactions</p>
-        </div>
+      <div class="text-center mb-5">
+        <h2 class="display-5 fw-bold">Experience VBMS Live</h2>
+        <p class="lead text-muted">See how our platform transforms your business operations</p>
       </div>
       
       <div class="row justify-content-center">
         <div class="col-lg-10">
-          <div class="demo-container" style="background: rgba(255,255,255,0.1); border-radius: 20px; padding: 2rem; border: 2px solid rgba(255,214,0,0.3);">
-            <div class="demo-tabs mb-4">
-              <button class="demo-tab active" onclick="showDemo('dashboard')">Dashboard</button>
-              <button class="demo-tab" onclick="showDemo('inventory')">Inventory</button>
-              <button class="demo-tab" onclick="showDemo('orders')">Orders</button>
-              <button class="demo-tab" onclick="showDemo('analytics')">Analytics</button>
-            </div>
-            
-            <div id="demo-dashboard" class="demo-content active">
-              <div class="row g-3">
-                <div class="col-md-3">
-                  <div class="demo-card">
-                    <h5>$24,580</h5>
-                    <small>Monthly Revenue</small>
-                    <div class="trend text-success">↗ +12%</div>
-                  </div>
-                </div>
-                <div class="col-md-3">
-                  <div class="demo-card">
-                    <h5>1,247</h5>
-                    <small>Total Orders</small>
-                    <div class="trend text-success">↗ +8%</div>
-                  </div>
-                </div>
-                <div class="col-md-3">
-                  <div class="demo-card">
-                    <h5>342</h5>
-                    <small>Products</small>
-                    <div class="trend text-warning">→ 0%</div>
-                  </div>
-                </div>
-                <div class="col-md-3">
-                  <div class="demo-card">
-                    <h5>98.5%</h5>
-                    <small>Customer Satisfaction</small>
-                    <div class="trend text-success">↗ +2%</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <div id="demo-inventory" class="demo-content" style="display:none;">
-              <div class="demo-table">
-                <table class="table table-dark">
-                  <thead>
-                    <tr>
-                      <th>Product</th>
-                      <th>Stock</th>
-                      <th>Status</th>
-                      <th>Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>Premium Coffee Beans</td>
-                      <td>150 units</td>
-                      <td><span class="badge bg-success">In Stock</span></td>
-                      <td><button class="btn btn-sm btn-warning">Reorder</button></td>
-                    </tr>
-                    <tr>
-                      <td>Organic Tea Blend</td>
-                      <td>25 units</td>
-                      <td><span class="badge bg-warning">Low Stock</span></td>
-                      <td><button class="btn btn-sm btn-danger">Urgent Reorder</button></td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-            
-            <div id="demo-orders" class="demo-content" style="display:none;">
-              <div class="demo-orders">
-                <div class="order-item">
-                  <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                      <strong>Order #2024-001</strong>
-                      <br><small>John Doe - $89.99</small>
-                    </div>
-                    <span class="badge bg-info">Processing</span>
-                  </div>
-                </div>
-                <div class="order-item">
-                  <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                      <strong>Order #2024-002</strong>
-                      <br><small>Jane Smith - $156.50</small>
-                    </div>
-                    <span class="badge bg-success">Shipped</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <div id="demo-analytics" class="demo-content" style="display:none;">
-              <div class="analytics-demo">
-                <div class="chart-placeholder" style="height: 200px; background: linear-gradient(45deg, rgba(255,214,0,0.3) 0%, rgba(255,214,0,0.1) 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
-                  <div class="text-center">
-                    <i class="bi bi-bar-chart" style="font-size: 3rem; color: var(--vbms-gold);"></i>
-                    <p class="mt-2">Real-time Sales Analytics</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <div class="text-center mt-4">
-              <button class="btn-primary-custom" onclick="window.location.href='register.html'">
-                Start Your Free Trial Now
+          <!-- Demo Navigation Pills -->
+          <ul class="nav nav-pills nav-justified mb-4" id="demoTabs" role="tablist" style="background: white; border-radius: 15px; padding: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link active" id="dashboard-tab" data-bs-toggle="pill" data-bs-target="#dashboard-demo" type="button" role="tab" style="border-radius: 10px; font-weight: 600;">
+                <i class="bi bi-speedometer2 me-2"></i>Dashboard
               </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="inventory-tab" data-bs-toggle="pill" data-bs-target="#inventory-demo" type="button" role="tab" style="border-radius: 10px; font-weight: 600;">
+                <i class="bi bi-box-seam me-2"></i>Inventory
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="orders-tab" data-bs-toggle="pill" data-bs-target="#orders-demo" type="button" role="tab" style="border-radius: 10px; font-weight: 600;">
+                <i class="bi bi-cart-check me-2"></i>Orders
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="analytics-tab" data-bs-toggle="pill" data-bs-target="#analytics-demo" type="button" role="tab" style="border-radius: 10px; font-weight: 600;">
+                <i class="bi bi-graph-up me-2"></i>Analytics
+              </button>
+            </li>
+          </ul>
+          
+          <!-- Demo Content -->
+          <div class="tab-content" id="demoTabContent">
+            <!-- Dashboard Demo -->
+            <div class="tab-pane fade show active" id="dashboard-demo" role="tabpanel">
+              <div class="card shadow-lg border-0" style="border-radius: 20px; overflow: hidden;">
+                <div class="card-header bg-dark text-white p-3">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-speedometer2 me-2"></i>Live Dashboard</h5>
+                    <span class="badge bg-success">LIVE</span>
+                  </div>
+                </div>
+                <div class="card-body p-4">
+                  <div class="row g-3">
+                    <div class="col-md-3">
+                      <div class="card bg-primary text-white h-100">
+                        <div class="card-body p-3 text-center">
+                          <i class="bi bi-currency-dollar fs-2 mb-2"></i>
+                          <h4 class="fw-bold">$24,580</h4>
+                          <small>Monthly Revenue</small>
+                          <div class="mt-2"><span class="badge bg-success">+12% ↗</span></div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-3">
+                      <div class="card bg-success text-white h-100">
+                        <div class="card-body p-3 text-center">
+                          <i class="bi bi-cart-check fs-2 mb-2"></i>
+                          <h4 class="fw-bold">1,247</h4>
+                          <small>Total Orders</small>
+                          <div class="mt-2"><span class="badge bg-info">+8% ↗</span></div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-3">
+                      <div class="card bg-warning text-dark h-100">
+                        <div class="card-body p-3 text-center">
+                          <i class="bi bi-box-seam fs-2 mb-2"></i>
+                          <h4 class="fw-bold">342</h4>
+                          <small>Products</small>
+                          <div class="mt-2"><span class="badge bg-secondary">0% →</span></div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-3">
+                      <div class="card bg-info text-white h-100">
+                        <div class="card-body p-3 text-center">
+                          <i class="bi bi-emoji-smile fs-2 mb-2"></i>
+                          <h4 class="fw-bold">98.5%</h4>
+                          <small>Satisfaction</small>
+                          <div class="mt-2"><span class="badge bg-success">+2% ↗</span></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
+            
+            <!-- Inventory Demo -->
+            <div class="tab-pane fade" id="inventory-demo" role="tabpanel">
+              <div class="card shadow-lg border-0" style="border-radius: 20px;">
+                <div class="card-header bg-dark text-white p-3">
+                  <h5 class="mb-0"><i class="bi bi-box-seam me-2"></i>Inventory Management</h5>
+                </div>
+                <div class="card-body p-0">
+                  <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                      <thead class="bg-light">
+                        <tr>
+                          <th class="p-3">Product</th>
+                          <th class="p-3">Stock Level</th>
+                          <th class="p-3">Status</th>
+                          <th class="p-3">Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td class="p-3">
+                            <div class="d-flex align-items-center">
+                              <div class="bg-primary rounded-circle p-2 me-3">
+                                <i class="bi bi-cup-hot text-white"></i>
+                              </div>
+                              <strong>Premium Coffee Beans</strong>
+                            </div>
+                          </td>
+                          <td class="p-3"><span class="fw-bold">150 units</span></td>
+                          <td class="p-3"><span class="badge bg-success">In Stock</span></td>
+                          <td class="p-3"><button class="btn btn-outline-primary btn-sm">Reorder</button></td>
+                        </tr>
+                        <tr>
+                          <td class="p-3">
+                            <div class="d-flex align-items-center">
+                              <div class="bg-success rounded-circle p-2 me-3">
+                                <i class="bi bi-flower1 text-white"></i>
+                              </div>
+                              <strong>Organic Tea Blend</strong>
+                            </div>
+                          </td>
+                          <td class="p-3"><span class="fw-bold text-warning">25 units</span></td>
+                          <td class="p-3"><span class="badge bg-warning">Low Stock</span></td>
+                          <td class="p-3"><button class="btn btn-warning btn-sm">Urgent Reorder</button></td>
+                        </tr>
+                        <tr>
+                          <td class="p-3">
+                            <div class="d-flex align-items-center">
+                              <div class="bg-warning rounded-circle p-2 me-3">
+                                <i class="bi bi-egg text-white"></i>
+                              </div>
+                              <strong>Artisan Bread Mix</strong>
+                            </div>
+                          </td>
+                          <td class="p-3"><span class="fw-bold">70 units</span></td>
+                          <td class="p-3"><span class="badge bg-success">In Stock</span></td>
+                          <td class="p-3"><button class="btn btn-outline-primary btn-sm">Reorder</button></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Orders Demo -->
+            <div class="tab-pane fade" id="orders-demo" role="tabpanel">
+              <div class="card shadow-lg border-0" style="border-radius: 20px;">
+                <div class="card-header bg-dark text-white p-3">
+                  <h5 class="mb-0"><i class="bi bi-cart-check me-2"></i>Recent Orders</h5>
+                </div>
+                <div class="card-body p-4">
+                  <div class="row g-3">
+                    <div class="col-12">
+                      <div class="card border-start border-info border-4">
+                        <div class="card-body">
+                          <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                              <h6 class="fw-bold text-primary">Order #2024-001</h6>
+                              <p class="mb-1">John Doe • $89.99</p>
+                              <small class="text-muted">2 items • Placed 2 hours ago</small>
+                            </div>
+                            <span class="badge bg-info fs-6">Processing</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-12">
+                      <div class="card border-start border-success border-4">
+                        <div class="card-body">
+                          <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                              <h6 class="fw-bold text-primary">Order #2024-002</h6>
+                              <p class="mb-1">Jane Smith • $156.50</p>
+                              <small class="text-muted">5 items • Shipped yesterday</small>
+                            </div>
+                            <span class="badge bg-success fs-6">Shipped</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-12">
+                      <div class="card border-start border-warning border-4">
+                        <div class="card-body">
+                          <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                              <h6 class="fw-bold text-primary">Order #2024-003</h6>
+                              <p class="mb-1">Robert Brown • $45.00</p>
+                              <small class="text-muted">1 item • Pending payment</small>
+                            </div>
+                            <span class="badge bg-warning fs-6">Pending</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Analytics Demo -->
+            <div class="tab-pane fade" id="analytics-demo" role="tabpanel">
+              <div class="card shadow-lg border-0" style="border-radius: 20px;">
+                <div class="card-header bg-dark text-white p-3">
+                  <h5 class="mb-0"><i class="bi bi-graph-up me-2"></i>Sales Analytics</h5>
+                </div>
+                <div class="card-body p-4">
+                  <div class="text-center py-5">
+                    <div class="bg-gradient p-5 rounded-3" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                      <i class="bi bi-bar-chart-fill text-white" style="font-size: 4rem;"></i>
+                      <h4 class="text-white mt-3">Real-time Analytics Dashboard</h4>
+                      <p class="text-white-50">Advanced charts and insights coming soon</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="text-center mt-4">
+            <a href="main-admin-login.html" class="btn btn-primary btn-lg px-5 me-3">
+              <i class="bi bi-speedometer2 me-2"></i>Try Live Dashboard
+            </a>
+            <a href="register.html" class="btn btn-outline-primary btn-lg px-5">
+              <i class="bi bi-rocket-takeoff me-2"></i>Start Free Trial
+            </a>
           </div>
         </div>
       </div>
