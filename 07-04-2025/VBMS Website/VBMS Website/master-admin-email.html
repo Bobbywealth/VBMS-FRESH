@@ -739,10 +739,10 @@
       </div>
     </div>
 
-    <!-- Authentication Notice -->
-    <div class="alert alert-warning" style="margin-bottom: 20px; background: #fff3cd; border: 1px solid #ffeaa7; color: #856404; padding: 15px; border-radius: 10px;">
-      <h5><i class="bi bi-exclamation-triangle"></i> Authentication Disabled for Testing</h5>
-      <p>This page has authentication completely disabled for testing purposes. You can access all email management features without logging in.</p>
+    <!-- Standalone Page Notice -->
+    <div class="alert alert-info" style="margin-bottom: 20px; background: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; padding: 15px; border-radius: 10px;">
+      <h5><i class="bi bi-shield-check"></i> Standalone Email Management Page</h5>
+      <p><strong>This page is completely isolated and has no authentication.</strong> All sidebar links are disabled to prevent redirects. You can safely use all email management features here.</p>
     </div>
 
     <!-- Email Configuration -->
@@ -1263,15 +1263,26 @@
             </div>
             <div class="sidebar-content">
               <p class="sidebar-heading">MAIN</p>
-              <a class="sidebar-link" href="master-admin-analytics.html"><i class="bi bi-graph-up"></i> Analytics</a>
-              <a class="sidebar-link" href="master-admin-customers.html"><i class="bi bi-people"></i> Customers</a>
-              <a class="sidebar-link" href="master-admin-email.html"><i class="bi bi-envelope-fill"></i> Email Management</a>
-              <a class="sidebar-link" href="admin-smm-dashboard.html"><i class="bi bi-share-fill"></i> Social Media</a>
-              <a class="sidebar-link" href="admin-vapi-dashboard.html"><i class="bi bi-robot"></i> Vapi AI</a>
+              <a class="sidebar-link" href="#" onclick="showComingSoon('Analytics')"><i class="bi bi-graph-up"></i> Analytics</a>
+              <a class="sidebar-link" href="#" onclick="showComingSoon('Customers')"><i class="bi bi-people"></i> Customers</a>
+              <a class="sidebar-link active" href="#" onclick="return false;"><i class="bi bi-envelope-fill"></i> Email Management</a>
+              <a class="sidebar-link" href="#" onclick="showComingSoon('Social Media')"><i class="bi bi-share-fill"></i> Social Media</a>
+              <a class="sidebar-link" href="#" onclick="showComingSoon('Vapi AI')"><i class="bi bi-robot"></i> Vapi AI</a>
+            </div>
+            
+            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
+              <button class="btn btn-outline-secondary w-100" onclick="showComingSoon('Logout')">
+                <i class="bi bi-box-arrow-left"></i> Logout
+              </button>
             </div>
           </nav>
         `;
       }
+    }
+
+    // Show coming soon message for other features
+    function showComingSoon(feature) {
+      showToast(`${feature} feature coming soon!`, 'info');
     }
 
     // Debug authentication function
