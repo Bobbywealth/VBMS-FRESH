@@ -639,6 +639,12 @@
       </div>
     </div>
 
+    <!-- Authentication Notice -->
+    <div class="alert alert-warning" style="margin-bottom: 20px; background: #fff3cd; border: 1px solid #ffeaa7; color: #856404; padding: 15px; border-radius: 10px;">
+      <h5><i class="bi bi-exclamation-triangle"></i> Authentication Disabled for Testing</h5>
+      <p>This page has authentication completely disabled for testing purposes. You can access all email management features without logging in.</p>
+    </div>
+
     <!-- Email Configuration -->
     <div class="email-config">
       <div class="config-section">
@@ -1120,22 +1126,17 @@
 
     // Initialize page
     document.addEventListener('DOMContentLoaded', function() {
+      console.log('=== PAGE LOADING - AUTHENTICATION DISABLED ===');
+      
+      // Completely disable authentication for this page
+      authChecked = true;
+      authBypassed = true;
+      
+      // Load page content
       loadEmailConfig();
       loadSidebar();
       
-      // Check if we should completely disable authentication
-      if (window.location.href.includes('localhost') || 
-          localStorage.getItem('vbms_permanent_admin') === 'true' ||
-          localStorage.getItem('userEmail') === 'bobbyadmin@vbms.com') {
-        console.log('Authentication disabled for this session');
-        authChecked = true;
-        authBypassed = true;
-      } else {
-        // Add a small delay to ensure sidebar loads first
-        setTimeout(() => {
-          checkAuth();
-        }, 500);
-      }
+      console.log('Page loaded successfully - no authentication required');
     });
 
     // Load sidebar
@@ -1232,8 +1233,13 @@
     let authChecked = false;
     let authBypassed = false;
 
-    // Check authentication
+    // Check authentication - DISABLED FOR TESTING
     function checkAuth() {
+      console.log('=== AUTHENTICATION FUNCTION DISABLED ===');
+      return; // Function disabled - no authentication checks
+      
+      // All authentication code commented out below
+      /*
       // Prevent multiple auth checks
       if (authChecked || authBypassed) {
         console.log('Authentication already checked or bypassed, skipping...');
@@ -1311,6 +1317,7 @@
       // If we get here, no valid authentication found
       console.log('No valid authentication found, redirecting to login');
       window.location.href = 'login.html';
+      */
     }
   </script>
 </body>
