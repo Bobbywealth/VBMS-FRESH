@@ -152,6 +152,54 @@
             font-size: 2rem;
         }
 
+        .datetime-info {
+            display: flex;
+            gap: 20px;
+            margin-top: 8px;
+            align-items: center;
+        }
+
+        .current-date, .current-time {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            font-weight: 500;
+            padding: 8px 12px;
+            background: var(--glass);
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .current-date::before, .current-time::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(240, 185, 11, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .current-date:hover::before, .current-time:hover::before {
+            left: 100%;
+        }
+
+        .current-date:hover, .current-time:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(240, 185, 11, 0.2);
+            color: var(--accent);
+        }
+
+        .current-time {
+            font-weight: 600;
+            color: var(--accent);
+            background: linear-gradient(135deg, var(--glass), rgba(240, 185, 11, 0.05));
+        }
+
         .header-right {
             display: flex;
             align-items: center;
@@ -567,6 +615,10 @@
         <i class="bi bi-crown-fill"></i> MASTER ADMIN ANALYTICS
       </div>
       <h1><i class="bi bi-graph-up-arrow"></i> Advanced System Analytics</h1>
+      <div class="datetime-info">
+        <div id="currentDate" class="current-date"></div>
+        <div id="currentTime" class="current-time"></div>
+      </div>
     </div>
     <div class="header-right">
       <div class="realtime-indicator">
@@ -1224,6 +1276,40 @@ function viewGeoAnalytics() {
 function optimizeFunnel() {
   alert('Conversion funnel optimization would analyze each step of the sales process and recommend improvements.');
 }
+
+// Date and Time Display Functions
+function updateDateTime() {
+  const now = new Date();
+  
+  // Update date
+  const dateOptions = { 
+    weekday: 'long', 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric' 
+  };
+  const dateElement = document.getElementById('currentDate');
+  if (dateElement) {
+    dateElement.textContent = now.toLocaleDateString('en-US', dateOptions);
+  }
+  
+  // Update time
+  const timeOptions = { 
+    hour: '2-digit', 
+    minute: '2-digit', 
+    second: '2-digit',
+    hour12: true 
+  };
+  const timeElement = document.getElementById('currentTime');
+  if (timeElement) {
+    timeElement.textContent = now.toLocaleTimeString('en-US', timeOptions);
+  }
+}
+
+// Initialize datetime display
+updateDateTime();
+// Update every second
+setInterval(updateDateTime, 1000);
 
 // Start authentication check
 checkAuthWithRetry();
