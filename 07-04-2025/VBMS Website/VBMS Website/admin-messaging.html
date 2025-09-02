@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VBMS Admin Messaging System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #f8f9fa; margin: 0; height: 100vh; }
+        .master-admin-sidebar { width: 320px; background: white; border-right: 2px solid #dc3545; padding: 20px; position: fixed; height: 100vh; overflow-y: auto; box-shadow: 2px 0 20px rgba(0,0,0,0.1); }
+        .logo { font-size: 2rem; color: #dc3545; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .user-avatar { width: 50px; height: 50px; background: #dc3545; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; margin: 10px auto; }
+        .sidebar-link { display: flex; align-items: center; gap: 12px; padding: 12px 15px; color: #212529; text-decoration: none; border-radius: 10px; margin-bottom: 5px; transition: all 0.3s ease; }
+        .sidebar-link:hover { background: #f8f9fa; color: #dc3545; }
+        .sidebar-link.active { background: #dc3545; color: white; }
+        .main-content { margin-left: 320px; height: 100vh; display: flex; flex-direction: column; }
+        .messaging-header { background: white; padding: 20px; border-bottom: 1px solid #dee2e6; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .messaging-container { flex: 1; display: flex; background: white; margin: 20px; border-radius: 15px; box-shadow: 0 5px 25px rgba(0,0,0,0.1); overflow: hidden; }
+        .conversations-sidebar { width: 350px; background: white; border-right: 1px solid #dee2e6; display: flex; flex-direction: column; }
+        .conversation-item { display: flex; align-items: center; padding: 15px; border-radius: 10px; margin: 8px; cursor: pointer; transition: all 0.3s ease; }
+        .conversation-item:hover { background: #f8f9fa; }
+        .conversation-item.active { background: #dc3545; color: white; }
+        .chat-area { flex: 1; display: flex; flex-direction: column; }
+        .messages-area { flex: 1; padding: 20px; overflow-y: auto; background: #f8f9fa; }
+        .message { display: flex; margin-bottom: 20px; }
+        .message.sent { justify-content: flex-end; }
+        .message-content { max-width: 70%; padding: 15px 20px; border-radius: 20px; }
+        .message.received .message-content { background: white; border: 1px solid #dee2e6; }
+        .message.sent .message-content { background: #dc3545; color: white; }
+        .input-area { background: white; padding: 20px; border-top: 1px solid #dee2e6; }
+        .input-container { display: flex; gap: 15px; align-items: flex-end; }
+        .message-input { flex: 1; padding: 15px 20px; border: 1px solid #dee2e6; border-radius: 25px; outline: none; resize: none; }
+        .send-button { padding: 15px 25px; background: #dc3545; color: white; border: none; border-radius: 25px; cursor: pointer; font-weight: 600; }
+        .send-button:hover { background: #c82333; }
+    </style>
+</head>
+<body>
+    <nav class="master-admin-sidebar">
+        <div class="sidebar-header" style="text-align: center; padding: 20px 0; border-bottom: 2px solid #f8f9fa; margin-bottom: 20px;">
+            <div class="logo"><i class="bi bi-crown-fill"></i><span>VBMS</span></div>
+            <div class="user-avatar">BA</div>
+            <div><strong>Bobby Admin</strong></div>
+            <div style="color: #6c757d;">Master Admin</div>
+        </div>
+        <div class="sidebar-content">
+            <h6 style="color: #6c757d; font-size: 0.8rem; margin: 25px 0 15px 0;">MAIN</h6>
+            <a class="sidebar-link" href="admin-main-dashboard.html"><i class="bi bi-speedometer2"></i> Dashboard</a>
+            <a class="sidebar-link" href="master-admin-customers.html"><i class="bi bi-people"></i> Customers</a>
+            <h6 style="color: #6c757d; font-size: 0.8rem; margin: 25px 0 15px 0;">COMMUNICATION</h6>
+            <a class="sidebar-link active" href="admin-messaging.html"><i class="bi bi-chat-dots"></i> Messaging</a>
+            <a class="sidebar-link" href="master-admin-email.html"><i class="bi bi-envelope-fill"></i> Email Management</a>
+        </div>
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
+            <button class="btn btn-outline-secondary w-100" onclick="logout()"><i class="bi bi-box-arrow-left"></i> Logout</button>
+        </div>
+    </nav>
+
+    <div class="main-content">
+        <div class="messaging-header">
+            <h2><i class="bi bi-chat-dots text-primary"></i> Admin Messaging System</h2>
+            <p class="text-muted">Communicate with customers and team members</p>
+        </div>
+
+        <div class="messaging-container">
+            <div class="conversations-sidebar">
+                <div style="padding: 20px; background: #f8f9fa;">
+                    <input type="text" class="form-control" placeholder="Search conversations...">
+                </div>
+                <div id="conversationsList" style="flex: 1; padding: 10px;">
+                    <div class="conversation-item active" onclick="selectConversation(1)">
+                        <div style="width: 40px; height: 40px; background: #0d6efd; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; font-weight: bold;">SJ</div>
+                        <div>
+                            <div style="font-weight: 600;">Sarah Johnson</div>
+                            <div style="color: #6c757d; font-size: 14px;">Hi, I have a question about my order</div>
+                        </div>
+                    </div>
+                    <div class="conversation-item" onclick="selectConversation(2)">
+                        <div style="width: 40px; height: 40px; background: #0d6efd; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; font-weight: bold;">MC</div>
+                        <div>
+                            <div style="font-weight: 600;">Mike Chen</div>
+                            <div style="color: #6c757d; font-size: 14px;">Thanks for the quick response</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chat-area">
+                <div style="background: white; padding: 20px; border-bottom: 1px solid #dee2e6; display: flex; align-items: center; justify-content: space-between;">
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <div style="width: 40px; height: 40px; background: #0d6efd; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">SJ</div>
+                        <div>
+                            <h5 style="margin: 0;">Sarah Johnson</h5>
+                            <p style="margin: 0; color: #6c757d;">Online</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="messages-area" id="messagesArea">
+                    <div class="message received">
+                        <div class="message-content">
+                            <div>Hi, I have a question about my order</div>
+                            <div style="font-size: 12px; color: #6c757d; margin-top: 8px;">10:30 AM</div>
+                        </div>
+                    </div>
+                    <div class="message sent">
+                        <div class="message-content">
+                            <div>Hello Sarah! I'd be happy to help. What's your order number?</div>
+                            <div style="font-size: 12px; color: rgba(255,255,255,0.8); margin-top: 8px;">10:32 AM</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-area">
+                    <div class="input-container">
+                        <textarea class="message-input" placeholder="Type your message here..." rows="1" id="messageInput"></textarea>
+                        <button class="send-button" onclick="sendMessage()"><i class="bi bi-send"></i> Send</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function selectConversation(id) {
+            document.querySelectorAll('.conversation-item').forEach(item => item.classList.remove('active'));
+            event.target.closest('.conversation-item').classList.add('active');
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const messageText = input.value.trim();
+            if (!messageText) return;
+            
+            const messagesArea = document.getElementById('messagesArea');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message sent';
+            messageDiv.innerHTML = '<div class="message-content"><div>' + messageText + '</div><div style="font-size: 12px; color: rgba(255,255,255,0.8); margin-top: 8px;">' + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) + '</div></div>';
+            
+            messagesArea.appendChild(messageDiv);
+            messagesArea.scrollTop = messagesArea.scrollHeight;
+            input.value = '';
+        }
+
+        document.getElementById('messageInput').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+        });
+
+        function logout() { window.location.href = 'login.html'; }
+    </script>
+</body>
+</html>
