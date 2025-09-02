@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>VBMS Messaging (Groups)</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+  <audio id="chatSound" src="https://cdn.pixabay.com/audio/2022/08/20/audio_12s6.mp3" preload="auto"></audio>
+  <style>
+    body {
+      margin: 0;
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+      color: #ffffff;
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+    }
+
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 280px;
+      height: 100vh;
+      background: linear-gradient(180deg, #1a1a1a 0%, #0f0f0f 100%);
+      border-right: 1px solid #333;
+      overflow-y: auto;
+      z-index: 1000;
+      padding: 1.5rem 0;
+      transition: all 0.3s ease;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 1.5rem 2rem 1.5rem;
+      position: relative;
+    }
+
+    .logo img {
+      height: 60px;
+      width: auto;
+    }
+
+    .sidebar-heading {
+      color: #888;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 1rem 1.5rem 0.5rem 1.5rem;
+      margin: 0;
+    }
+
+    .sidebar-link {
+      display: flex;
+      align-items: center;
+      padding: 0.75rem 1.5rem;
+      color: #ccc;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      border-left: 3px solid transparent;
+    }
+
+    .sidebar-link:hover {
+      background: linear-gradient(90deg, #FFD600 0%, rgba(255, 214, 0, 0.1) 100%);
+      color: #000;
+      border-left-color: #FFD600;
+      transform: translateX(5px);
+    }
+
+    .sidebar-link.active {
+      background: linear-gradient(90deg, #FFD600 0%, rgba(255, 214, 0, 0.15) 100%);
+      color: #000;
+      border-left-color: #FFD600;
+      font-weight: 600;
+    }
+
+    .sidebar-link i {
+      margin-right: 0.75rem;
+      width: 20px;
+      text-align: center;
+    }
+
+    .btn-logout {
+      margin: 2rem 1.5rem 1rem 1.5rem;
+      background: #FFD600;
+      border: none;
+      color: #000;
+      font-weight: 600;
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      transition: all 0.2s ease;
+    }
+
+    .btn-logout:hover {
+      background: #e6c200;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(255, 214, 0, 0.3);
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      color: #f0f0f0;
+      background:
+        radial-gradient(ellipse 60% 40% at 60% 12%, rgba(240,185,11,0.17) 0%, rgba(240,185,11,0.05) 90%, transparent 100%),
+        linear-gradient(
+          -45deg,
+          #2e2c18 0%,
+          #19160b 12%,
+          #f0b90b 18%,
+          #1a1917 36%,
+          #373431 60%,
+          #24231c 82%,
+          #000 100%
+        );
+      background-blend-mode: lighten, normal;
+      background-size: 800% 800%;
+      animation: gradientBG 17s ease-in-out infinite;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+    }
+    @keyframes gradientBG {
+      0% {background-position: 0% 50%, 0% 50%;}
+      25% {background-position: 50% 100%, 20% 60%;}
+      50% {background-position: 100% 50%, 60% 100%;}
+      75% {background-position: 50% 0%, 80% 0%;}
+      100% {background-position: 0% 50%, 0% 50%;}
+    }
+
+    .chat-container {
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .sidebar {
+      width: 270px;
+      background: rgba(18, 18, 18, 0.8);
+      border-right: 1px solid #2a2a2a;
+      padding: 25px 15px;
+      backdrop-filter: blur(8px);
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      z-index: 2;
+    }
+
+    /* Sidebar Header (back arrow + search) */
+    .sidebar-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    .btn-back {
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      color: inherit;
+      cursor: pointer;
+    }
+    .sidebar-search {
+      flex: 1;
+      padding: 6px 10px;
+      border-radius: 6px;
+      border: 1px solid #444;
+      background: #222;
+      color: #f0f0f0;
+      font-size: 0.95rem;
+    }
+
+    /* Sidebar Tabs */
+    .sidebar-tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    .sidebar-tabs .tab {
+      flex: 1;
+      padding: 6px 0;
+      text-align: center;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      background: rgba(240,185,11,0.1);
+    }
+    .sidebar-tabs .tab.active {
+      background: rgba(240,185,11,0.2);
+    }
+
+    .sidebar h5 {
+      color: #f0b90b;
+      font-weight: bold;
+      margin-bottom: 1.6rem;
+      text-shadow: 0 0 7px #f0b90b99;
+      letter-spacing: 0.5px;
+    }
+
+    .groups-list {
+      flex: 1;
+      overflow-y: auto;
+      padding-bottom: 10px;
+    }
+
+    .group {
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 9px;
+      color: #ddd;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      position: relative;
+      transition: 0.25s;
+      font-size: 1.03rem;
+      font-weight: 500;
+    }
+    .group:hover, .group.active {
+      background: #f0b90b;
+      color: #000;
+    }
+    .group .group-badge {
+      background: #e74c3c;
+      color: #fff;
+      font-size: 0.85em;
+      border-radius: 50%;
+      padding: 3px 8px;
+      margin-left: auto;
+      margin-right: 1px;
+      font-weight: 600;
+      min-width: 22px;
+      text-align: center;
+      display: inline-block;
+    }
+    .group .group-avatar {
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      background: #f0b90b;
+      color: #212121;
+      font-weight: bold;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.09em;
+      margin-right: 2px;
+      box-shadow: 0 0 6px #f0b90b33;
+      border: 1.5px solid #1a1a1a;
+    }
+    .btn-dashboard {
+      margin-top: 2rem;
+      width: 100%;
+      font-weight: bold;
+      font-size: 1.09rem;
+      background: #f0b90b;
+      color: #222;
+      border: none;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px 0 #f0b90b22;
+    }
+
+    .chat-box {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: rgba(25, 25, 25, 0.74);
+      backdrop-filter: blur(6px);
+      box-shadow: 0 4px 32px 0 rgba(0,0,0,0.37), 0 0 8px 0 #f0b90b44;
+      z-index: 1;
+    }
+
+    .chat-header {
+      padding: 20px 20px 14px 20px;
+      border-bottom: 1px solid #333;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      background-color: #111;
+      font-size: 1.18rem;
+      font-weight: 600;
+      gap: 10px;
+      min-height: 68px;
+    }
+    .chat-header-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .chat-header .group-header-avatar {
+      width: 44px;
+      height: 44px;
+      background: #f0b90b;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.37em;
+      color: #151515;
+      font-weight: 900;
+      margin-right: 3px;
+      box-shadow: 0 0 10px #f0b90b44;
+      border: 2.2px solid #19160b;
+    }
+    .chat-header .participants-avatars {
+      display: flex; gap: 3px;
+    }
+    .chat-header .participants-avatars .avatar {
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      background: #35312c;
+      color: #f0b90b;
+      font-weight: bold;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.05em;
+      border: 1.4px solid #000;
+      box-shadow: 0 0 4px #f0b90b33;
+    }
+    .chat-header .group-title {
+      font-weight: 700;
+      color: #f0b90b;
+      letter-spacing: 0.5px;
+      font-size: 1.13em;
+      margin-bottom: 0.18em;
+    }
+    .chat-header .group-participants {
+      color: #b1b1b1;
+      font-size: 0.97em;
+      font-weight: 400;
+      letter-spacing: 0.01em;
+    }
+
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 11px;
+      position: relative;
+    }
+    .chat-messages[aria-live="polite"] { outline: none; }
+
+    .message-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+    }
+    .message-row.sent { flex-direction: row-reverse; }
+    .message-row .avatar {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: #f0b90b;
+      color: #181818;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.13rem;
+      box-shadow: 0 0 6px #f0b90b55;
+      border: 2px solid #222;
+    }
+    .message {
+      max-width: 76vw;
+      min-width: 36px;
+      padding: 10px 14px;
+      border-radius: 16px;
+      line-height: 1.4;
+      font-size: 1.08rem;
+      word-break: break-word;
+      position: relative;
+      margin-bottom: 2px;
+    }
+    .message.received {
+      background: #232323;
+      color: #e3e3e3;
+      align-self: flex-start;
+    }
+    .message.sent {
+      background: #f0b90b;
+      color: #222;
+      align-self: flex-end;
+      font-weight: 500;
+      box-shadow: 0 2px 10px 0 #f0b90b44;
+    }
+    .sender-name {
+      font-size: 0.92em;
+      font-weight: 700;
+      color: #f0b90b;
+      margin-bottom: 1px;
+      margin-left: 2px;
+    }
+    .timestamp {
+      font-size: 0.85rem;
+      color: #888;
+      margin: 0 7px;
+      min-width: 66px;
+      text-align: center;
+      opacity: 0.7;
+      font-weight: 400;
+    }
+    .read-receipt {
+      font-size: 1.1em;
+      color: #32cd32;
+      margin-left: 2px;
+      vertical-align: middle;
+      opacity: 0.7;
+    }
+
+    .typing-indicator {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin-left: 38px;
+      margin-bottom: 7px;
+      min-height: 32px;
+    }
+    .typing-dot {
+      height: 9px;
+      width: 9px;
+      background: #f0b90b;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 3px;
+      opacity: 0.7;
+      animation: typingBlink 1.2s infinite;
+    }
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes typingBlink {
+      0%, 80%, 100% { opacity: 0.7;}
+      40% { opacity: 1;}
+    }
+
+    .chat-footer {
+      padding: 15px 20px;
+      border-top: 1px solid #333;
+      display: flex;
+      gap: 10px;
+      background-color: #111;
+      position: sticky;
+      bottom: 0;
+      z-index: 2;
+    }
+
+    .chat-footer input {
+      flex: 1;
+      background: #222;
+      color: #fff;
+      border: 1px solid #444;
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 1.02rem;
+    }
+
+    .chat-footer button {
+      background: #f0b90b;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-weight: bold;
+      color: #000;
+      font-size: 1rem;
+      box-shadow: 0 2px 8px 0 #f0b90b22;
+    }
+
+    @media (max-width: 900px) {
+      .chat-header .group-title { font-size: 1em; }
+      .chat-header .participants-avatars .avatar { width: 23px; height: 23px; font-size: 0.98em; }
+      .chat-header .group-header-avatar { width: 34px; height: 34px; font-size: 1.09em; }
+      .sidebar { width: 100px; min-width: 70px; padding: 18px 3px; }
+      .group .group-avatar { width: 22px; height: 22px; font-size: 0.98em; }
+      .group { font-size: 0.97rem; padding: 10px 6px; }
+    }
+    @media (max-width: 768px) {
+      .chat-container { flex-direction: column; }
+      .sidebar { width: 100%; height: auto; min-width: 0; }
+      .chat-box { min-height: 60vh; }
+      .message { font-size: 0.98rem; }
+    }
+  </style>
+</head>
+<body>
+<nav class="sidebar" id="sidebar" tabindex="0">
+  <div class="logo">
+    <img src="https://iili.io/F7bM6Jt.md.png" alt="VBMS">
+    <span class="logo-eye-anim" style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); pointer-events:none; overflow:visible;">
+      <svg width="49" height="49" style="display:block; overflow:visible;">
+        <!-- Iris ripple -->
+        <circle cx="24.5" cy="23" r="13" stroke="#FFD600" stroke-width="2.2" fill="none" opacity="0.17">
+          <animate attributeName="r" values="13;18;13" dur="1.3s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0.17;0.33;0.17" dur="1.3s" repeatCount="indefinite"/>
+        </circle>
+        <!-- Pulsing iris -->
+        <circle cx="24.5" cy="23" r="6.3" fill="#FFD600" opacity="0.77">
+          <animate attributeName="opacity" values="0.77;0.21;0.77" dur="1.12s" repeatCount="indefinite"/>
+        </circle>
+        <!-- Scanning arc -->
+        <path d="M24.5,8 A15,15 0 0 1 39,23" stroke="#FFD600" stroke-width="2.7" stroke-linecap="round" fill="none" opacity="0.7">
+          <animateTransform
+            attributeName="transform"
+            type="rotate"
+            from="0 24.5 23"
+            to="360 24.5 23"
+            dur="1.24s"
+            repeatCount="indefinite"/>
+        </path>
+        <!-- Lens flare glint -->
+        <rect x="-20" y="19" width="15" height="5" fill="#fff" opacity="0.15"
+              transform="rotate(45 10 24.5)">
+          <animate attributeName="x" values="-20;60" dur="3s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0;0.2;0" dur="3s" repeatCount="indefinite"/>
+        </rect>
+      </svg>
+    </span>
+  </div>
+
+  <p class="sidebar-heading">CORE</p>
+  <a class="sidebar-link" href="dashboard.html" aria-label="Dashboard"><i class="bi bi-speedometer2"></i><span>Dashboard</span></a>
+  <a class="sidebar-link" href="reports.html" aria-label="Reports"><i class="bi bi-bar-chart-line"></i><span>Reports</span></a>
+
+  <p class="sidebar-heading">OPERATIONS</p>
+  <a class="sidebar-link" href="orders.html" aria-label="Orders"><i class="bi bi-box"></i><span>Orders</span></a>
+  <a class="sidebar-link" href="monitoring.html" aria-label="Monitoring"><i class="bi bi-camera-video"></i><span>Monitoring</span></a>
+  <a class="sidebar-link" href="inventory.html" aria-label="Inventory"><i class="bi bi-stack"></i><span>Inventory</span></a>
+  <a class="sidebar-link" href="calendar.html" aria-label="Calendar"><i class="bi bi-calendar-event"></i><span>Calendar</span></a>
+
+  <p class="sidebar-heading">PEOPLE & CLIENTS</p>
+  <a class="sidebar-link" href="team.html" aria-label="Team"><i class="bi bi-people"></i><span>Team</span></a>
+  <a class="sidebar-link" href="clients.html" aria-label="Clients"><i class="bi bi-person-badge"></i><span>Clients</span></a>
+  <a class="sidebar-link" href="leads.html" aria-label="Leads"><i class="bi bi-person-lines-fill"></i><span>Leads</span></a>
+
+  <p class="sidebar-heading">TASKS & COMMUNICATION</p>
+  <a class="sidebar-link" href="task-board.html" aria-label="Task Manager"><i class="bi bi-kanban"></i><span>Task Manager</span></a>
+  <a class="sidebar-link active" href="messaging.html" aria-label="Messaging"><i class="bi bi-chat-dots"></i><span>Messaging</span></a>
+
+  <p class="sidebar-heading">AI TOOLS</p>
+  <a class="sidebar-link" href="Aiphone.html" aria-label="AI Phone"><i class="bi bi-telephone"></i><span>AI Phone</span></a>
+  <a class="sidebar-link" href="Aiassistant.html" aria-label="AI Assistant"><i class="bi bi-robot"></i><span>AI Assistant</span></a>
+
+  <p class="sidebar-heading">BUSINESS TOOLS</p>
+  <a class="sidebar-link" href="billing.html" aria-label="Billing"><i class="bi bi-credit-card-2-front"></i><span>Billing</span></a>
+  <a class="sidebar-link" href="settings.html" aria-label="Settings"><i class="bi bi-gear"></i><span>Settings</span></a>
+  <a class="sidebar-link" href="training.html" aria-label="Training"><i class="bi bi-mortarboard"></i><span>Training</span></a>
+
+  <p class="sidebar-heading">DEV/UTILITY</p>
+  <a class="sidebar-link" href="wizard.html" aria-label="Wizard (Dev)"><i class="bi bi-tools"></i><span>Wizard (Dev)</span></a>
+  <a class="sidebar-link" href="wizard-step2.html" aria-label="Wizard Step 2"><i class="bi bi-tools"></i><span>Wizard Step 2</span></a>
+  <a class="sidebar-link" href="wizard-step3.html" aria-label="Wizard Step 3"><i class="bi bi-tools"></i><span>Wizard Step 3</span></a>
+
+  <button class="btn btn-warning btn-logout" onclick="logout()"><i class="bi bi-box-arrow-left"></i> Logout</button>
+</nav>
+
+  <div class="container-fluid p-0 h-100" style="margin-left: 280px;">
+
+<div class="chat-container">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <!-- Sidebar Header -->
+    <div class="sidebar-header">
+      <button class="btn-back"><i class="bi bi-arrow-left"></i></button>
+      <input type="text" class="sidebar-search" placeholder="Search..." />
+    </div>
+    <!-- Sidebar Tabs -->
+    <div class="sidebar-tabs">
+      <div class="tab active">Chats</div>
+      <div class="tab">Contacts</div>
+    </div>
+    <!-- Groups / Contacts List -->
+    <div class="groups-list" id="groupsList">
+      <!-- Groups will be generated here -->
+    </div> <!-- end .groups-list -->
+    <button class="btn btn-dashboard" onclick="window.location.href='dashboard.html'">← Back to Dashboard</button>
+  </div>
+
+  <!-- Chat Box -->
+  <div class="chat-box">
+    <div class="chat-header" id="chatHeader">
+      <!-- Group info will be here -->
+    </div>
+
+    <div class="chat-messages" id="chatMessages" aria-live="polite" tabindex="0">
+      <!-- Messages will be inserted here -->
+    </div>
+
+    <div class="chat-footer">
+      <input type="text" id="chatInput" placeholder="Type your message..." autocomplete="off">
+      <button onclick="sendMessage()">Send</button>
+    </div>
+  </div>
+</div>
+
+<audio id="chatSound" src="https://cdn.pixabay.com/audio/2022/08/20/audio_12s6.mp3" preload="auto"></audio>
+
+<script>
+  // ---- DATA & STATE ----
+  const USER = { id: 'you', name: 'You', avatar: 'Y', isSelf: true };
+  const contacts = {
+    sarah: { id: 'sarah', name: 'Sarah', avatar: 'S' },
+    dev:   { id: 'dev', name: 'Dev', avatar: 'D' },
+    mary:  { id: 'mary', name: 'Mary', avatar: 'M' },
+    bob:   { id: 'bob', name: 'Bob', avatar: 'B' }
+  };
+  const groups = [
+    {
+      id: 'g1',
+      name: 'All Staff',
+      avatar: '👥',
+      participants: [USER, contacts.sarah, contacts.dev, contacts.mary, contacts.bob],
+      messages: [
+        { sender: contacts.sarah, text: "Good morning team!", time: getTime(-7), read: true },
+        { sender: USER, text: "Morning! What's on the agenda?", time: getTime(-6), read: true },
+        { sender: contacts.dev, text: "Deploy at 10AM.", time: getTime(-5), read: true }
+      ],
+      unread: 2
+    },
+    {
+      id: 'g2',
+      name: 'Managers',
+      avatar: '💼',
+      participants: [USER, contacts.sarah, contacts.mary],
+      messages: [
+        { sender: contacts.sarah, text: "Remember the 1:00PM review.", time: getTime(-5), read: true },
+        { sender: USER, text: "Thanks for the reminder.", time: getTime(-4), read: true }
+      ],
+      unread: 0
+    },
+    {
+      id: 'g3',
+      name: 'Tech Support',
+      avatar: '🛠️',
+      participants: [USER, contacts.dev, contacts.bob],
+      messages: [
+        { sender: contacts.bob, text: "System check OK.", time: getTime(-8), read: true },
+        { sender: contacts.dev, text: "New ticket received.", time: getTime(-7), read: true },
+        { sender: USER, text: "I'll check on that!", time: getTime(-6), read: true }
+      ],
+      unread: 1
+    },
+    {
+      id: 'g4',
+      name: 'Client X',
+      avatar: '🏢',
+      participants: [USER, contacts.bob],
+      messages: [
+        { sender: contacts.bob, text: "Can you send me the docs?", time: getTime(-3), read: true },
+        { sender: USER, text: "Sending now!", time: getTime(-2), read: true }
+      ],
+      unread: 0
+    }
+  ];
+
+  // ---- UTILS ----
+  function getTime(offsetMinutes = 0) {
+    const d = new Date(Date.now() + offsetMinutes * 60 * 1000);
+    let h = d.getHours(), m = d.getMinutes();
+    let ampm = h >= 12 ? "PM" : "AM";
+    h = h % 12; if (h === 0) h = 12;
+    m = m < 10 ? "0" + m : m;
+    return `${h}:${m} ${ampm}`;
+  }
+  function playSound() {
+    const audio = document.getElementById('chatSound');
+    audio.currentTime = 0; audio.play();
+  }
+
+  // ---- RENDER GROUPS ----
+  const groupsList = document.getElementById("groupsList");
+  let currentGroup = groups[0];
+
+  function renderGroupsSidebar() {
+    groupsList.innerHTML = '';
+    groups.forEach(g => {
+      const el = document.createElement('div');
+      el.className = 'group' + (g === currentGroup ? ' active' : '');
+      el.onclick = () => selectGroup(g.id);
+      el.innerHTML = `
+        <span class="group-avatar">${g.avatar}</span>
+        <span>${g.name}</span>
+        ${g.unread ? `<span class="group-badge">${g.unread}</span>` : ''}
+      `;
+      groupsList.appendChild(el);
+    });
+  }
+
+  // ---- RENDER CHAT HEADER ----
+  function renderChatHeader() {
+    const group = currentGroup;
+    const header = document.getElementById("chatHeader");
+    header.innerHTML = `
+      <div class="chat-header-group">
+        <span class="group-header-avatar">${group.avatar}</span>
+        <div>
+          <div class="group-title">${group.name}</div>
+          <div class="group-participants">
+            ${group.participants.map(u => `<span style="color:#f0b90b;">${u.name}</span>`).join(", ")}
+          </div>
+        </div>
+      </div>
+      <div class="participants-avatars">
+        ${group.participants.map(u => `<span class="avatar" title="${u.name}">${u.avatar}</span>`).join('')}
+      </div>
+    `;
+  }
+
+  // ---- RENDER MESSAGES ----
+  const chatMessages = document.getElementById("chatMessages");
+  function renderMessages() {
+    chatMessages.innerHTML = '';
+    currentGroup.messages.forEach(msg => addMessageRow(msg, false));
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    currentGroup.unread = 0;
+    renderGroupsSidebar();
+  }
+
+  // ---- MESSAGE ROW ----
+  function addMessageRow(msg, playAudio = true) {
+    const isSelf = msg.sender.id === USER.id;
+    const row = document.createElement("div");
+    row.className = "message-row" + (isSelf ? " sent" : "");
+    // Avatar
+    const avatar = document.createElement("span");
+    avatar.className = "avatar";
+    avatar.textContent = msg.sender.avatar;
+    avatar.title = msg.sender.name;
+    // Message
+    const msgBox = document.createElement("div");
+    msgBox.className = "message " + (isSelf ? "sent" : "received");
+    // Sender (show for group chats)
+    if (!isSelf || currentGroup.participants.length > 2)
+      msgBox.innerHTML = `<div class="sender-name">${msg.sender.name}</div>`;
+    msgBox.innerHTML += msg.text;
+    // Timestamp
+    const ts = document.createElement("span");
+    ts.className = "timestamp";
+    ts.textContent = msg.time;
+    // Read receipt
+    let receipt = '';
+    if (isSelf) {
+      receipt = document.createElement("span");
+      receipt.className = "read-receipt";
+      receipt.innerHTML = msg.read ? "&#10003;" : "";
+    }
+    // Assemble row
+    if (isSelf) {
+      row.appendChild(avatar);
+      row.appendChild(msgBox);
+      row.appendChild(ts);
+      row.appendChild(receipt);
+    } else {
+      row.appendChild(avatar);
+      row.appendChild(msgBox);
+      row.appendChild(ts);
+    }
+    chatMessages.appendChild(row);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    if (playAudio) playSound();
+  }
+
+  // ---- SELECT GROUP ----
+  function selectGroup(gid) {
+    currentGroup = groups.find(g => g.id === gid);
+    renderGroupsSidebar();
+    renderChatHeader();
+    renderMessages();
+    hideTyping();
+    document.getElementById("chatInput").focus();
+  }
+
+  // ---- TYPING ----
+  let isTyping = false;
+  function showTyping(sender) {
+    if (isTyping) return;
+    isTyping = true;
+    const typingDiv = document.createElement("div");
+    typingDiv.className = "typing-indicator";
+    typingDiv.id = "typingUser";
+    typingDiv.innerHTML = `
+      <span class="avatar">${sender.avatar}</span>
+      <span class="typing-dot"></span>
+      <span class="typing-dot"></span>
+      <span class="typing-dot"></span>
+    `;
+    chatMessages.appendChild(typingDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+  function hideTyping() {
+    isTyping = false;
+    const t = document.getElementById("typingUser");
+    if (t) t.remove();
+  }
+
+  // ---- SEND/RECEIVE ----
+  function sendMessage() {
+      const input = document.getElementById('chatInput');
+      if (!input) return;
+
+      const text = input.value.trim();
+      if (!text) return;
+
+      const chatMessages = document.getElementById('chatMessages');
+      if (!chatMessages) return;
+
+      const now = getTime();
+      const message = { sender: USER, text: text, time: now, read: false };
+      currentGroup.messages.push(message);
+      addMessageRow(message);
+      input.value = '';
+      input.focus();
+      // Typing and receive simulation (demo)
+      setTimeout(() => showTyping(currentGroup.participants[1]), 900);
+      setTimeout(() => {
+        hideTyping();
+        const replyText = [
+          "Thanks for the update!",
+          "Will do.",
+          "Copy that.",
+          "Let's discuss in the meeting.",
+          "Great, thanks."
+        ][Math.floor(Math.random()*5)];
+        const reply = { sender: currentGroup.participants[1], text: replyText, time: getTime(), read: true };
+        currentGroup.messages.push(reply);
+        addMessageRow(reply);
+        // Mark as read (simulate)
+        setTimeout(() => {
+          const receipts = document.querySelectorAll(".read-receipt");
+          if (receipts.length) receipts[receipts.length-1].innerHTML = "&#10003;";
+        }, 800);
+      }, 2500);
+  }
+
+    function logout() {
+      localStorage.removeItem("vbmsLoggedIn");
+      localStorage.removeItem("vbmsToken");
+      sessionStorage.removeItem("vbmsLoggedIn");
+      window.location.href = "login.html";
+    }
+
+    function toggleSidebar() {
+      const sidebar = document.querySelector('.sidebar');
+      if (sidebar) {
+        sidebar.classList.toggle('open');
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const messageInput = document.getElementById('chatInput');
+      if (messageInput) {
+        messageInput.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter') {
+            sendMessage();
+          }
+        });
+      }
+    });
+
+
+  document.getElementById("chatInput").addEventListener("keydown", function(e) {
+    if (e.key === "Enter") sendMessage();
+  });
+
+  // ---- INITIALIZE ----
+  window.onload = () => {
+    renderGroupsSidebar();
+    renderChatHeader();
+    renderMessages();
+    document.getElementById("chatInput").focus();
+  };
+
+  // Accessibility: auto-scroll & ARIA
+  chatMessages.setAttribute("aria-live", "polite");
+
+
+</script>
+
+</body>
+</html>
