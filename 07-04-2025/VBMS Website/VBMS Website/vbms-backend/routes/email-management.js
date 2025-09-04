@@ -3,11 +3,11 @@ const router = express.Router();
 const Imap = require('imap');
 const { simpleParser } = require('mailparser');
 const nodemailer = require('nodemailer');
-const auth = require('../middleware/auth');
-const role = require('../middleware/role');
+const { authenticateToken, requireAdminPermission } = require('../middleware/auth');
 
 // Email Management Routes - Master Admin Only
-router.use(auth, role(['main_admin']));
+router.use(authenticateToken);
+router.use(requireAdminPermission);
 
 // Test email connection
 router.post('/test-connection', async (req, res) => {
