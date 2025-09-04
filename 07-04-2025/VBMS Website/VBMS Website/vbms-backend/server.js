@@ -1,10 +1,30 @@
 require('dotenv').config(); // Always at the very top
 
+// Debug environment variables (remove in production)
+console.log('🔧 Environment Variables Check:');
+console.log('NODE_ENV:', process.env.NODE_ENV);
+console.log('DATABASE_URL:', process.env.DATABASE_URL ? '✅ Set' : '❌ Not set');
+console.log('JWT_SECRET:', process.env.JWT_SECRET ? '✅ Set' : '❌ Not set');
+console.log('OPENAI_API_KEY:', process.env.OPENAI_API_KEY ? '✅ Set' : '❌ Not set');
+console.log('STRIPE_SECRET_KEY:', process.env.STRIPE_SECRET_KEY ? '✅ Set' : '❌ Not set');
+
 const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
 const jwt = require('jsonwebtoken');
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+// Initialize Stripe (optional - only if API key is provided)
+let stripe = null;
+if (process.env.STRIPE_SECRET_KEY && process.env.STRIPE_SECRET_KEY !== 'sk_test_placeholder') {
+  try {
+    stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+    console.log('✅ Stripe initialized successfully');
+  } catch (error) {
+    console.log('⚠️ Stripe initialization failed:', error.message);
+    stripe = null;
+  }
+} else {
+  console.log('⚠️ Stripe API key not provided - Stripe features disabled');
+}
 const path = require('path');
 const OpenAI = require('openai');
 
@@ -21,10 +41,21 @@ const monitoringService = require('./services/monitoringService');
 // Task scheduler service
 const taskScheduler = require('./services/taskScheduler');
 
-// Initialize OpenAI
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+// Initialize OpenAI (optional - only if API key is provided)
+let openai = null;
+if (process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY !== 'sk-placeholder-key-not-configured') {
+  try {
+    openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
+    console.log('✅ OpenAI initialized successfully');
+  } catch (error) {
+    console.log('⚠️ OpenAI initialization failed:', error.message);
+    openai = null;
+  }
+} else {
+  console.log('⚠️ OpenAI API key not provided - OpenAI features disabled');
+}
 
 const emailService = require('./services/emailService'); // Email service
 
