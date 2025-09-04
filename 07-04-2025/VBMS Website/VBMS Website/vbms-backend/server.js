@@ -70,48 +70,48 @@ app.use(monitoringService.createPerformanceMiddleware());
 // Serve static files from uploads directory
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Import routes
-const authRoutes = require('./routes/auth');
-const adminRoutes = require('./routes/admin');
-const dashboardRoutes = require('./routes/dashboard');
-const usersRoutes = require('./routes/users');
-const taskRoutes = require('./routes/tasks');
-const settingsRoutes = require('./routes/settings');
-const uberEatsRoutes = require('./routes/uber-eats');
-const stripeRoutes = require('./routes/stripe');
-const onboardingRoutes = require('./routes/onboarding');
-const healthRoutes = require('./routes/health');
-const vapiRoutes = require('./routes/vapi');
-const inventoryRoutes = require('./routes/inventory');
-const monitoringRoutes = require('./routes/monitoring');
-const pricingRoutes = require('./routes/pricing');
-const emailRoutes = require('./routes/email');
-const emailSyncRoutes = require('./routes/email-sync');
-const emailManagementRoutes = require('./routes/email-management');
-const affiliateRoutes = require('./routes/affiliates');
-const calendarRoutes = require('./routes/calendar');
-const notificationRoutes = require('./routes/notifications');
+// Import routes - ONLY POSTGRESQL-COMPATIBLE ROUTES ENABLED
+const authRoutes = require('./routes/auth'); // ✅ PostgreSQL compatible
+// const adminRoutes = require('./routes/admin'); // ❌ DISABLED - has old model imports
+const dashboardRoutes = require('./routes/dashboard'); // ✅ Should be compatible
+const usersRoutes = require('./routes/users'); // ✅ PostgreSQL compatible
+// const taskRoutes = require('./routes/tasks'); // ❌ DISABLED - imports Task model
+// const settingsRoutes = require('./routes/settings'); // ❌ DISABLED - imports Settings model
+const uberEatsRoutes = require('./routes/uber-eats'); // ✅ Should be compatible
+// const stripeRoutes = require('./routes/stripe'); // ❌ DISABLED - imports old models
+const onboardingRoutes = require('./routes/onboarding'); // ✅ Fixed for PostgreSQL
+const healthRoutes = require('./routes/health'); // ✅ Fixed for PostgreSQL
+// const vapiRoutes = require('./routes/vapi'); // ❌ DISABLED - imports VAPICall model
+// const inventoryRoutes = require('./routes/inventory'); // ❌ DISABLED - imports inventory models
+const monitoringRoutes = require('./routes/monitoring'); // ✅ Should be compatible
+const pricingRoutes = require('./routes/pricing'); // ✅ Should be compatible
+const emailRoutes = require('./routes/email'); // ✅ Fixed for PostgreSQL
+// const emailSyncRoutes = require('./routes/email-sync'); // ❌ DISABLED - imports Email model
+const emailManagementRoutes = require('./routes/email-management'); // ✅ Should be compatible
+const affiliateRoutes = require('./routes/affiliates'); // ✅ Fixed for PostgreSQL
+// const calendarRoutes = require('./routes/calendar'); // ❌ DISABLED - imports CalendarEvent model
+const notificationRoutes = require('./routes/notifications'); // ✅ Fixed for PostgreSQL
 
-// Mount routes
-app.use('/api/auth', authRoutes);
-app.use('/api/admin', adminRoutes);
-app.use('/api/users', usersRoutes);
-app.use('/api/tasks', taskRoutes);
-app.use('/api/settings', settingsRoutes);
-app.use('/api/uber-eats', uberEatsRoutes);
-app.use('/api/stripe', stripeRoutes);
-app.use('/api/onboarding', onboardingRoutes);
-app.use('/api/health', healthRoutes);
-app.use('/api/vapi', vapiRoutes);
-app.use('/api/inventory', inventoryRoutes);
-app.use('/api/monitoring', monitoringRoutes);
-app.use('/api/pricing', pricingRoutes);
-app.use('/api/email', emailRoutes);
-app.use('/api/email-sync', emailSyncRoutes);
-app.use('/api/email-management', emailManagementRoutes);
-app.use('/api/affiliates', affiliateRoutes);
-app.use('/api/calendar', calendarRoutes);
-app.use('/api/notifications', notificationRoutes);
+// Mount routes - ONLY ENABLED ROUTES
+app.use('/api/auth', authRoutes); // ✅ Enabled
+// app.use('/api/admin', adminRoutes); // ❌ DISABLED during migration
+app.use('/api/users', usersRoutes); // ✅ Enabled
+// app.use('/api/tasks', taskRoutes); // ❌ DISABLED during migration
+// app.use('/api/settings', settingsRoutes); // ❌ DISABLED during migration
+app.use('/api/uber-eats', uberEatsRoutes); // ✅ Enabled
+// app.use('/api/stripe', stripeRoutes); // ❌ DISABLED during migration
+app.use('/api/onboarding', onboardingRoutes); // ✅ Enabled
+app.use('/api/health', healthRoutes); // ✅ Enabled
+// app.use('/api/vapi', vapiRoutes); // ❌ DISABLED during migration
+// app.use('/api/inventory', inventoryRoutes); // ❌ DISABLED during migration
+app.use('/api/monitoring', monitoringRoutes); // ✅ Enabled
+app.use('/api/pricing', pricingRoutes); // ✅ Enabled
+app.use('/api/email', emailRoutes); // ✅ Enabled
+// app.use('/api/email-sync', emailSyncRoutes); // ❌ DISABLED during migration
+app.use('/api/email-management', emailManagementRoutes); // ✅ Enabled
+app.use('/api/affiliates', affiliateRoutes); // ✅ Enabled
+// app.use('/api/calendar', calendarRoutes); // ❌ DISABLED during migration
+app.use('/api/notifications', notificationRoutes); // ✅ Enabled
 
 // Mount dashboard routes at root level for backward compatibility
 app.use('/api', dashboardRoutes);
