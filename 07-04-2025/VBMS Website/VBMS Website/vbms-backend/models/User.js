@@ -1,108 +1,171 @@
-const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
+const { pgPool } = require('../config/database');
 
-// 1. Define the schema
-const UserSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  email: { type: String, required: true, unique: true, lowercase: true },
-  password: { type: String, required: true },
-  role: { 
-    type: String, 
-    enum: ['main_admin', 'admin', 'support', 'customer', 'client'],
-    default: "client" 
-  },
-  position: { type: String, default: "Member" },
-  status: { 
-    type: String, 
-    enum: ['active', 'inactive', 'suspended', 'pending'],
-    default: "active" 
-  },
-  profile: {
-    photo: { type: String, default: "" },
-    phone: String,
-    timezone: { type: String, default: 'America/New_York' },
-    preferences: {
-      notifications: { type: Boolean, default: true },
-      darkMode: { type: Boolean, default: false },
-      language: { type: String, default: 'en' }
-    }
-  },
-  business: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Business'
-  },
-  subscription: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Subscription'
-  },
-  billing: {
-    stripeCustomerId: String,
-    defaultPaymentMethod: String,
-    billingAddress: {
-      street: String,
-      city: String,
-      state: String,
-      zipCode: String,
-      country: { type: String, default: 'USA' }
-    }
-  },
-  adminPermissions: {
-    canCreateAdmins: { type: Boolean, default: false },
-    canManageCustomers: { type: Boolean, default: false },
-    canViewAllData: { type: Boolean, default: false },
-    canSetPricing: { type: Boolean, default: false },
-    canToggleFeatures: { type: Boolean, default: false },
-    canManageStaff: { type: Boolean, default: false },
-    canAccessBilling: { type: Boolean, default: false },
-    canViewAnalytics: { type: Boolean, default: false },
-    canSystemSettings: { type: Boolean, default: false }
-  },
-  onboarding: {
-    completed: { type: Boolean, default: false },
-    currentStep: { type: Number, default: 1 },
-    wizardData: {
-      businessInfo: Object,
-      integrations: Object,
-      preferences: Object
-    }
-  },
-  security: {
-    lastLogin: { type: Date },
-    lastPasswordChange: { type: Date, default: Date.now },
-    loginAttempts: { type: Number, default: 0 },
-    lockUntil: Date,
-    twoFactorEnabled: { type: Boolean, default: false },
-    twoFactorSecret: String,
-    passwordResetToken: String,
-    passwordResetExpires: Date,
-    emailVerified: { type: Boolean, default: false },
-    emailVerificationToken: String,
-    loginHistory: [{
-      ip: String,
-      userAgent: String,
-      timestamp: { type: Date, default: Date.now },
-      success: Boolean
-    }]
-  },
-  lastLogin: Date, // Keep for backward compatibility
-  lastActivity: { type: Date, default: Date.now }
-}, { timestamps: true });
-
-// 2. Hash password before saving
-UserSchema.pre('save', async function(next) {
-  if (!this.isModified('password')) return next();
-  try {
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
-    next();
-  } catch (err) {
-    next(err);
+class User {
+  constructor(data) {
+    this.id = data.id;
+    this.first_name = data.first_name;
+    this.last_name = data.last_name;
+    this.email = data.email;
+    this.password_hash = data.password_hash;
+    this.role = data.role;
+    this.status = data.status;
+    this.created_at = data.created_at;
+    this.updated_at = data.updated_at;
+    this.last_login = data.last_login;
   }
-});
 
-// 3. Compare method for login
-UserSchema.methods.comparePassword = function(candidatePassword) {
-  return bcrypt.compare(candidatePassword, this.password);
-};
+  // Create a new user
+  static async create(userData) {
+    const { firstName, lastName, email, password, role = 'customer' } = userData;
+    
+    // Hash password
+    const saltRounds = 12;
+    const password_hash = await bcrypt.hash(password, saltRounds);
+    
+    const query = `
+      INSERT INTO users (first_name, last_name, email, password_hash, role, status, created_at, updated_at)
+      VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
+      RETURNING *
+    `;
+    
+    const values = [firstName, lastName, email, password_hash, role, 'active'];
+    
+    try {
+      const result = await pgPool.query(query, values);
+      return new User(result.rows[0]);
+    } catch (error) {
+      console.error('Error creating user:', error);
+      throw error;
+    }
+  }
 
-module.exports = mongoose.model('User', UserSchema);
+  // Find user by email
+  static async findByEmail(email) {
+    const query = 'SELECT * FROM users WHERE email = $1';
+    
+    try {
+      const result = await pgPool.query(query, [email]);
+      if (result.rows.length === 0) return null;
+      return new User(result.rows[0]);
+    } catch (error) {
+      console.error('Error finding user by email:', error);
+      throw error;
+    }
+  }
+
+  // Find user by ID
+  static async findById(id) {
+    const query = 'SELECT * FROM users WHERE id = $1';
+    
+    try {
+      const result = await pgPool.query(query, [id]);
+      if (result.rows.length === 0) return null;
+      return new User(result.rows[0]);
+    } catch (error) {
+      console.error('Error finding user by ID:', error);
+      throw error;
+    }
+  }
+
+  // Find all users
+  static async findAll() {
+    const query = 'SELECT * FROM users ORDER BY created_at DESC';
+    
+    try {
+      const result = await pgPool.query(query);
+      return result.rows.map(row => new User(row));
+    } catch (error) {
+      console.error('Error finding all users:', error);
+      throw error;
+    }
+  }
+
+  // Verify password
+  async verifyPassword(password) {
+    try {
+      return await bcrypt.compare(password, this.password_hash);
+    } catch (error) {
+      console.error('Error verifying password:', error);
+      return false;
+    }
+  }
+
+  // Compare password (alias for compatibility)
+  async comparePassword(password) {
+    return this.verifyPassword(password);
+  }
+
+  // Update last login
+  async updateLastLogin() {
+    const query = 'UPDATE users SET last_login = NOW(), updated_at = NOW() WHERE id = $1';
+    
+    try {
+      await pgPool.query(query, [this.id]);
+      this.last_login = new Date();
+      this.updated_at = new Date();
+    } catch (error) {
+      console.error('Error updating last login:', error);
+      throw error;
+    }
+  }
+
+  // Get full name
+  getFullName() {
+    return `${this.first_name || ''} ${this.last_name || ''}`.trim();
+  }
+
+  // Update user
+  static async update(id, updateData) {
+    const allowedFields = ['first_name', 'last_name', 'email', 'role', 'status'];
+    const updates = [];
+    const values = [];
+    let paramCount = 1;
+
+    for (const [key, value] of Object.entries(updateData)) {
+      if (allowedFields.includes(key)) {
+        updates.push(`${key} = $${paramCount}`);
+        values.push(value);
+        paramCount++;
+      }
+    }
+
+    if (updates.length === 0) {
+      throw new Error('No valid fields to update');
+    }
+
+    updates.push(`updated_at = NOW()`);
+    values.push(id);
+
+    const query = `
+      UPDATE users 
+      SET ${updates.join(', ')}
+      WHERE id = $${paramCount}
+      RETURNING *
+    `;
+
+    try {
+      const result = await pgPool.query(query, values);
+      if (result.rows.length === 0) return null;
+      return new User(result.rows[0]);
+    } catch (error) {
+      console.error('Error updating user:', error);
+      throw error;
+    }
+  }
+
+  // Delete user
+  static async delete(id) {
+    const query = 'DELETE FROM users WHERE id = $1 RETURNING *';
+    
+    try {
+      const result = await pgPool.query(query, [id]);
+      return result.rows.length > 0;
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      throw error;
+    }
+  }
+}
+
+module.exports = User;
