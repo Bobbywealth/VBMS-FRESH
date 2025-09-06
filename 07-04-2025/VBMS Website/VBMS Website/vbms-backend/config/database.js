@@ -2,14 +2,35 @@ const { Pool } = require('pg');
 require('dotenv').config();
 
 console.log('🔗 DATABASE_URL:', process.env.DATABASE_URL ? 'Set' : 'Not set');
+console.log('🔗 DATABASE_URL value:', process.env.DATABASE_URL ? process.env.DATABASE_URL.substring(0, 50) + '...' : 'undefined');
+console.log('🔗 NODE_ENV:', process.env.NODE_ENV);
 
-const postgresConfig = {
-    connectionString: process.env.DATABASE_URL,
-    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
-    max: 20,
-    idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 2000,
-};
+// Parse DATABASE_URL if provided, otherwise use individual env vars
+let postgresConfig;
+
+if (process.env.DATABASE_URL) {
+    console.log('✅ Using DATABASE_URL connection string');
+    postgresConfig = {
+        connectionString: process.env.DATABASE_URL,
+        ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+        max: 20,
+        idleTimeoutMillis: 30000,
+        connectionTimeoutMillis: 2000,
+    };
+} else {
+    console.log('⚠️ DATABASE_URL not found, using individual env vars');
+    postgresConfig = {
+        host: process.env.DB_HOST || 'localhost',
+        port: process.env.DB_PORT || 5432,
+        database: process.env.DB_NAME || 'vbms_development',
+        user: process.env.DB_USER || process.env.USER,
+        password: process.env.DB_PASSWORD || '',
+        ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
+        max: 20,
+        idleTimeoutMillis: 30000,
+        connectionTimeoutMillis: 2000,
+    };
+}
 
 const pgPool = new Pool(postgresConfig);
 
