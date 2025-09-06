@@ -4,9 +4,19 @@ require('dotenv').config(); // Always at the very top
 console.log('🔧 Environment Variables Check:');
 console.log('NODE_ENV:', process.env.NODE_ENV);
 console.log('DATABASE_URL:', process.env.DATABASE_URL ? '✅ Set' : '❌ Not set');
+console.log('DATABASE_URL preview:', process.env.DATABASE_URL ? process.env.DATABASE_URL.substring(0, 60) + '...' : 'undefined');
 console.log('JWT_SECRET:', process.env.JWT_SECRET ? '✅ Set' : '❌ Not set');
 console.log('OPENAI_API_KEY:', process.env.OPENAI_API_KEY ? '✅ Set' : '❌ Not set');
 console.log('STRIPE_SECRET_KEY:', process.env.STRIPE_SECRET_KEY ? '✅ Set' : '❌ Not set');
+
+// FORCE DATABASE_URL check
+if (!process.env.DATABASE_URL) {
+  console.error('🚨 CRITICAL: DATABASE_URL environment variable is not set!');
+  console.error('🚨 Railway should provide DATABASE_URL = ${{Postgres.DATABASE_URL}}');
+  console.error('🚨 Server will attempt to connect to localhost and fail');
+} else {
+  console.log('✅ DATABASE_URL is properly set, should connect to Railway PostgreSQL');
+}
 
 const express = require('express');
 const cors = require('cors');
