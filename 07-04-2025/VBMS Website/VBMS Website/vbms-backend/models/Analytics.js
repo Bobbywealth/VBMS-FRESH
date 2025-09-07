@@ -157,7 +157,7 @@ class Analytics {
         COUNT(*) FILTER (WHERE role = 'customer') as customers,
         COUNT(*) FILTER (WHERE role = 'admin') as admins,
         COUNT(*) FILTER (WHERE role = 'main_admin') as main_admins,
-        COUNT(*) FILTER (WHERE is_active = true) as active_users,
+        COUNT(*) FILTER (WHERE status = 'active') as active_users,
         COUNT(*) FILTER (WHERE last_login >= NOW() - INTERVAL '24 hours') as recent_logins
       FROM users
     `;
