@@ -22,7 +22,7 @@ if (process.env.DATABASE_URL) {
         connectionTimeoutMillis: 2000,
     };
 } else {
-    console.log('⚠️ DATABASE_URL not found, using individual env vars');
+    console.log('⚠️ DATABASE_URL not found, using individual env vars (will fail)');
     postgresConfig = {
         host: process.env.DB_HOST || 'localhost',
         port: process.env.DB_PORT || 5432,
@@ -75,11 +75,11 @@ const createTables = async () => {
             CREATE TABLE IF NOT EXISTS users (
                 id SERIAL PRIMARY KEY,
                 email VARCHAR(255) UNIQUE NOT NULL,
-                password VARCHAR(255) NOT NULL,
+                password_hash VARCHAR(255) NOT NULL,
                 first_name VARCHAR(100),
                 last_name VARCHAR(100),
                 role VARCHAR(50) DEFAULT 'customer',
-                is_active BOOLEAN DEFAULT true,
+                status VARCHAR(50) DEFAULT 'active',
                 email_verified BOOLEAN DEFAULT false,
                 phone VARCHAR(20),
                 avatar_url TEXT,
