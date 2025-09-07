@@ -1,5 +1,9 @@
 const { Pool } = require('pg');
-require('dotenv').config();
+
+// Only load .env in development - Railway provides env vars in production
+if (process.env.NODE_ENV !== 'production') {
+  require('dotenv').config();
+}
 
 console.log('🔗 DATABASE_URL:', process.env.DATABASE_URL ? 'Set' : 'Not set');
 console.log('🔗 DATABASE_URL value:', process.env.DATABASE_URL ? process.env.DATABASE_URL.substring(0, 50) + '...' : 'undefined');

@@ -1,4 +1,10 @@
-require('dotenv').config(); // Always at the very top
+// Only load .env in development - Railway provides env vars in production
+if (process.env.NODE_ENV !== 'production') {
+  require('dotenv').config();
+  console.log('🔧 Loaded .env file for development');
+} else {
+  console.log('🚀 Production mode - using Railway environment variables');
+}
 
 // Debug environment variables (remove in production)
 console.log('🔧 Environment Variables Check:');
