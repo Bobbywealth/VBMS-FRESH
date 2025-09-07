@@ -6,27 +6,6 @@ if (process.env.NODE_ENV !== 'production') {
   console.log('🚀 Production mode - using Railway environment variables');
 }
 
-// CRITICAL DEBUG - Show environment variables
-console.log('🔧 Environment Variables Check:');
-console.log('NODE_ENV:', process.env.NODE_ENV);
-console.log('DATABASE_URL:', process.env.DATABASE_URL ? '✅ Set' : '❌ Not set');
-console.log('DATABASE_URL preview:', process.env.DATABASE_URL ? process.env.DATABASE_URL.substring(0, 60) + '...' : 'undefined');
-
-// FORCE DATABASE_URL check
-if (!process.env.DATABASE_URL) {
-  console.error('🚨 CRITICAL: DATABASE_URL environment variable is not set!');
-  console.error('🚨 Railway should provide DATABASE_URL = ${{Postgres.DATABASE_URL}}');
-  console.error('🚨 Server will attempt to connect to localhost and fail');
-} else {
-  console.log('✅ DATABASE_URL is properly set, should connect to Railway PostgreSQL');
-}
-if (process.env.NODE_ENV !== 'production') {
-  require('dotenv').config();
-  console.log('🔧 Loaded .env file for development');
-} else {
-  console.log('🚀 Production mode - using Railway environment variables');
-}
-
 // Debug environment variables (remove in production)
 console.log('🔧 Environment Variables Check:');
 console.log('NODE_ENV:', process.env.NODE_ENV);
@@ -208,6 +187,18 @@ app.get('/', (req, res) => {
     database: 'PostgreSQL',
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || 'development'
+  });
+});
+
+// Railway health check endpoint
+app.get('/health', (req, res) => {
+  res.json({ 
+    status: 'healthy',
+    message: 'VBMS Backend is running!',
+    database: 'PostgreSQL',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development',
+    uptime: process.uptime()
   });
 });
 
