@@ -117,11 +117,12 @@ app.use(monitoringService.createPerformanceMiddleware());
 // Serve static files from uploads directory
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Import routes - ONLY ESSENTIAL WORKING ROUTES
+// Import routes - ESSENTIAL + AFFILIATE ROUTES
 const authRoutes = require('./routes/auth'); // ✅ Essential - login/register
 const usersRoutes = require('./routes/users'); // ✅ Essential - user management
 const healthRoutes = require('./routes/health'); // ✅ Essential - health checks
 const onboardingRoutes = require('./routes/onboarding'); // ✅ Fixed for PostgreSQL
+const affiliateRoutes = require('./routes/affiliates'); // ✅ Re-enabled with PostgreSQL Affiliate model
 
 // ALL OTHER ROUTES TEMPORARILY DISABLED TO PREVENT CRASHES
 // const adminRoutes = require('./routes/admin'); // ❌ DISABLED - imports old models
@@ -141,11 +142,12 @@ const onboardingRoutes = require('./routes/onboarding'); // ✅ Fixed for Postgr
 // const calendarRoutes = require('./routes/calendar'); // ❌ DISABLED - imports CalendarEvent model
 // const notificationRoutes = require('./routes/notifications'); // ❌ DISABLED - has stubs but might crash
 
-// Mount routes - ONLY ESSENTIAL WORKING ROUTES
+// Mount routes - ESSENTIAL + AFFILIATE ROUTES
 app.use('/api/auth', authRoutes); // ✅ Essential - login/register works
 app.use('/api/users', usersRoutes); // ✅ Essential - user management works
 app.use('/api/health', healthRoutes); // ✅ Essential - health checks work
 app.use('/api/onboarding', onboardingRoutes); // ✅ Fixed - onboarding works
+app.use('/api/affiliates', affiliateRoutes); // ✅ Re-enabled - affiliate management works
 
 // ALL OTHER ROUTES DISABLED TO PREVENT SERVER CRASHES
 // Will be re-enabled one by one after PostgreSQL models are created
