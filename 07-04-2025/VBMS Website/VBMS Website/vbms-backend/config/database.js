@@ -108,7 +108,55 @@ const createTables = async () => {
             )
         `);
 
+        // Settings table
+        await client.query(`
+            CREATE TABLE IF NOT EXISTS settings (
+                id SERIAL PRIMARY KEY,
+                key VARCHAR(255) UNIQUE NOT NULL,
+                value TEXT,
+                category VARCHAR(100) DEFAULT 'general',
+                type VARCHAR(50) DEFAULT 'string',
+                description TEXT,
+                is_public BOOLEAN DEFAULT false,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+
+        // Analytics table
+        await client.query(`
+            CREATE TABLE IF NOT EXISTS analytics (
+                id SERIAL PRIMARY KEY,
+                event_type VARCHAR(100) NOT NULL,
+                event_data JSONB DEFAULT '{}',
+                user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+                session_id VARCHAR(255),
+                ip_address INET,
+                user_agent TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+
+        // Analytics indexes
+        await client.query(`
+            CREATE INDEX IF NOT EXISTS idx_analytics_event_type ON analytics(event_type);
+        `);
+        await client.query(`
+            CREATE INDEX IF NOT EXISTS idx_analytics_user_id ON analytics(user_id);
+        `);
+        await client.query(`
+            CREATE INDEX IF NOT EXISTS idx_analytics_created_at ON analytics(created_at);
+        `);
+
         console.log('✅ PostgreSQL tables created successfully');
+        
+        // Initialize default settings
+        try {
+            const Settings = require('../models/Settings');
+            await Settings.initializeDefaults();
+        } catch (settingsError) {
+            console.log('⚠️ Settings initialization skipped (will initialize on first use)');
+        }
         
     } catch (error) {
         console.error('❌ Error creating tables:', error);
