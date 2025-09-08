@@ -218,6 +218,26 @@
             
             function attemptAuth() {
                 console.log(`🔍 Admin Affiliates Auth Check (attempt ${retries + 1}/${maxRetries})`);
+                console.log('🔍 vbmsAuth available:', typeof vbmsAuth !== 'undefined');
+                console.log('🔍 localStorage vbmsLoggedIn:', localStorage.getItem('vbmsLoggedIn'));
+                console.log('🔍 localStorage vbmsRole:', localStorage.getItem('vbmsRole'));
+                console.log('🔍 localStorage vbmsToken:', localStorage.getItem('vbmsToken') ? 'Present' : 'Missing');
+                
+                // Check if vbmsAuth is loaded
+                if (typeof vbmsAuth === 'undefined') {
+                    console.log('⚠️ vbmsAuth not yet loaded, retrying...');
+                    if (retries < maxRetries) {
+                        retries++;
+                        setTimeout(attemptAuth, delay);
+                        return;
+                    } else {
+                        console.log('❌ vbmsAuth failed to load after retries');
+                        window.location.href = 'login.html';
+                        return;
+                    }
+                }
+                
+                console.log('🔍 vbmsAuth.isAuthenticated():', vbmsAuth.isAuthenticated());
                 
                 if (!vbmsAuth.isAuthenticated()) {
                     console.log('User not authenticated - redirecting to login');
