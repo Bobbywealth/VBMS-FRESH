@@ -2,7 +2,7 @@
 const VBMS_CONFIG = {
   // Backend URLs
   LOCAL_BACKEND: 'http://localhost:5050',
-  PRODUCTION_BACKEND: 'https://vbms-backend.onrender.com',
+  PRODUCTION_BACKEND: 'https://vbms-fresh-production.up.railway.app',
   
   // Current environment (change this to switch between local/production)
   ENVIRONMENT: 'local', // 'local' or 'production'
