@@ -148,6 +148,86 @@ const createTables = async () => {
             CREATE INDEX IF NOT EXISTS idx_analytics_created_at ON analytics(created_at);
         `);
 
+        // Tasks table
+        await client.query(`
+            CREATE TABLE IF NOT EXISTS tasks (
+                id SERIAL PRIMARY KEY,
+                title VARCHAR(255) NOT NULL,
+                description TEXT,
+                status VARCHAR(50) DEFAULT 'pending',
+                priority VARCHAR(20) DEFAULT 'medium',
+                assigned_to INTEGER REFERENCES users(id) ON DELETE SET NULL,
+                created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+                due_date TIMESTAMP,
+                completed_at TIMESTAMP,
+                tags TEXT[] DEFAULT '{}',
+                metadata JSONB DEFAULT '{}',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+
+        // Notifications table
+        await client.query(`
+            CREATE TABLE IF NOT EXISTS notifications (
+                id SERIAL PRIMARY KEY,
+                title VARCHAR(255) NOT NULL,
+                message TEXT NOT NULL,
+                type VARCHAR(50) DEFAULT 'info',
+                user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+                read BOOLEAN DEFAULT false,
+                action_url TEXT,
+                metadata JSONB DEFAULT '{}',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                read_at TIMESTAMP
+            )
+        `);
+
+        // Calendar events table
+        await client.query(`
+            CREATE TABLE IF NOT EXISTS calendar_events (
+                id SERIAL PRIMARY KEY,
+                title VARCHAR(255) NOT NULL,
+                description TEXT,
+                start_time TIMESTAMP NOT NULL,
+                end_time TIMESTAMP NOT NULL,
+                all_day BOOLEAN DEFAULT false,
+                location TEXT,
+                event_type VARCHAR(50) DEFAULT 'meeting',
+                status VARCHAR(50) DEFAULT 'scheduled',
+                created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+                attendees JSONB DEFAULT '[]',
+                recurrence_rule TEXT,
+                reminder_minutes INTEGER DEFAULT 15,
+                metadata JSONB DEFAULT '{}',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+
+        // Create indexes for Phase 2 tables
+        await client.query(`
+            CREATE INDEX IF NOT EXISTS idx_tasks_status ON tasks(status);
+            CREATE INDEX IF NOT EXISTS idx_tasks_assigned_to ON tasks(assigned_to);
+            CREATE INDEX IF NOT EXISTS idx_tasks_created_by ON tasks(created_by);
+            CREATE INDEX IF NOT EXISTS idx_tasks_due_date ON tasks(due_date);
+        `);
+
+        await client.query(`
+            CREATE INDEX IF NOT EXISTS idx_notifications_user_id ON notifications(user_id);
+            CREATE INDEX IF NOT EXISTS idx_notifications_read ON notifications(read);
+            CREATE INDEX IF NOT EXISTS idx_notifications_type ON notifications(type);
+            CREATE INDEX IF NOT EXISTS idx_notifications_created_at ON notifications(created_at);
+        `);
+
+        await client.query(`
+            CREATE INDEX IF NOT EXISTS idx_calendar_events_start_time ON calendar_events(start_time);
+            CREATE INDEX IF NOT EXISTS idx_calendar_events_end_time ON calendar_events(end_time);
+            CREATE INDEX IF NOT EXISTS idx_calendar_events_created_by ON calendar_events(created_by);
+            CREATE INDEX IF NOT EXISTS idx_calendar_events_status ON calendar_events(status);
+            CREATE INDEX IF NOT EXISTS idx_calendar_events_type ON calendar_events(event_type);
+        `);
+
         console.log('✅ PostgreSQL tables created successfully');
         
         // Initialize default settings

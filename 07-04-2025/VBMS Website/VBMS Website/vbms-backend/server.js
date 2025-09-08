@@ -69,7 +69,7 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // Serve static files from uploads directory
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Import ONLY working routes
+// Import WORKING routes - PHASE 1 + PHASE 2
 const authRoutes = require('./routes/auth'); // ✅ Essential - login/register
 const usersRoutes = require('./routes/users'); // ✅ Essential - user management
 const healthRoutes = require('./routes/health'); // ✅ Essential - health checks
@@ -78,8 +78,11 @@ const affiliateRoutes = require('./routes/affiliates'); // ✅ Re-enabled with P
 const adminRoutes = require('./routes/admin'); // ✅ Phase 1 - Admin management
 const dashboardRoutes = require('./routes/dashboard'); // ✅ Phase 1 - Dashboard stats  
 const settingsRoutes = require('./routes/settings'); // ✅ Phase 1 - Settings management
+const taskRoutes = require('./routes/tasks'); // ✅ Phase 2 - Task management
+const notificationRoutes = require('./routes/notifications'); // ✅ Phase 2 - Notification system
+const calendarRoutes = require('./routes/calendar'); // ✅ Phase 2 - Calendar events
 
-// Mount ONLY working routes
+// Mount WORKING routes - PHASE 1 + PHASE 2
 app.use('/api/auth', authRoutes); // ✅ Essential - login/register works
 app.use('/api/users', usersRoutes); // ✅ Essential - user management works
 app.use('/api/health', healthRoutes); // ✅ Essential - health checks work
@@ -87,6 +90,9 @@ app.use('/api/onboarding', onboardingRoutes); // ✅ Fixed - onboarding works
 app.use('/api/affiliates', affiliateRoutes); // ✅ Re-enabled - affiliate management works
 app.use('/api/admin', adminRoutes); // ✅ Phase 1 - Admin management works
 app.use('/api/settings', settingsRoutes); // ✅ Phase 1 - Settings management works
+app.use('/api/tasks', taskRoutes); // ✅ Phase 2 - Task management works
+app.use('/api/notifications', notificationRoutes); // ✅ Phase 2 - Notification system works
+app.use('/api/calendar', calendarRoutes); // ✅ Phase 2 - Calendar events works
 
 // Mount dashboard routes at root level for backward compatibility
 app.use('/api', dashboardRoutes);

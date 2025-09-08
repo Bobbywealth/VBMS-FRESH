@@ -1,69 +1,54 @@
-/**
- * Calendar Routes with OpenAI Integration
- * Smart scheduling and event management
- */
-
 const express = require('express');
 const router = express.Router();
 const CalendarEvent = require('../models/CalendarEvent');
-const { authenticateToken } = require('../middleware/auth');
-const OpenAI = require('openai');
-
-// Initialize OpenAI
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+const { authenticateToken, requireAdminPermission } = require('../middleware/auth');
 
 /**
- * Get user's calendar events
+ * Get calendar events with filtering
  */
-router.get('/events', authenticateToken, async (req, res) => {
+router.get('/', authenticateToken, async (req, res) => {
   try {
-    const { 
-      start, 
-      end, 
-      type, 
-      category, 
-      status = 'scheduled,confirmed',
-      limit = 100 
+    const {
+      start_date,
+      end_date,
+      event_type,
+      status,
+      page = 1,
+      limit = 50
     } = req.query;
 
-    const filter = { userId: req.user.id };
-    
-    // Date range filter
-    if (start || end) {
-      filter.$or = [
-        {
-          startDate: { 
-            ...(start && { $gte: new Date(start) }),
-            ...(end && { $lte: new Date(end) })
-          }
-        },
-        {
-          endDate: { 
-            ...(start && { $gte: new Date(start) }),
-            ...(end && { $lte: new Date(end) })
-          }
-        }
-      ];
-    }
-    
-    if (type) filter.type = type;
-    if (category) filter.category = category;
-    if (status) filter.status = { $in: status.split(',') };
+    const filter = {};
+    if (start_date) filter.start_date = start_date;
+    if (end_date) filter.end_date = end_date;
+    if (event_type) filter.event_type = event_type;
+    if (status) filter.status = status;
 
-    const events = await CalendarEvent.find(filter)
-      .populate('attendees.userId', 'name email')
-      .sort({ startDate: 1 })
-      .limit(parseInt(limit));
+    // Non-admin users can only see events they created or are attending
+    if (req.user.role !== 'main_admin' && req.user.role !== 'admin') {
+      filter.created_by = req.user.id;
+      // Note: attendee filtering would need more complex logic
+    }
+
+    const options = {
+      limit: parseInt(limit),
+      offset: (parseInt(page) - 1) * parseInt(limit)
+    };
+
+    const events = await CalendarEvent.find(filter, options);
 
     res.json({
       success: true,
-      data: events
+      data: {
+        events,
+        pagination: {
+          page: parseInt(page),
+          limit: parseInt(limit),
+          total: events.length
+        }
+      }
     });
-
   } catch (error) {
-    console.error('Get events error:', error);
+    console.error('Error fetching calendar events:', error);
     res.status(500).json({
       success: false,
       message: 'Error fetching calendar events',
@@ -73,197 +58,37 @@ router.get('/events', authenticateToken, async (req, res) => {
 });
 
 /**
- * Create new calendar event with optional AI assistance
+ * Get events for a specific date range (calendar view)
  */
-router.post('/events', authenticateToken, async (req, res) => {
+router.get('/range/:start/:end', authenticateToken, async (req, res) => {
   try {
-    const eventData = {
-      ...req.body,
-      userId: req.user.id,
-      createdBy: req.user.id
-    };
-
-    // AI-powered event creation if prompt is provided
-    if (req.body.aiPrompt) {
-      try {
-        console.log('🤖 Using AI to create calendar event...');
-        
-        const systemPrompt = `You are a smart calendar assistant. Based on the user's request, create a structured calendar event. 
-
-Current date/time: ${new Date().toISOString()}
-User timezone: ${req.body.timezone || 'America/New_York'}
-
-Respond with a JSON object containing:
-- title: Clear, professional event title
-- description: Detailed description
-- type: one of [meeting, appointment, deadline, reminder, task, personal, business, training, demo, call]
-- category: one of [work, personal, client, internal, marketing, support, development, admin]
-- priority: one of [low, medium, high, urgent]
-- suggestedDuration: duration in minutes
-- suggestedAttendees: array of email addresses if mentioned
-- suggestedLocation: location or meeting platform
-- startDate: ISO date string (make reasonable assumptions for timing)
-- endDate: ISO date string
-
-Be intelligent about scheduling - consider business hours, reasonable meeting durations, etc.`;
-
-        const completion = await openai.chat.completions.create({
-          model: "gpt-4",
-          messages: [
-            { role: "system", content: systemPrompt },
-            { role: "user", content: req.body.aiPrompt }
-          ],
-          max_tokens: 1000,
-          temperature: 0.3
-        });
-
-        const aiResponse = JSON.parse(completion.choices[0].message.content);
-        
-        // Merge AI suggestions with provided data
-        eventData.title = eventData.title || aiResponse.title;
-        eventData.description = eventData.description || aiResponse.description;
-        eventData.type = eventData.type || aiResponse.type;
-        eventData.category = eventData.category || aiResponse.category;
-        eventData.priority = eventData.priority || aiResponse.priority;
-        eventData.location = eventData.location || aiResponse.suggestedLocation;
-        eventData.startDate = eventData.startDate || aiResponse.startDate;
-        eventData.endDate = eventData.endDate || aiResponse.endDate;
-        
-        // Store AI metadata
-        eventData.aiGenerated = true;
-        eventData.aiSuggestions = {
-          originalPrompt: req.body.aiPrompt,
-          suggestedTitle: aiResponse.title,
-          suggestedDescription: aiResponse.description,
-          suggestedDuration: aiResponse.suggestedDuration,
-          suggestedAttendees: aiResponse.suggestedAttendees,
-          suggestedLocation: aiResponse.suggestedLocation,
-          confidenceScore: 0.85,
-          processedAt: new Date()
-        };
-
-        console.log('✅ AI event creation successful');
-
-      } catch (aiError) {
-        console.error('⚠️ AI event creation failed, using manual data:', aiError.message);
-        // Continue with manual event creation
-      }
-    }
-
-    // Check for conflicts
-    const conflicts = await CalendarEvent.findConflicts(
-      req.user.id,
-      new Date(eventData.startDate),
-      new Date(eventData.endDate)
-    );
-
-    if (conflicts.length > 0 && !req.body.ignoreConflicts) {
-      return res.status(409).json({
+    const { start, end } = req.params;
+    
+    // Validate date format
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+    
+    if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+      return res.status(400).json({
         success: false,
-        message: 'Calendar conflict detected',
-        conflicts: conflicts.map(c => ({
-          id: c._id,
-          title: c.title,
-          startDate: c.startDate,
-          endDate: c.endDate
-        }))
+        message: 'Invalid date format. Use YYYY-MM-DD format.'
       });
     }
 
-    const event = new CalendarEvent(eventData);
-    await event.save();
+    // Non-admin users can only see their own events
+    const userId = (req.user.role === 'main_admin' || req.user.role === 'admin') ? null : req.user.id;
     
-    await event.populate('attendees.userId', 'name email');
-
-    res.status(201).json({
-      success: true,
-      message: 'Calendar event created successfully',
-      data: event
-    });
-
-  } catch (error) {
-    console.error('Create event error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Error creating calendar event',
-      error: error.message
-    });
-  }
-});
-
-/**
- * AI-powered smart scheduling
- */
-router.post('/smart-schedule', authenticateToken, async (req, res) => {
-  try {
-    const { prompt, preferences, attendeeEmails, duration = 60 } = req.body;
-
-    console.log('🧠 AI Smart Scheduling Request...');
-
-    // Get user's existing events for context
-    const existingEvents = await CalendarEvent.find({
-      userId: req.user.id,
-      startDate: { 
-        $gte: new Date(),
-        $lte: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // Next 30 days
-      },
-      status: { $in: ['scheduled', 'confirmed'] }
-    });
-
-    const systemPrompt = `You are an intelligent scheduling assistant. Based on the user's request and their calendar, suggest optimal meeting times.
-
-Current date/time: ${new Date().toISOString()}
-User's existing events: ${JSON.stringify(existingEvents.map(e => ({
-  title: e.title,
-  start: e.startDate,
-  end: e.endDate
-})))}
-
-Default preferences:
-- Business hours: 9 AM - 5 PM
-- Buffer time: 15 minutes between meetings
-- Preferred duration: ${duration} minutes
-- Timezone: ${preferences?.timezone || 'America/New_York'}
-
-User preferences: ${JSON.stringify(preferences || {})}
-
-Respond with a JSON object containing:
-- suggestedTimes: array of 3-5 optimal time slots with ISO date strings
-- reasoning: explanation for each suggestion
-- conflicts: any potential issues identified
-- recommendations: additional suggestions for better scheduling
-
-Consider work-life balance, meeting fatigue, and optimal productivity times.`;
-
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4",
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: prompt }
-      ],
-      max_tokens: 1500,
-      temperature: 0.3
-    });
-
-    const aiResponse = JSON.parse(completion.choices[0].message.content);
+    const events = await CalendarEvent.getEventsForDateRange(startDate, endDate, userId);
 
     res.json({
       success: true,
-      message: 'Smart scheduling suggestions generated',
-      data: {
-        suggestions: aiResponse.suggestedTimes,
-        reasoning: aiResponse.reasoning,
-        conflicts: aiResponse.conflicts,
-        recommendations: aiResponse.recommendations,
-        aiProcessedAt: new Date()
-      }
+      data: events
     });
-
   } catch (error) {
-    console.error('Smart scheduling error:', error);
+    console.error('Error fetching events for date range:', error);
     res.status(500).json({
       success: false,
-      message: 'Error generating smart schedule',
+      message: 'Error fetching events for date range',
       error: error.message
     });
   }
@@ -272,20 +97,21 @@ Consider work-life balance, meeting fatigue, and optimal productivity times.`;
 /**
  * Get upcoming events
  */
-router.get('/events/upcoming', authenticateToken, async (req, res) => {
+router.get('/upcoming', authenticateToken, async (req, res) => {
   try {
-    const { days = 7 } = req.query;
+    const { limit = 10 } = req.query;
     
-    const upcomingEvents = await CalendarEvent.findUpcoming(req.user.id, parseInt(days))
-      .populate('attendees.userId', 'name email');
+    // Non-admin users can only see their own events
+    const userId = (req.user.role === 'main_admin' || req.user.role === 'admin') ? null : req.user.id;
+    
+    const events = await CalendarEvent.getUpcomingEvents(userId, parseInt(limit));
 
     res.json({
       success: true,
-      data: upcomingEvents
+      data: events
     });
-
   } catch (error) {
-    console.error('Get upcoming events error:', error);
+    console.error('Error fetching upcoming events:', error);
     res.status(500).json({
       success: false,
       message: 'Error fetching upcoming events',
@@ -295,15 +121,12 @@ router.get('/events/upcoming', authenticateToken, async (req, res) => {
 });
 
 /**
- * Update calendar event
+ * Get calendar event by ID
  */
-router.put('/events/:id', authenticateToken, async (req, res) => {
+router.get('/:id', authenticateToken, async (req, res) => {
   try {
-    const event = await CalendarEvent.findOne({
-      _id: req.params.id,
-      userId: req.user.id
-    });
-
+    const event = await CalendarEvent.findById(req.params.id);
+    
     if (!event) {
       return res.status(404).json({
         success: false,
@@ -311,45 +134,182 @@ router.put('/events/:id', authenticateToken, async (req, res) => {
       });
     }
 
-    // Check for conflicts if dates are changing
-    if (req.body.startDate || req.body.endDate) {
-      const newStartDate = req.body.startDate ? new Date(req.body.startDate) : event.startDate;
-      const newEndDate = req.body.endDate ? new Date(req.body.endDate) : event.endDate;
-
-      const conflicts = await CalendarEvent.findConflicts(
-        req.user.id,
-        newStartDate,
-        newEndDate,
-        event._id
-      );
-
-      if (conflicts.length > 0 && !req.body.ignoreConflicts) {
-        return res.status(409).json({
-          success: false,
-          message: 'Calendar conflict detected',
-          conflicts: conflicts.map(c => ({
-            id: c._id,
-            title: c.title,
-            startDate: c.startDate,
-            endDate: c.endDate
-          }))
-        });
+    // Check permissions - users can only see events they created or are attending
+    if (req.user.role !== 'main_admin' && req.user.role !== 'admin') {
+      if (event.created_by !== req.user.id) {
+        // Check if user is in attendees (simplified check)
+        const attendees = Array.isArray(event.attendees) ? event.attendees : [];
+        const isAttendee = attendees.some(attendee => attendee.user_id === req.user.id);
+        
+        if (!isAttendee) {
+          return res.status(403).json({
+            success: false,
+            message: 'Access denied'
+          });
+        }
       }
     }
 
-    Object.assign(event, req.body);
-    await event.save();
+    res.json({
+      success: true,
+      data: event
+    });
+  } catch (error) {
+    console.error('Error fetching calendar event:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching calendar event',
+      error: error.message
+    });
+  }
+});
+
+/**
+ * Create new calendar event
+ */
+router.post('/', authenticateToken, async (req, res) => {
+  try {
+    const {
+      title,
+      description,
+      start_time,
+      end_time,
+      all_day = false,
+      location,
+      event_type = 'meeting',
+      status = 'scheduled',
+      attendees = [],
+      recurrence_rule,
+      reminder_minutes = 15,
+      metadata = {}
+    } = req.body;
+
+    if (!title || !start_time || !end_time) {
+      return res.status(400).json({
+        success: false,
+        message: 'Title, start_time, and end_time are required'
+      });
+    }
+
+    // Validate dates
+    const startDate = new Date(start_time);
+    const endDate = new Date(end_time);
     
-    await event.populate('attendees.userId', 'name email');
+    if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid date format'
+      });
+    }
+
+    if (startDate >= endDate) {
+      return res.status(400).json({
+        success: false,
+        message: 'End time must be after start time'
+      });
+    }
+
+    const eventData = {
+      title,
+      description,
+      start_time: startDate,
+      end_time: endDate,
+      all_day,
+      location,
+      event_type,
+      status,
+      created_by: req.user.id,
+      attendees,
+      recurrence_rule,
+      reminder_minutes: parseInt(reminder_minutes),
+      metadata
+    };
+
+    const event = await CalendarEvent.create(eventData);
+
+    res.status(201).json({
+      success: true,
+      message: 'Calendar event created successfully',
+      data: event
+    });
+  } catch (error) {
+    console.error('Error creating calendar event:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error creating calendar event',
+      error: error.message
+    });
+  }
+});
+
+/**
+ * Update calendar event
+ */
+router.put('/:id', authenticateToken, async (req, res) => {
+  try {
+    // Check if event exists and user has permission
+    const existingEvent = await CalendarEvent.findById(req.params.id);
+    if (!existingEvent) {
+      return res.status(404).json({
+        success: false,
+        message: 'Calendar event not found'
+      });
+    }
+
+    // Check permissions
+    if (req.user.role !== 'main_admin' && req.user.role !== 'admin' && existingEvent.created_by !== req.user.id) {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied'
+      });
+    }
+
+    const {
+      title,
+      description,
+      start_time,
+      end_time,
+      all_day,
+      location,
+      event_type,
+      status,
+      attendees,
+      recurrence_rule,
+      reminder_minutes,
+      metadata
+    } = req.body;
+
+    const updates = {};
+    if (title !== undefined) updates.title = title;
+    if (description !== undefined) updates.description = description;
+    if (start_time !== undefined) updates.start_time = new Date(start_time);
+    if (end_time !== undefined) updates.end_time = new Date(end_time);
+    if (all_day !== undefined) updates.all_day = all_day;
+    if (location !== undefined) updates.location = location;
+    if (event_type !== undefined) updates.event_type = event_type;
+    if (status !== undefined) updates.status = status;
+    if (attendees !== undefined) updates.attendees = attendees;
+    if (recurrence_rule !== undefined) updates.recurrence_rule = recurrence_rule;
+    if (reminder_minutes !== undefined) updates.reminder_minutes = parseInt(reminder_minutes);
+    if (metadata !== undefined) updates.metadata = metadata;
+
+    // Validate dates if provided
+    if (updates.start_time && updates.end_time && updates.start_time >= updates.end_time) {
+      return res.status(400).json({
+        success: false,
+        message: 'End time must be after start time'
+      });
+    }
+
+    const event = await CalendarEvent.update(req.params.id, updates);
 
     res.json({
       success: true,
       message: 'Calendar event updated successfully',
       data: event
     });
-
   } catch (error) {
-    console.error('Update event error:', error);
+    console.error('Error updating calendar event:', error);
     res.status(500).json({
       success: false,
       message: 'Error updating calendar event',
@@ -361,27 +321,33 @@ router.put('/events/:id', authenticateToken, async (req, res) => {
 /**
  * Delete calendar event
  */
-router.delete('/events/:id', authenticateToken, async (req, res) => {
+router.delete('/:id', authenticateToken, async (req, res) => {
   try {
-    const event = await CalendarEvent.findOneAndDelete({
-      _id: req.params.id,
-      userId: req.user.id
-    });
-
-    if (!event) {
+    // Check if event exists and user has permission
+    const existingEvent = await CalendarEvent.findById(req.params.id);
+    if (!existingEvent) {
       return res.status(404).json({
         success: false,
         message: 'Calendar event not found'
       });
     }
 
+    // Check permissions
+    if (req.user.role !== 'main_admin' && req.user.role !== 'admin' && existingEvent.created_by !== req.user.id) {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied'
+      });
+    }
+
+    const deleted = await CalendarEvent.delete(req.params.id);
+
     res.json({
       success: true,
       message: 'Calendar event deleted successfully'
     });
-
   } catch (error) {
-    console.error('Delete event error:', error);
+    console.error('Error deleting calendar event:', error);
     res.status(500).json({
       success: false,
       message: 'Error deleting calendar event',
@@ -391,205 +357,23 @@ router.delete('/events/:id', authenticateToken, async (req, res) => {
 });
 
 /**
- * AI-powered event suggestions based on email context
+ * Get calendar statistics
  */
-router.post('/suggest-from-email', authenticateToken, async (req, res) => {
+router.get('/stats/overview', authenticateToken, async (req, res) => {
   try {
-    const { emailContent, emailSubject, fromEmail } = req.body;
-
-    console.log('📧 Creating calendar suggestions from email...');
-
-    const systemPrompt = `You are a smart calendar assistant. Analyze this email and suggest relevant calendar events.
-
-Current date/time: ${new Date().toISOString()}
-
-Respond with a JSON object containing:
-- shouldCreateEvent: boolean - whether this email warrants a calendar event
-- suggestedEvents: array of event objects with:
-  - title: string
-  - description: string  
-  - type: string (meeting, call, deadline, reminder, etc.)
-  - priority: string (low, medium, high, urgent)
-  - suggestedDate: ISO string (if mentioned) or null
-  - suggestedDuration: number in minutes
-  - attendees: array of email addresses
-  - notes: string with additional context
-
-Look for meeting requests, deadlines, appointments, follow-ups, or anything that needs to be scheduled.`;
-
-    const emailText = `Subject: ${emailSubject}\nFrom: ${fromEmail}\n\n${emailContent}`;
-
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4",
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: emailText }
-      ],
-      max_tokens: 1000,
-      temperature: 0.3
-    });
-
-    const aiResponse = JSON.parse(completion.choices[0].message.content);
+    // Admin gets all stats, users get their own stats
+    const userId = (req.user.role === 'main_admin' || req.user.role === 'admin') ? null : req.user.id;
+    const stats = await CalendarEvent.getStats(userId);
 
     res.json({
       success: true,
-      message: 'Email analysis completed',
-      data: aiResponse
+      data: stats
     });
-
   } catch (error) {
-    console.error('Email suggestion error:', error);
+    console.error('Error fetching calendar stats:', error);
     res.status(500).json({
       success: false,
-      message: 'Error analyzing email for calendar suggestions',
-      error: error.message
-    });
-  }
-});
-
-/**
- * Receive external calendar events (webhooks)
- */
-router.post('/external/webhook', async (req, res) => {
-  try {
-    const { source, eventData, userId } = req.body;
-    
-    console.log(`📅 Received external calendar event from ${source}`);
-
-    // Validate the webhook source and user
-    if (!userId || !eventData) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid webhook data'
-      });
-    }
-
-    // Transform external event data to our format
-    const transformedEvent = {
-      title: eventData.summary || eventData.title,
-      description: eventData.description,
-      startDate: new Date(eventData.start),
-      endDate: new Date(eventData.end),
-      userId: userId,
-      createdBy: userId,
-      type: 'meeting',
-      category: 'external',
-      externalEvents: {
-        googleCalendarId: source === 'google' ? eventData.id : undefined,
-        outlookEventId: source === 'outlook' ? eventData.id : undefined,
-        syncStatus: 'synced',
-        lastSyncAt: new Date()
-      },
-      location: eventData.location,
-      attendees: eventData.attendees ? eventData.attendees.map(a => ({
-        email: a.email,
-        name: a.name,
-        status: a.responseStatus === 'accepted' ? 'accepted' : 'pending'
-      })) : []
-    };
-
-    // Check if event already exists
-    const existingEvent = await CalendarEvent.findOne({
-      userId: userId,
-      $or: [
-        { 'externalEvents.googleCalendarId': eventData.id },
-        { 'externalEvents.outlookEventId': eventData.id }
-      ]
-    });
-
-    if (existingEvent) {
-      // Update existing event
-      Object.assign(existingEvent, transformedEvent);
-      existingEvent.externalEvents.lastSyncAt = new Date();
-      await existingEvent.save();
-      
-      res.json({
-        success: true,
-        message: 'Event updated from external source',
-        eventId: existingEvent._id
-      });
-    } else {
-      // Create new event
-      const newEvent = new CalendarEvent(transformedEvent);
-      await newEvent.save();
-      
-      res.json({
-        success: true,
-        message: 'Event created from external source',
-        eventId: newEvent._id
-      });
-    }
-
-  } catch (error) {
-    console.error('External event webhook error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Error processing external calendar event',
-      error: error.message
-    });
-  }
-});
-
-/**
- * Get calendar analytics
- */
-router.get('/analytics', authenticateToken, async (req, res) => {
-  try {
-    const { startDate, endDate } = req.query;
-    
-    const matchFilter = { userId: req.user.id };
-    if (startDate || endDate) {
-      matchFilter.startDate = {};
-      if (startDate) matchFilter.startDate.$gte = new Date(startDate);
-      if (endDate) matchFilter.startDate.$lte = new Date(endDate);
-    }
-
-    const analytics = await CalendarEvent.aggregate([
-      { $match: matchFilter },
-      {
-        $group: {
-          _id: null,
-          totalEvents: { $sum: 1 },
-          completedEvents: {
-            $sum: { $cond: [{ $eq: ['$status', 'completed'] }, 1, 0] }
-          },
-          cancelledEvents: {
-            $sum: { $cond: [{ $eq: ['$status', 'cancelled'] }, 1, 0] }
-          },
-          totalDuration: { $sum: '$durationMinutes' },
-          avgDuration: { $avg: '$durationMinutes' },
-          eventsByType: {
-            $push: '$type'
-          },
-          eventsByCategory: {
-            $push: '$category'
-          },
-          aiGeneratedEvents: {
-            $sum: { $cond: ['$aiGenerated', 1, 0] }
-          }
-        }
-      }
-    ]);
-
-    res.json({
-      success: true,
-      data: analytics[0] || {
-        totalEvents: 0,
-        completedEvents: 0,
-        cancelledEvents: 0,
-        totalDuration: 0,
-        avgDuration: 0,
-        eventsByType: [],
-        eventsByCategory: [],
-        aiGeneratedEvents: 0
-      }
-    });
-
-  } catch (error) {
-    console.error('Calendar analytics error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Error fetching calendar analytics',
+      message: 'Error fetching calendar statistics',
       error: error.message
     });
   }
