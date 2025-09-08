@@ -47,7 +47,7 @@
     <script>
         // Check user role and redirect to appropriate affiliate page
         document.addEventListener('DOMContentLoaded', function() {
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem('vbmsToken');
             
             if (!token) {
                 // Not logged in, redirect to login
