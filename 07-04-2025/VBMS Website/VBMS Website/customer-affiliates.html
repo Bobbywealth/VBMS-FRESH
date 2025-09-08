@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Affiliate Program - VBMS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="customer-theme.css" rel="stylesheet">
+    <style>
+        .main-content {
+            margin-left: 250px;
+            padding: 2rem;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .welcome-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .referral-link-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 16px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .link-input {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            border-radius: 10px;
+        }
+
+        .link-input::placeholder {
+            color: rgba(255,255,255,0.7);
+        }
+
+        .btn-copy {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+        }
+
+        .btn-copy:hover {
+            background: rgba(255,255,255,0.3);
+            color: white;
+        }
+
+        .progress-bar {
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .application-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 3rem;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+
+        .pending-card {
+            background: linear-gradient(135deg, #ffeaa7, #fdcb6e);
+            color: #2d3436;
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Include Customer Sidebar -->
+    <div id="sidebar-container"></div>
+
+    <div class="main-content">
+        <!-- Loading State -->
+        <div id="loading-state" class="text-center py-5">
+            <div class="spinner-border text-white" style="width: 3rem; height: 3rem;" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="text-white mt-3">Loading your affiliate dashboard...</p>
+        </div>
+
+        <!-- Not Affiliate State -->
+        <div id="not-affiliate-state" style="display: none;">
+            <div class="application-card">
+                <div class="mb-4">
+                    <i class="bi bi-people-fill" style="font-size: 4rem; color: #667eea;"></i>
+                </div>
+                <h1 class="mb-3">🚀 Join Our Affiliate Program!</h1>
+                <p class="lead mb-4">Earn commissions by referring customers to VBMS. Get rewarded for every successful referral!</p>
+                
+                <div class="row text-center mb-4">
+                    <div class="col-md-4">
+                        <i class="bi bi-currency-dollar fs-1 text-success"></i>
+                        <h5>Earn 10-15%</h5>
+                        <p class="text-muted">Commission on every sale</p>
+                    </div>
+                    <div class="col-md-4">
+                        <i class="bi bi-graph-up fs-1 text-primary"></i>
+                        <h5>Real-time Tracking</h5>
+                        <p class="text-muted">Monitor your performance</p>
+                    </div>
+                    <div class="col-md-4">
+                        <i class="bi bi-award fs-1 text-warning"></i>
+                        <h5>Tier System</h5>
+                        <p class="text-muted">Bronze, Silver, Gold rewards</p>
+                    </div>
+                </div>
+
+                <form id="application-form">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Why do you want to join?</label>
+                            <textarea class="form-control" id="motivation" rows="3" placeholder="Tell us your motivation..."></textarea>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Website (optional)</label>
+                            <input type="url" class="form-control" id="website" placeholder="https://yoursite.com">
+                            <label class="form-label mt-2">Social Media (optional)</label>
+                            <input type="text" class="form-control" id="social" placeholder="@yourusername">
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-primary btn-lg px-5" onclick="applyAffiliate()">
+                        <i class="bi bi-send me-2"></i>Apply Now
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Pending State -->
+        <div id="pending-state" style="display: none;">
+            <div class="pending-card">
+                <i class="bi bi-clock-history" style="font-size: 4rem;"></i>
+                <h2 class="mt-3">Application Under Review</h2>
+                <p class="lead">Thanks for applying! We're reviewing your affiliate application and will get back to you soon.</p>
+                <div class="mt-4">
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 60%; background: #2d3436;"></div>
+                    </div>
+                    <p class="mt-2 mb-0">Application Status: <strong>Under Review</strong></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Affiliate Dashboard -->
+        <div id="affiliate-dashboard" style="display: none;">
+            <!-- Welcome Card -->
+            <div class="welcome-card">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h1 class="mb-2">🌟 Welcome back, <span id="affiliate-name">Affiliate</span>!</h1>
+                        <p class="text-muted mb-0">Track your referrals, earnings, and grow your affiliate business</p>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <span class="badge bg-success fs-6" id="affiliate-tier">Gold Tier</span>
+                        <p class="text-muted mt-1 mb-0">Commission: <strong id="commission-rate">15%</strong></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="row mb-4">
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="stat-card text-center">
+                        <i class="bi bi-currency-dollar fs-1 text-success"></i>
+                        <p class="stat-number" id="total-earnings">$0.00</p>
+                        <p class="text-muted mb-0">Total Earnings</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="stat-card text-center">
+                        <i class="bi bi-people fs-1 text-primary"></i>
+                        <p class="stat-number" id="total-referrals">0</p>
+                        <p class="text-muted mb-0">Total Referrals</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="stat-card text-center">
+                        <i class="bi bi-calendar-month fs-1 text-warning"></i>
+                        <p class="stat-number" id="monthly-earnings">$0.00</p>
+                        <p class="text-muted mb-0">This Month</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="stat-card text-center">
+                        <i class="bi bi-graph-up fs-1 text-info"></i>
+                        <p class="stat-number" id="conversion-rate">0%</p>
+                        <p class="text-muted mb-0">Conversion Rate</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Referral Link Card -->
+            <div class="referral-link-card">
+                <h3 class="mb-3"><i class="bi bi-link-45deg me-2"></i>Your Referral Link</h3>
+                <div class="input-group">
+                    <input type="text" class="form-control link-input" id="referral-link" readonly>
+                    <button class="btn btn-copy" type="button" onclick="copyLink()">
+                        <i class="bi bi-clipboard"></i> Copy
+                    </button>
+                </div>
+                <p class="mt-2 mb-0 opacity-75">Share this link to earn commissions on every successful referral!</p>
+            </div>
+
+            <!-- Performance Chart -->
+            <div class="stat-card">
+                <h4 class="mb-3"><i class="bi bi-bar-chart me-2"></i>Performance Overview</h4>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Pending Payouts</h6>
+                        <div class="progress mb-3" style="height: 8px;">
+                            <div class="progress-bar" id="pending-progress" style="width: 0%"></div>
+                        </div>
+                        <p class="text-muted">$<span id="pending-amount">0.00</span> pending</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Referral Code</h6>
+                        <div class="d-flex align-items-center">
+                            <code class="bg-light p-2 rounded me-2" id="referral-code">LOADING</code>
+                            <button class="btn btn-sm btn-outline-primary" onclick="copyCode()">
+                                <i class="bi bi-clipboard"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="load-sidebar.js"></script>
+    <script>
+        const API_BASE = window.location.hostname === 'localhost' 
+            ? 'http://localhost:5050' 
+            : 'https://vbms-fresh-production.up.railway.app';
+
+        // Load customer sidebar
+        loadSidebar('customer-sidebar.html');
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadAffiliateData();
+        });
+
+        async function loadAffiliateData() {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`${API_BASE}/api/affiliates/dashboard`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                document.getElementById('loading-state').style.display = 'none';
+
+                if (response.status === 404) {
+                    // Not an affiliate yet
+                    document.getElementById('not-affiliate-state').style.display = 'block';
+                } else if (response.ok) {
+                    const data = await response.json();
+                    const affiliate = data.data;
+
+                    if (affiliate.profile.status === 'pending') {
+                        document.getElementById('pending-state').style.display = 'block';
+                    } else {
+                        showAffiliateDashboard(affiliate);
+                    }
+                } else {
+                    alert('Error loading affiliate data');
+                }
+            } catch (error) {
+                console.error('Error loading affiliate data:', error);
+                document.getElementById('loading-state').style.display = 'none';
+                document.getElementById('not-affiliate-state').style.display = 'block';
+            }
+        }
+
+        function showAffiliateDashboard(data) {
+            document.getElementById('affiliate-dashboard').style.display = 'block';
+
+            // Profile info
+            document.getElementById('affiliate-name').textContent = data.profile.name;
+            document.getElementById('affiliate-tier').textContent = data.profile.tier.charAt(0).toUpperCase() + data.profile.tier.slice(1) + ' Tier';
+            document.getElementById('commission-rate').textContent = (data.profile.commissionRate * 100).toFixed(1) + '%';
+
+            // Stats
+            document.getElementById('total-earnings').textContent = '$' + data.stats.totalEarnings.toFixed(2);
+            document.getElementById('total-referrals').textContent = data.stats.totalReferrals;
+            document.getElementById('monthly-earnings').textContent = '$' + data.stats.currentMonthEarnings.toFixed(2);
+            document.getElementById('conversion-rate').textContent = data.stats.conversionRate.toFixed(1) + '%';
+
+            // Links
+            document.getElementById('referral-link').value = data.links.referralUrl;
+            document.getElementById('referral-code').textContent = data.links.trackingCode;
+
+            // Pending payouts
+            document.getElementById('pending-amount').textContent = data.stats.pendingPayouts.toFixed(2);
+            const pendingPercent = Math.min((data.stats.pendingPayouts / 1000) * 100, 100);
+            document.getElementById('pending-progress').style.width = pendingPercent + '%';
+        }
+
+        async function applyAffiliate() {
+            try {
+                const motivation = document.getElementById('motivation').value;
+                const website = document.getElementById('website').value;
+                const social = document.getElementById('social').value;
+
+                if (!motivation.trim()) {
+                    alert('Please tell us why you want to join our affiliate program');
+                    return;
+                }
+
+                const token = localStorage.getItem('token');
+                const response = await fetch(`${API_BASE}/api/affiliates/apply`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        motivation,
+                        website,
+                        socialMedia: social
+                    })
+                });
+
+                if (response.ok) {
+                    document.getElementById('not-affiliate-state').style.display = 'none';
+                    document.getElementById('pending-state').style.display = 'block';
+                } else {
+                    const error = await response.json();
+                    alert(error.message || 'Error submitting application');
+                }
+            } catch (error) {
+                console.error('Error applying:', error);
+                alert('Error submitting application');
+            }
+        }
+
+        function copyLink() {
+            const linkInput = document.getElementById('referral-link');
+            linkInput.select();
+            document.execCommand('copy');
+            
+            const btn = event.target.closest('button');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="bi bi-check"></i> Copied!';
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+            }, 2000);
+        }
+
+        function copyCode() {
+            const code = document.getElementById('referral-code').textContent;
+            navigator.clipboard.writeText(code);
+            
+            const btn = event.target.closest('button');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="bi bi-check"></i>';
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
