@@ -947,6 +947,9 @@
     </div>
   </div>
 
+  <!-- VAPI Integration Widget -->
+  <div id="vapi-widget-container"></div>
+
   <!-- Admin Management Table -->
   <div class="admins-card">
     <h3><i class="bi bi-shield-lock"></i> Admin Management</h3>
@@ -1247,6 +1250,9 @@ function initializeMainAdminDashboard() {
   
   // Load real admin data
   loadAdminUsers();
+  
+  // Load VAPI widget
+  loadVAPIWidget();
   
   // Track page access
   if (window.activityTracker) {
@@ -1619,6 +1625,26 @@ function addNewAdmin() {
   // In real app, this would open a modal or redirect to admin creation page
   if (confirm('Create a new admin account? This will open the admin creation form.')) {
     window.location.href = 'admin-create-admin.html';
+  }
+}
+
+// Load VAPI Widget
+async function loadVAPIWidget() {
+  try {
+    console.log('📞 Loading VAPI widget...');
+    const container = document.getElementById('vapi-widget-container');
+    if (!container) return;
+
+    const response = await fetch('admin-vapi-widget.html');
+    if (response.ok) {
+      const widgetHTML = await response.text();
+      container.innerHTML = widgetHTML;
+      console.log('✅ VAPI widget loaded successfully');
+    } else {
+      console.error('❌ Failed to load VAPI widget');
+    }
+  } catch (error) {
+    console.error('❌ VAPI widget error:', error);
   }
 }
 

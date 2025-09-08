@@ -2544,6 +2544,9 @@
             </div>
         </div>
 
+        <!-- Customer VAPI Widget -->
+        <div id="customer-vapi-container"></div>
+
         <!-- Content Grid -->
         <div class="content-grid">
             <!-- Enhanced Recent Activity -->
@@ -2868,6 +2871,7 @@
         loadDashboardStats();
         loadRecentOrders();
         loadQuickActions();
+        loadCustomerVAPIWidget();
         updateDateTime();
         setInterval(updateDateTime, 1000); // Update time every second
       }
@@ -2942,6 +2946,26 @@
       function loadQuickActions() {
         // Initialize quick action buttons
         console.log('Quick actions initialized');
+      }
+
+      // Load Customer VAPI Widget
+      async function loadCustomerVAPIWidget() {
+        try {
+          console.log('📞 Loading Customer VAPI widget...');
+          const container = document.getElementById('customer-vapi-container');
+          if (!container) return;
+
+          const response = await fetch('customer-vapi-widget.html');
+          if (response.ok) {
+            const widgetHTML = await response.text();
+            container.innerHTML = widgetHTML;
+            console.log('✅ Customer VAPI widget loaded successfully');
+          } else {
+            console.error('❌ Failed to load Customer VAPI widget');
+          }
+        } catch (error) {
+          console.error('❌ Customer VAPI widget error:', error);
+        }
       }
 
       // Enhanced Recent Activity Functions
