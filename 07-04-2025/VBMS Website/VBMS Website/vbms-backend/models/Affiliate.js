@@ -150,6 +150,125 @@ class Affiliate {
       throw error;
     }
   }
+
+  // Get affiliate analytics for admin dashboard
+  static async getAnalytics(timeframe = '30d') {
+    const timeCondition = this.getTimeCondition(timeframe);
+    
+    const query = `
+      SELECT 
+        COUNT(*) as total_affiliates,
+        COUNT(*) FILTER (WHERE status = 'active') as active_affiliates,
+        COUNT(*) FILTER (WHERE status = 'pending') as pending_affiliates,
+        COUNT(*) FILTER (WHERE status = 'suspended') as suspended_affiliates,
+        SUM(total_earnings) as total_commission_paid,
+        SUM(total_referrals) as total_referrals,
+        AVG(commission_rate) as avg_commission_rate,
+        COUNT(*) FILTER (WHERE created_at >= NOW() - INTERVAL '${timeCondition}') as new_affiliates
+      FROM affiliates
+    `;
+
+    try {
+      const result = await pgPool.query(query);
+      const stats = result.rows[0];
+      
+      // Convert to numbers
+      Object.keys(stats).forEach(key => {
+        if (key.includes('rate') || key.includes('earnings')) {
+          stats[key] = parseFloat(stats[key]) || 0;
+        } else {
+          stats[key] = parseInt(stats[key]) || 0;
+        }
+      });
+
+      return stats;
+    } catch (error) {
+      console.error('Error getting affiliate analytics:', error);
+      throw error;
+    }
+  }
+
+  // Get top performing affiliates
+  static async getTopPerformers(limit = 10) {
+    const query = `
+      SELECT 
+        id, name, email, total_earnings, total_referrals, 
+        commission_rate, tier, status, created_at
+      FROM affiliates 
+      WHERE status = 'active'
+      ORDER BY total_earnings DESC 
+      LIMIT $1
+    `;
+
+    try {
+      const result = await pgPool.query(query, [limit]);
+      return result.rows.map(row => new Affiliate(row));
+    } catch (error) {
+      console.error('Error getting top performers:', error);
+      throw error;
+    }
+  }
+
+  // Get affiliate by referral code
+  static async findByReferralCode(referralCode) {
+    const query = 'SELECT * FROM affiliates WHERE referral_code = $1';
+    
+    try {
+      const result = await pgPool.query(query, [referralCode]);
+      if (result.rows.length === 0) return null;
+      return new Affiliate(result.rows[0]);
+    } catch (error) {
+      console.error('Error finding affiliate by referral code:', error);
+      throw error;
+    }
+  }
+
+  // Get affiliate by user email (for customer affiliate dashboard)
+  static async findByEmail(email) {
+    const query = 'SELECT * FROM affiliates WHERE email = $1';
+    
+    try {
+      const result = await pgPool.query(query, [email]);
+      if (result.rows.length === 0) return null;
+      return new Affiliate(result.rows[0]);
+    } catch (error) {
+      console.error('Error finding affiliate by email:', error);
+      throw error;
+    }
+  }
+
+  // Update affiliate earnings and referrals (called when a sale is made)
+  static async updateEarnings(affiliateId, earningsToAdd, referralsToAdd = 1) {
+    const query = `
+      UPDATE affiliates 
+      SET 
+        total_earnings = total_earnings + $2,
+        total_referrals = total_referrals + $3,
+        updated_at = NOW()
+      WHERE id = $1
+      RETURNING *
+    `;
+
+    try {
+      const result = await pgPool.query(query, [affiliateId, earningsToAdd, referralsToAdd]);
+      if (result.rows.length === 0) return null;
+      return new Affiliate(result.rows[0]);
+    } catch (error) {
+      console.error('Error updating affiliate earnings:', error);
+      throw error;
+    }
+  }
+
+  // Helper method for time conditions
+  static getTimeCondition(timeframe) {
+    const timeframes = {
+      '7d': '7 days',
+      '30d': '30 days',
+      '90d': '90 days',
+      '1y': '1 year'
+    };
+    return timeframes[timeframe] || '30 days';
+  }
 }
 
 module.exports = Affiliate;
