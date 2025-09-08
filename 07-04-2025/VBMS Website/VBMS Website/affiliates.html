@@ -47,29 +47,47 @@
     <script>
         // Check user role and redirect to appropriate affiliate page
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('🔍 AFFILIATES REDIRECT DEBUG:');
+            console.log('- localStorage vbmsToken:', localStorage.getItem('vbmsToken') ? 'Present' : 'Missing');
+            console.log('- localStorage vbmsLoggedIn:', localStorage.getItem('vbmsLoggedIn'));
+            console.log('- localStorage vbmsRole:', localStorage.getItem('vbmsRole'));
+            
             const token = localStorage.getItem('vbmsToken');
             
             if (!token) {
+                console.log('❌ No vbmsToken found - redirecting to login');
+                alert('DEBUG: No token found. Check console for details.');
                 // Not logged in, redirect to login
                 window.location.href = 'login.html';
                 return;
             }
+            
+            console.log('✅ Token found, proceeding with role detection');
 
             // Decode JWT to get user role (simple decode, not secure but sufficient for UI)
             try {
+                console.log('🔍 Decoding JWT token...');
                 const payload = JSON.parse(atob(token.split('.')[1]));
                 const userRole = payload.role;
+                
+                console.log('✅ JWT decoded successfully');
+                console.log('- User role from JWT:', userRole);
+                console.log('- User email from JWT:', payload.email);
 
                 // Redirect based on role
                 if (userRole === 'main_admin' || userRole === 'admin') {
+                    console.log('🎯 Admin user detected - redirecting to admin-affiliates.html');
                     // Admin users go to admin affiliate management
                     window.location.href = 'admin-affiliates.html';
                 } else {
+                    console.log('👤 Customer user detected - redirecting to customer-affiliates.html');
                     // Customer users go to customer affiliate dashboard
                     window.location.href = 'customer-affiliates.html';
                 }
             } catch (error) {
-                console.error('Error decoding token:', error);
+                console.error('❌ Error decoding token:', error);
+                console.log('🔄 Falling back to customer page');
+                alert('DEBUG: Token decode error. Check console for details.');
                 // Fallback to customer page
                 window.location.href = 'customer-affiliates.html';
             }
