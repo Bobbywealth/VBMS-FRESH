@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DEBUG - Affiliate Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .debug-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .status { padding: 5px 10px; border-radius: 4px; margin: 5px 0; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .warning { background: #fff3cd; color: #856404; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Affiliate Authentication Debug</h1>
+    
+    <div class="debug-card">
+        <h3>Authentication Status</h3>
+        <div id="auth-status">Checking...</div>
+    </div>
+
+    <div class="debug-card">
+        <h3>Storage Values</h3>
+        <div id="storage-values">Loading...</div>
+    </div>
+
+    <div class="debug-card">
+        <h3>Navigation Test</h3>
+        <button onclick="testDirectNavigation()" style="margin: 5px; padding: 10px;">Go to Admin Affiliates (Direct)</button>
+        <button onclick="testRedirectNavigation()" style="margin: 5px; padding: 10px;">Go via Redirect Page</button>
+        <button onclick="testCustomerAffiliate()" style="margin: 5px; padding: 10px;">Go to Customer Affiliates</button>
+    </div>
+
+    <div class="debug-card">
+        <h3>Console Logs</h3>
+        <div id="console-logs" style="background: #f8f9fa; padding: 10px; border-radius: 4px; font-family: monospace; white-space: pre-wrap; max-height: 200px; overflow-y: auto;"></div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script>
+        let logOutput = '';
+        
+        function log(message) {
+            console.log(message);
+            logOutput += new Date().toLocaleTimeString() + ': ' + message + '\n';
+            document.getElementById('console-logs').textContent = logOutput;
+        }
+
+        function checkAuthStatus() {
+            const statusDiv = document.getElementById('auth-status');
+            const storageDiv = document.getElementById('storage-values');
+            
+            log('Starting authentication check...');
+            
+            // Check if vbmsAuth is available
+            if (typeof vbmsAuth === 'undefined') {
+                statusDiv.innerHTML = '<div class="status error">❌ vbmsAuth not loaded</div>';
+                log('ERROR: vbmsAuth not available');
+                return;
+            }
+            
+            log('vbmsAuth is available');
+            
+            // Check authentication
+            const isAuth = vbmsAuth.isAuthenticated();
+            const role = vbmsAuth.getCurrentRole();
+            const user = vbmsAuth.getCurrentUser();
+            
+            log(`isAuthenticated: ${isAuth}`);
+            log(`getCurrentRole: ${role}`);
+            log(`getCurrentUser: ${user ? user.email : 'null'}`);
+            
+            // Display status
+            if (isAuth) {
+                statusDiv.innerHTML = `
+                    <div class="status success">✅ Authenticated</div>
+                    <div class="status success">👤 Role: ${role}</div>
+                    <div class="status success">📧 User: ${user ? user.email : 'Unknown'}</div>
+                `;
+            } else {
+                statusDiv.innerHTML = '<div class="status error">❌ Not Authenticated</div>';
+            }
+            
+            // Display storage values
+            const vbmsToken = localStorage.getItem('vbmsToken');
+            const vbmsLoggedIn = localStorage.getItem('vbmsLoggedIn');
+            const vbmsRole = localStorage.getItem('vbmsRole');
+            const vbmsUser = localStorage.getItem('vbmsUser');
+            
+            log(`localStorage vbmsToken: ${vbmsToken ? 'Present' : 'Missing'}`);
+            log(`localStorage vbmsLoggedIn: ${vbmsLoggedIn}`);
+            log(`localStorage vbmsRole: ${vbmsRole}`);
+            
+            storageDiv.innerHTML = `
+                <div class="status ${vbmsToken ? 'success' : 'error'}">vbmsToken: ${vbmsToken ? 'Present ✅' : 'Missing ❌'}</div>
+                <div class="status ${vbmsLoggedIn === 'true' ? 'success' : 'error'}">vbmsLoggedIn: ${vbmsLoggedIn}</div>
+                <div class="status ${vbmsRole ? 'success' : 'error'}">vbmsRole: ${vbmsRole || 'Missing'}</div>
+                <div class="status ${vbmsUser ? 'success' : 'error'}">vbmsUser: ${vbmsUser ? 'Present' : 'Missing'}</div>
+            `;
+        }
+
+        function testDirectNavigation() {
+            log('Testing direct navigation to admin-affiliates.html');
+            window.location.href = 'admin-affiliates.html';
+        }
+
+        function testRedirectNavigation() {
+            log('Testing redirect navigation via affiliates.html');
+            window.location.href = 'affiliates.html';
+        }
+
+        function testCustomerAffiliate() {
+            log('Testing customer affiliate page');
+            window.location.href = 'customer-affiliates.html';
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            log('Debug page loaded');
+            
+            // Wait a bit for auth to load
+            setTimeout(() => {
+                checkAuthStatus();
+            }, 500);
+        });
+    </script>
+</body>
+</html>
