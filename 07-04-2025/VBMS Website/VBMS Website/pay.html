@@ -243,7 +243,7 @@
     if (isNaN(amount) || amount < 0) { errorDiv.textContent = "Amount must be at least $0.00"; return; }
 
     // Backend call
-    const res = await fetch('https://vbms-backend.onrender.com/api/create-payment-intent', {
+    const res = await fetch('https://vbms-fresh-production.up.railway.app/api/create-payment-intent', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

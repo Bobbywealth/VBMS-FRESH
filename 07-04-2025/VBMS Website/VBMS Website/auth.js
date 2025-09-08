@@ -3,7 +3,7 @@ window.vbmsAuth = window.vbmsAuth || {
   login(email, password) {
     const API_BASE = window.location.hostname === 'localhost' 
       ? 'http://localhost:5050' 
-      : 'https://vbms-backend.onrender.com';
+      : 'https://vbms-fresh-production.up.railway.app';
     return fetch(`${API_BASE}/api/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

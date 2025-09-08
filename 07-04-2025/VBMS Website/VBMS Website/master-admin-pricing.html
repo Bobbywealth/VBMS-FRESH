@@ -642,7 +642,7 @@ async function loadPricingPlans() {
   try {
     const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
       ? 'http://localhost:5050'
-      : 'https://vbms-backend.onrender.com';
+      : 'https://vbms-fresh-production.up.railway.app';
 
     const token = localStorage.getItem('vbmsToken') || sessionStorage.getItem('vbmsToken');
     
@@ -853,7 +853,7 @@ async function savePlan() {
     
     const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
       ? 'http://localhost:5050'
-      : 'https://vbms-backend.onrender.com';
+      : 'https://vbms-fresh-production.up.railway.app';
 
     const token = localStorage.getItem('vbmsToken') || sessionStorage.getItem('vbmsToken');
     
@@ -900,7 +900,7 @@ async function deletePlan(planId) {
   try {
     const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
       ? 'http://localhost:5050'
-      : 'https://vbms-backend.onrender.com';
+      : 'https://vbms-fresh-production.up.railway.app';
 
     const token = localStorage.getItem('vbmsToken') || sessionStorage.getItem('vbmsToken');
     
@@ -933,7 +933,7 @@ async function syncWithStripe() {
     
     const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
       ? 'http://localhost:5050'
-      : 'https://vbms-backend.onrender.com';
+      : 'https://vbms-fresh-production.up.railway.app';
 
     const token = localStorage.getItem('vbmsToken') || sessionStorage.getItem('vbmsToken');
     
@@ -968,7 +968,7 @@ async function createPlanInStripe(planId) {
     
     const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
       ? 'http://localhost:5050'
-      : 'https://vbms-backend.onrender.com';
+      : 'https://vbms-fresh-production.up.railway.app';
 
     const token = localStorage.getItem('vbmsToken') || sessionStorage.getItem('vbmsToken');
     

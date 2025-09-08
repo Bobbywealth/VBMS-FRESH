@@ -171,7 +171,7 @@ window.addEventListener("DOMContentLoaded", async () => {
   // decide whether we're running locally or in prod
   const API_BASE = window.location.hostname === 'localhost'
     ? 'http://localhost:5050'
-    : 'https://vbms-backend.onrender.com';
+    : 'https://vbms-fresh-production.up.railway.app';
 
   const wizardData = JSON.parse(localStorage.getItem("vbmsWizard") || "{}");
   if (!wizardData.email) return; // Don't send if no data

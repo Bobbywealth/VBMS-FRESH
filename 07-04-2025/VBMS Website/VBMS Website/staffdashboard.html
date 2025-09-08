@@ -784,7 +784,7 @@ function logout(){location='login.html';}
     }
 
     try {
-      const response = await fetch('https://vbms-backend.onrender.com/api/dashboard', {
+      const response = await fetch('https://vbms-fresh-production.up.railway.app/api/dashboard', {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`
