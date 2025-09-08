@@ -1,0 +1,461 @@
+<!-- VAPI Admin Widget - Real-time call management and analytics -->
+<div class="vapi-admin-widget">
+    <div class="vapi-header">
+        <div class="vapi-status">
+            <div class="status-indicator" id="vapi-status-dot"></div>
+            <span id="vapi-status-text">Connecting...</span>
+        </div>
+        <div class="vapi-actions">
+            <button class="btn btn-sm btn-primary" onclick="refreshVAPIData()">
+                <i class="bi bi-arrow-clockwise"></i> Refresh
+            </button>
+            <button class="btn btn-sm btn-outline-primary" onclick="openVAPIConfig()">
+                <i class="bi bi-gear"></i> Configure
+            </button>
+        </div>
+    </div>
+
+    <!-- VAPI Stats Cards -->
+    <div class="vapi-stats-grid">
+        <div class="vapi-stat-card">
+            <div class="stat-icon">
+                <i class="bi bi-telephone-inbound text-success"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-number" id="vapi-calls-today">0</div>
+                <div class="stat-label">Calls Today</div>
+            </div>
+        </div>
+        <div class="vapi-stat-card">
+            <div class="stat-icon">
+                <i class="bi bi-clock-history text-primary"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-number" id="vapi-avg-duration">0m</div>
+                <div class="stat-label">Avg Duration</div>
+            </div>
+        </div>
+        <div class="vapi-stat-card">
+            <div class="stat-icon">
+                <i class="bi bi-currency-dollar text-warning"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-number" id="vapi-cost-today">$0</div>
+                <div class="stat-label">Cost Today</div>
+            </div>
+        </div>
+        <div class="vapi-stat-card">
+            <div class="stat-icon">
+                <i class="bi bi-graph-up text-info"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-number" id="vapi-conversion-rate">0%</div>
+                <div class="stat-label">Conversion</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Calls -->
+    <div class="vapi-active-calls">
+        <div class="section-header">
+            <h6><i class="bi bi-telephone-fill"></i> Active Calls</h6>
+            <span class="badge bg-success" id="active-calls-count">0</span>
+        </div>
+        <div class="active-calls-list" id="active-calls-list">
+            <div class="no-calls-message">No active calls</div>
+        </div>
+    </div>
+
+    <!-- Recent Calls -->
+    <div class="vapi-recent-calls">
+        <div class="section-header">
+            <h6><i class="bi bi-clock-history"></i> Recent Calls</h6>
+            <a href="admin-ai-phone.html" class="text-primary">View All</a>
+        </div>
+        <div class="recent-calls-list" id="recent-calls-list">
+            <!-- Recent calls will be loaded here -->
+        </div>
+    </div>
+</div>
+
+<style>
+.vapi-admin-widget {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    margin-bottom: 1.5rem;
+}
+
+.vapi-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.vapi-status {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+}
+
+.status-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #6c757d;
+    animation: pulse 2s infinite;
+}
+
+.status-indicator.connected {
+    background: #28a745;
+}
+
+.status-indicator.error {
+    background: #dc3545;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+.vapi-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.vapi-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.vapi-stat-card {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    transition: transform 0.2s;
+}
+
+.vapi-stat-card:hover {
+    transform: translateY(-2px);
+}
+
+.stat-icon {
+    font-size: 1.5rem;
+}
+
+.stat-content {
+    flex: 1;
+}
+
+.stat-number {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #212529;
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.section-header h6 {
+    margin: 0;
+    font-weight: 600;
+    color: #495057;
+}
+
+.active-calls-list, .recent-calls-list {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.call-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+    background: white;
+}
+
+.call-info {
+    flex: 1;
+}
+
+.call-phone {
+    font-weight: 600;
+    color: #212529;
+}
+
+.call-status {
+    font-size: 0.75rem;
+    color: #6c757d;
+}
+
+.call-duration {
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.call-actions {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.no-calls-message {
+    text-align: center;
+    color: #6c757d;
+    font-style: italic;
+    padding: 1rem;
+}
+
+.badge {
+    font-size: 0.7rem;
+}
+</style>
+
+<script>
+// VAPI Admin Widget JavaScript
+class VAPIAdminWidget {
+    constructor() {
+        this.API_BASE = window.location.hostname === 'localhost' 
+            ? 'http://localhost:5050' 
+            : 'https://vbms-fresh-production.up.railway.app';
+        this.refreshInterval = null;
+        this.init();
+    }
+
+    async init() {
+        console.log('🤖 Initializing VAPI Admin Widget...');
+        await this.loadVAPIData();
+        this.startAutoRefresh();
+    }
+
+    async loadVAPIData() {
+        try {
+            const token = localStorage.getItem('vbmsToken');
+            if (!token) {
+                this.showError('No authentication token');
+                return;
+            }
+
+            // Update status
+            this.updateStatus('connecting', 'Connecting...');
+
+            // Load VAPI stats
+            const statsResponse = await fetch(`${this.API_BASE}/api/vapi/stats`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (statsResponse.ok) {
+                const stats = await statsResponse.json();
+                this.updateStats(stats);
+                this.updateStatus('connected', 'Connected');
+            } else {
+                throw new Error(`Stats API error: ${statsResponse.status}`);
+            }
+
+            // Load active calls
+            const callsResponse = await fetch(`${this.API_BASE}/api/vapi/calls/active`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (callsResponse.ok) {
+                const activeCalls = await callsResponse.json();
+                this.updateActiveCalls(activeCalls);
+            }
+
+            // Load recent calls
+            const recentResponse = await fetch(`${this.API_BASE}/api/vapi/calls/recent?limit=5`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (recentResponse.ok) {
+                const recentCalls = await recentResponse.json();
+                this.updateRecentCalls(recentCalls);
+            }
+
+        } catch (error) {
+            console.error('❌ VAPI Widget Error:', error);
+            this.updateStatus('error', 'Connection Error');
+            this.showError(error.message);
+        }
+    }
+
+    updateStatus(status, text) {
+        const dot = document.getElementById('vapi-status-dot');
+        const textEl = document.getElementById('vapi-status-text');
+        
+        if (dot) {
+            dot.className = `status-indicator ${status}`;
+        }
+        if (textEl) {
+            textEl.textContent = text;
+        }
+    }
+
+    updateStats(stats) {
+        const elements = {
+            'vapi-calls-today': stats.callsToday || 0,
+            'vapi-avg-duration': this.formatDuration(stats.avgDuration || 0),
+            'vapi-cost-today': `$${(stats.costToday || 0).toFixed(2)}`,
+            'vapi-conversion-rate': `${(stats.conversionRate || 0).toFixed(1)}%`
+        };
+
+        Object.entries(elements).forEach(([id, value]) => {
+            const el = document.getElementById(id);
+            if (el) el.textContent = value;
+        });
+    }
+
+    updateActiveCalls(calls) {
+        const container = document.getElementById('active-calls-list');
+        const countBadge = document.getElementById('active-calls-count');
+        
+        if (countBadge) {
+            countBadge.textContent = calls.length;
+        }
+
+        if (!container) return;
+
+        if (calls.length === 0) {
+            container.innerHTML = '<div class="no-calls-message">No active calls</div>';
+            return;
+        }
+
+        container.innerHTML = calls.map(call => `
+            <div class="call-item">
+                <div class="call-info">
+                    <div class="call-phone">${this.formatPhone(call.phoneNumber)}</div>
+                    <div class="call-status">${call.status} • ${this.formatDuration(call.duration)}</div>
+                </div>
+                <div class="call-actions">
+                    <button class="btn btn-sm btn-outline-primary" onclick="viewCall('${call.vapiCallId}')">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    updateRecentCalls(calls) {
+        const container = document.getElementById('recent-calls-list');
+        if (!container) return;
+
+        if (calls.length === 0) {
+            container.innerHTML = '<div class="no-calls-message">No recent calls</div>';
+            return;
+        }
+
+        container.innerHTML = calls.map(call => `
+            <div class="call-item">
+                <div class="call-info">
+                    <div class="call-phone">${this.formatPhone(call.phoneNumber)}</div>
+                    <div class="call-status">${call.status} • ${this.formatTime(call.createdAt)}</div>
+                </div>
+                <div class="call-duration">${this.formatDuration(call.duration)}</div>
+            </div>
+        `).join('');
+    }
+
+    formatPhone(phone) {
+        if (!phone) return 'Unknown';
+        // Format as (XXX) XXX-XXXX
+        const cleaned = phone.replace(/\D/g, '');
+        const match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
+        return match ? `(${match[1]}) ${match[2]}-${match[3]}` : phone;
+    }
+
+    formatDuration(seconds) {
+        if (!seconds) return '0s';
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return mins > 0 ? `${mins}m ${secs}s` : `${secs}s`;
+    }
+
+    formatTime(timestamp) {
+        if (!timestamp) return '';
+        const date = new Date(timestamp);
+        const now = new Date();
+        const diff = now - date;
+        const minutes = Math.floor(diff / 60000);
+        
+        if (minutes < 1) return 'Just now';
+        if (minutes < 60) return `${minutes}m ago`;
+        const hours = Math.floor(minutes / 60);
+        if (hours < 24) return `${hours}h ago`;
+        return date.toLocaleDateString();
+    }
+
+    showError(message) {
+        console.error('VAPI Widget Error:', message);
+        // Could show toast notification here
+    }
+
+    startAutoRefresh() {
+        // Refresh every 30 seconds
+        this.refreshInterval = setInterval(() => {
+            this.loadVAPIData();
+        }, 30000);
+    }
+
+    stopAutoRefresh() {
+        if (this.refreshInterval) {
+            clearInterval(this.refreshInterval);
+            this.refreshInterval = null;
+        }
+    }
+}
+
+// Global functions
+function refreshVAPIData() {
+    if (window.vapiWidget) {
+        window.vapiWidget.loadVAPIData();
+    }
+}
+
+function openVAPIConfig() {
+    window.location.href = 'admin-ai-phone.html';
+}
+
+function viewCall(callId) {
+    // Open call details modal or navigate to call details page
+    console.log('Viewing call:', callId);
+    window.open(`admin-ai-phone.html?call=${callId}`, '_blank');
+}
+
+// Initialize widget when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+    window.vapiWidget = new VAPIAdminWidget();
+});
+
+// Cleanup on page unload
+window.addEventListener('beforeunload', function() {
+    if (window.vapiWidget) {
+        window.vapiWidget.stopAutoRefresh();
+    }
+});
+</script>
