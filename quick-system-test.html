@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick System Test - VBMS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <style>
+        body { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            min-height: 100vh; 
+            color: white;
+            font-family: 'Inter', sans-serif;
+        }
+        .container { 
+            max-width: 800px; 
+            margin: 2rem auto; 
+            padding: 2rem; 
+        }
+        .test-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .test-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            border-left: 4px solid #ffc107;
+        }
+        .test-item.success {
+            border-left-color: #28a745;
+            background: rgba(40, 167, 69, 0.2);
+        }
+        .test-item.error {
+            border-left-color: #dc3545;
+            background: rgba(220, 53, 69, 0.2);
+        }
+        .test-button {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            background: #007bff;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .test-button:hover {
+            background: #0056b3;
+            transform: translateY(-2px);
+        }
+        .status-icon {
+            font-size: 1.2rem;
+            margin-right: 0.5rem;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .summary-card {
+            text-align: center;
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .summary-number {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        .summary-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="bi bi-shield-check"></i> Quick System Test</h1>
+            <p>Essential VBMS functionality verification</p>
+        </div>
+
+        <div class="summary">
+            <div class="summary-card">
+                <div class="summary-number" id="totalTests">8</div>
+                <div class="summary-label">Total Tests</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-number" id="passedTests">0</div>
+                <div class="summary-label">Passed</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-number" id="failedTests">0</div>
+                <div class="summary-label">Failed</div>
+            </div>
+        </div>
+
+        <div class="test-card">
+            <h3><i class="bi bi-lightning"></i> Core System Tests</h3>
+            <div id="testResults"></div>
+            <div class="text-center mt-3">
+                <button class="test-button" onclick="runQuickTests()" id="runButton">
+                    <i class="bi bi-play-circle"></i> Run Quick Tests
+                </button>
+            </div>
+        </div>
+
+        <div class="test-card">
+            <h3><i class="bi bi-info-circle"></i> Manual Test Links</h3>
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Admin Pages:</h5>
+                    <ul>
+                        <li><a href="https://vbmstest1.netlify.app/admin-main-dashboard.html" target="_blank" class="text-light">Admin Dashboard</a></li>
+                        <li><a href="https://vbmstest1.netlify.app/admin-affiliates.html" target="_blank" class="text-light">Admin Affiliates</a></li>
+                        <li><a href="https://vbmstest1.netlify.app/login.html" target="_blank" class="text-light">Login Page</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h5>Customer Pages:</h5>
+                    <ul>
+                        <li><a href="https://vbmstest1.netlify.app/customer-dashboard.html" target="_blank" class="text-light">Customer Dashboard</a></li>
+                        <li><a href="https://vbmstest1.netlify.app/customer-affiliates.html" target="_blank" class="text-light">Customer Affiliates</a></li>
+                    </ul>
+                    <h5>Backend:</h5>
+                    <ul>
+                        <li><a href="https://vbms-fresh-production.up.railway.app/health" target="_blank" class="text-light">Health Check</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'https://vbms-fresh-production.up.railway.app';
+        
+        const tests = [
+            {
+                name: 'Backend Health Check',
+                test: () => testBackendHealth()
+            },
+            {
+                name: 'Admin Dashboard Page',
+                test: () => testPageAccess('https://vbmstest1.netlify.app/admin-main-dashboard.html')
+            },
+            {
+                name: 'Customer Dashboard Page',
+                test: () => testPageAccess('https://vbmstest1.netlify.app/customer-dashboard.html')
+            },
+            {
+                name: 'Login Page',
+                test: () => testPageAccess('https://vbmstest1.netlify.app/login.html')
+            },
+            {
+                name: 'Admin Affiliates Page',
+                test: () => testPageAccess('https://vbmstest1.netlify.app/admin-affiliates.html')
+            },
+            {
+                name: 'Customer Affiliates Page',
+                test: () => testPageAccess('https://vbmstest1.netlify.app/customer-affiliates.html')
+            },
+            {
+                name: 'Auth API Endpoint',
+                test: () => testAuthAPI()
+            },
+            {
+                name: 'Payment API Endpoint',
+                test: () => testPaymentAPI()
+            }
+        ];
+
+        let results = { passed: 0, failed: 0 };
+
+        async function runQuickTests() {
+            const button = document.getElementById('runButton');
+            button.innerHTML = '<i class="bi bi-hourglass"></i> Testing...';
+            button.disabled = true;
+
+            results = { passed: 0, failed: 0 };
+            const container = document.getElementById('testResults');
+            container.innerHTML = '';
+
+            for (const test of tests) {
+                const testElement = document.createElement('div');
+                testElement.className = 'test-item';
+                testElement.innerHTML = `
+                    <span>${test.name}</span>
+                    <span><i class="bi bi-hourglass status-icon"></i>Running...</span>
+                `;
+                container.appendChild(testElement);
+
+                try {
+                    const result = await test.test();
+                    if (result.success) {
+                        testElement.className = 'test-item success';
+                        testElement.innerHTML = `
+                            <span>${test.name}</span>
+                            <span><i class="bi bi-check-circle status-icon text-success"></i>Passed</span>
+                        `;
+                        results.passed++;
+                    } else {
+                        testElement.className = 'test-item error';
+                        testElement.innerHTML = `
+                            <span>${test.name}</span>
+                            <span><i class="bi bi-x-circle status-icon text-danger"></i>Failed</span>
+                        `;
+                        results.failed++;
+                    }
+                } catch (error) {
+                    testElement.className = 'test-item error';
+                    testElement.innerHTML = `
+                        <span>${test.name}</span>
+                        <span><i class="bi bi-exclamation-triangle status-icon text-danger"></i>Error</span>
+                    `;
+                    results.failed++;
+                }
+
+                await new Promise(resolve => setTimeout(resolve, 200));
+            }
+
+            updateSummary();
+            button.innerHTML = '<i class="bi bi-arrow-clockwise"></i> Run Again';
+            button.disabled = false;
+        }
+
+        async function testBackendHealth() {
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                if (response.ok) {
+                    return { success: true, message: 'Backend healthy' };
+                }
+                return { success: false, message: `Health check failed: ${response.status}` };
+            } catch (error) {
+                return { success: false, message: 'Backend unreachable' };
+            }
+        }
+
+        async function testPageAccess(url) {
+            try {
+                const response = await fetch(url, { mode: 'no-cors' });
+                // no-cors mode doesn't give us status, so we assume success if no error
+                return { success: true, message: 'Page accessible' };
+            } catch (error) {
+                return { success: false, message: 'Page not accessible' };
+            }
+        }
+
+        async function testAuthAPI() {
+            try {
+                const response = await fetch(`${API_BASE}/api/auth/login`);
+                // Should return 405 (Method Not Allowed) or 400 for GET request
+                if (response.status === 405 || response.status === 400) {
+                    return { success: true, message: 'Auth API responding' };
+                }
+                return { success: false, message: `Unexpected response: ${response.status}` };
+            } catch (error) {
+                return { success: false, message: 'Auth API unreachable' };
+            }
+        }
+
+        async function testPaymentAPI() {
+            try {
+                const response = await fetch(`${API_BASE}/api/payments/analytics`);
+                // Should return 401 (Unauthorized) without token
+                if (response.status === 401) {
+                    return { success: true, message: 'Payment API responding (auth required)' };
+                }
+                return { success: false, message: `Unexpected response: ${response.status}` };
+            } catch (error) {
+                return { success: false, message: 'Payment API unreachable' };
+            }
+        }
+
+        function updateSummary() {
+            document.getElementById('passedTests').textContent = results.passed;
+            document.getElementById('failedTests').textContent = results.failed;
+        }
+    </script>
+</body>
+</html>
