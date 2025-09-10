@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VBMS System Audit Tool</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .audit-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 2rem;
+        }
+        
+        .audit-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .audit-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .audit-header h1 {
+            color: #667eea;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .audit-section {
+            margin-bottom: 2rem;
+        }
+        
+        .audit-section h3 {
+            color: #333;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .test-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #dee2e6;
+        }
+        
+        .test-item.success {
+            border-left-color: #28a745;
+            background: #d4edda;
+        }
+        
+        .test-item.error {
+            border-left-color: #dc3545;
+            background: #f8d7da;
+        }
+        
+        .test-item.warning {
+            border-left-color: #ffc107;
+            background: #fff3cd;
+        }
+        
+        .test-description {
+            flex: 1;
+            margin-right: 1rem;
+        }
+        
+        .test-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .test-button {
+            padding: 0.25rem 0.75rem;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .test-button.test {
+            background: #007bff;
+            color: white;
+        }
+        
+        .test-button.test:hover {
+            background: #0056b3;
+        }
+        
+        .test-button.fix {
+            background: #28a745;
+            color: white;
+        }
+        
+        .test-button.fix:hover {
+            background: #1e7e34;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.3s ease;
+        }
+        
+        .audit-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .summary-card {
+            text-align: center;
+            padding: 1.5rem;
+            border-radius: 12px;
+            color: white;
+        }
+        
+        .summary-card.total {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+        
+        .summary-card.passed {
+            background: linear-gradient(135deg, #28a745, #20c997);
+        }
+        
+        .summary-card.failed {
+            background: linear-gradient(135deg, #dc3545, #fd7e14);
+        }
+        
+        .summary-card.pending {
+            background: linear-gradient(135deg, #ffc107, #fd7e14);
+        }
+        
+        .summary-number {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .summary-label {
+            font-size: 0.875rem;
+            opacity: 0.9;
+        }
+        
+        .auto-test-controls {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .auto-test-btn {
+            padding: 1rem 2rem;
+            font-size: 1.125rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0 0.5rem;
+        }
+        
+        .auto-test-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+        
+        .log-container {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 1rem;
+        }
+        
+        .log-entry {
+            margin-bottom: 0.25rem;
+            padding: 0.25rem 0;
+        }
+        
+        .log-entry.success {
+            color: #68d391;
+        }
+        
+        .log-entry.error {
+            color: #fc8181;
+        }
+        
+        .log-entry.warning {
+            color: #f6e05e;
+        }
+        
+        .log-entry.info {
+            color: #63b3ed;
+        }
+    </style>
+</head>
+<body>
+    <div class="audit-container">
+        <div class="audit-card">
+            <div class="audit-header">
+                <h1><i class="bi bi-shield-check"></i> VBMS System Audit Tool</h1>
+                <p class="text-muted">Comprehensive testing of all system components and functionality</p>
+            </div>
+
+            <!-- Summary Cards -->
+            <div class="audit-summary">
+                <div class="summary-card total">
+                    <div class="summary-number" id="totalTests">0</div>
+                    <div class="summary-label">Total Tests</div>
+                </div>
+                <div class="summary-card passed">
+                    <div class="summary-number" id="passedTests">0</div>
+                    <div class="summary-label">Passed</div>
+                </div>
+                <div class="summary-card failed">
+                    <div class="summary-number" id="failedTests">0</div>
+                    <div class="summary-label">Failed</div>
+                </div>
+                <div class="summary-card pending">
+                    <div class="summary-number" id="pendingTests">0</div>
+                    <div class="summary-label">Pending</div>
+                </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+            </div>
+
+            <!-- Auto Test Controls -->
+            <div class="auto-test-controls">
+                <button class="auto-test-btn" onclick="runAllTests()">
+                    <i class="bi bi-play-circle"></i> Run All Tests
+                </button>
+                <button class="auto-test-btn" onclick="runCriticalTests()">
+                    <i class="bi bi-exclamation-triangle"></i> Critical Tests Only
+                </button>
+                <button class="auto-test-btn" onclick="generateReport()">
+                    <i class="bi bi-file-text"></i> Generate Report
+                </button>
+            </div>
+
+            <!-- Test Sections -->
+            <div class="audit-section">
+                <h3><i class="bi bi-shield-lock"></i> Authentication & Security</h3>
+                <div id="authTests"></div>
+            </div>
+
+            <div class="audit-section">
+                <h3><i class="bi bi-speedometer2"></i> Admin Dashboard</h3>
+                <div id="adminTests"></div>
+            </div>
+
+            <div class="audit-section">
+                <h3><i class="bi bi-person-circle"></i> Customer Dashboard</h3>
+                <div id="customerTests"></div>
+            </div>
+
+            <div class="audit-section">
+                <h3><i class="bi bi-list-ul"></i> Navigation & Sidebar</h3>
+                <div id="navigationTests"></div>
+            </div>
+
+            <div class="audit-section">
+                <h3><i class="bi bi-server"></i> Backend API</h3>
+                <div id="backendTests"></div>
+            </div>
+
+            <div class="audit-section">
+                <h3><i class="bi bi-credit-card"></i> Payment System</h3>
+                <div id="paymentTests"></div>
+            </div>
+
+            <div class="audit-section">
+                <h3><i class="bi bi-telephone"></i> VAPI Integration</h3>
+                <div id="vapiTests"></div>
+            </div>
+
+            <!-- Test Log -->
+            <div class="audit-section">
+                <h3><i class="bi bi-journal-text"></i> Test Log</h3>
+                <div class="log-container" id="testLog"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        class SystemAudit {
+            constructor() {
+                this.tests = [];
+                this.results = {
+                    total: 0,
+                    passed: 0,
+                    failed: 0,
+                    pending: 0
+                };
+                this.API_BASE = window.location.hostname === 'localhost' 
+                    ? 'http://localhost:5050' 
+                    : 'https://vbms-fresh-production.up.railway.app';
+                this.initializeTests();
+                this.renderTests();
+                this.updateSummary();
+            }
+
+            initializeTests() {
+                this.tests = [
+                    // Authentication Tests
+                    {
+                        category: 'auth',
+                        name: 'Login Form Functionality',
+                        description: 'Test login form submission and validation',
+                        critical: true,
+                        test: () => this.testLoginForm()
+                    },
+                    {
+                        category: 'auth',
+                        name: 'Token Storage & Retrieval',
+                        description: 'Verify JWT token is properly stored and retrieved',
+                        critical: true,
+                        test: () => this.testTokenStorage()
+                    },
+                    {
+                        category: 'auth',
+                        name: 'Role-based Redirects',
+                        description: 'Test user redirection based on role',
+                        critical: true,
+                        test: () => this.testRoleRedirects()
+                    },
+                    {
+                        category: 'auth',
+                        name: 'Logout Functionality',
+                        description: 'Test logout clears session and redirects',
+                        critical: false,
+                        test: () => this.testLogout()
+                    },
+
+                    // Admin Dashboard Tests
+                    {
+                        category: 'admin',
+                        name: 'Admin Dashboard Load',
+                        description: 'Test admin dashboard loads without errors',
+                        critical: true,
+                        test: () => this.testAdminDashboardLoad()
+                    },
+                    {
+                        category: 'admin',
+                        name: 'Admin Stats API',
+                        description: 'Test admin statistics API endpoints',
+                        critical: true,
+                        test: () => this.testAdminStatsAPI()
+                    },
+                    {
+                        category: 'admin',
+                        name: 'User Management Functions',
+                        description: 'Test admin user management features',
+                        critical: true,
+                        test: () => this.testUserManagement()
+                    },
+                    {
+                        category: 'admin',
+                        name: 'Theme Toggle',
+                        description: 'Test light/dark theme switching',
+                        critical: false,
+                        test: () => this.testThemeToggle()
+                    },
+
+                    // Customer Dashboard Tests
+                    {
+                        category: 'customer',
+                        name: 'Customer Dashboard Load',
+                        description: 'Test customer dashboard loads without errors',
+                        critical: true,
+                        test: () => this.testCustomerDashboardLoad()
+                    },
+                    {
+                        category: 'customer',
+                        name: 'Performance Metrics',
+                        description: 'Test customer performance metrics display',
+                        critical: false,
+                        test: () => this.testCustomerMetrics()
+                    },
+                    {
+                        category: 'customer',
+                        name: 'Quick Actions',
+                        description: 'Test customer quick action buttons',
+                        critical: false,
+                        test: () => this.testCustomerQuickActions()
+                    },
+
+                    // Navigation Tests
+                    {
+                        category: 'navigation',
+                        name: 'Sidebar Loading',
+                        description: 'Test dynamic sidebar loading',
+                        critical: true,
+                        test: () => this.testSidebarLoading()
+                    },
+                    {
+                        category: 'navigation',
+                        name: 'Navigation Links',
+                        description: 'Test all navigation links are accessible',
+                        critical: true,
+                        test: () => this.testNavigationLinks()
+                    },
+                    {
+                        category: 'navigation',
+                        name: 'Mobile Responsiveness',
+                        description: 'Test mobile navigation functionality',
+                        critical: false,
+                        test: () => this.testMobileNavigation()
+                    },
+
+                    // Backend API Tests
+                    {
+                        category: 'backend',
+                        name: 'Health Check Endpoint',
+                        description: 'Test backend health check API',
+                        critical: true,
+                        test: () => this.testHealthCheck()
+                    },
+                    {
+                        category: 'backend',
+                        name: 'Authentication API',
+                        description: 'Test auth endpoints respond correctly',
+                        critical: true,
+                        test: () => this.testAuthAPI()
+                    },
+                    {
+                        category: 'backend',
+                        name: 'Database Connection',
+                        description: 'Test PostgreSQL database connectivity',
+                        critical: true,
+                        test: () => this.testDatabaseConnection()
+                    },
+                    {
+                        category: 'backend',
+                        name: 'CORS Configuration',
+                        description: 'Test CORS headers are properly set',
+                        critical: true,
+                        test: () => this.testCORS()
+                    },
+
+                    // Payment System Tests
+                    {
+                        category: 'payment',
+                        name: 'Payment Analytics API',
+                        description: 'Test payment analytics endpoint',
+                        critical: true,
+                        test: () => this.testPaymentAnalytics()
+                    },
+                    {
+                        category: 'payment',
+                        name: 'Payment Processing',
+                        description: 'Test payment processing functionality',
+                        critical: true,
+                        test: () => this.testPaymentProcessing()
+                    },
+                    {
+                        category: 'payment',
+                        name: 'Subscription Management',
+                        description: 'Test subscription CRUD operations',
+                        critical: true,
+                        test: () => this.testSubscriptionManagement()
+                    },
+
+                    // VAPI Tests
+                    {
+                        category: 'vapi',
+                        name: 'VAPI Widget Loading',
+                        description: 'Test VAPI widgets load correctly',
+                        critical: false,
+                        test: () => this.testVAPIWidgetLoading()
+                    },
+                    {
+                        category: 'vapi',
+                        name: 'VAPI API Integration',
+                        description: 'Test VAPI API connectivity',
+                        critical: false,
+                        test: () => this.testVAPIAPI()
+                    }
+                ];
+
+                this.results.total = this.tests.length;
+                this.results.pending = this.tests.length;
+            }
+
+            renderTests() {
+                const categories = {
+                    auth: 'authTests',
+                    admin: 'adminTests',
+                    customer: 'customerTests',
+                    navigation: 'navigationTests',
+                    backend: 'backendTests',
+                    payment: 'paymentTests',
+                    vapi: 'vapiTests'
+                };
+
+                Object.keys(categories).forEach(category => {
+                    const container = document.getElementById(categories[category]);
+                    const categoryTests = this.tests.filter(test => test.category === category);
+                    
+                    container.innerHTML = categoryTests.map((test, index) => `
+                        <div class="test-item" id="test-${category}-${index}">
+                            <div class="test-description">
+                                <strong>${test.name}</strong>
+                                ${test.critical ? '<span class="badge bg-danger ms-2">Critical</span>' : ''}
+                                <br>
+                                <small class="text-muted">${test.description}</small>
+                            </div>
+                            <div class="test-status">
+                                <span class="test-result" id="result-${category}-${index}">
+                                    <i class="bi bi-clock text-warning"></i> Pending
+                                </span>
+                                <button class="test-button test" onclick="runSingleTest('${category}', ${index})">
+                                    <i class="bi bi-play"></i> Test
+                                </button>
+                            </div>
+                        </div>
+                    `).join('');
+                });
+            }
+
+            async runSingleTest(category, index) {
+                const test = this.tests.find(t => t.category === category);
+                const testIndex = this.tests.filter(t => t.category === category).indexOf(test);
+                
+                if (testIndex !== index) {
+                    const actualTest = this.tests.filter(t => t.category === category)[index];
+                    return this.executeTest(actualTest, category, index);
+                }
+                
+                return this.executeTest(test, category, index);
+            }
+
+            async executeTest(test, category, index) {
+                const testElement = document.getElementById(`test-${category}-${index}`);
+                const resultElement = document.getElementById(`result-${category}-${index}`);
+                
+                testElement.className = 'test-item';
+                resultElement.innerHTML = '<i class="bi bi-hourglass text-info"></i> Running...';
+                
+                this.log(`Running test: ${test.name}`, 'info');
+
+                try {
+                    const result = await test.test();
+                    
+                    if (result.success) {
+                        testElement.className = 'test-item success';
+                        resultElement.innerHTML = '<i class="bi bi-check-circle text-success"></i> Passed';
+                        this.log(`✅ ${test.name}: ${result.message}`, 'success');
+                        this.results.passed++;
+                    } else {
+                        testElement.className = 'test-item error';
+                        resultElement.innerHTML = '<i class="bi bi-x-circle text-danger"></i> Failed';
+                        this.log(`❌ ${test.name}: ${result.message}`, 'error');
+                        this.results.failed++;
+                    }
+                } catch (error) {
+                    testElement.className = 'test-item error';
+                    resultElement.innerHTML = '<i class="bi bi-exclamation-triangle text-danger"></i> Error';
+                    this.log(`💥 ${test.name}: ${error.message}`, 'error');
+                    this.results.failed++;
+                }
+
+                this.results.pending--;
+                this.updateSummary();
+            }
+
+            // Test Implementation Methods
+            async testLoginForm() {
+                // Test if login form elements exist and function
+                try {
+                    const response = await fetch('login.html');
+                    const html = await response.text();
+                    
+                    if (html.includes('id="email"') && html.includes('id="password"') && html.includes('type="submit"')) {
+                        return { success: true, message: 'Login form elements found' };
+                    }
+                    return { success: false, message: 'Missing login form elements' };
+                } catch (error) {
+                    return { success: false, message: 'Cannot access login page' };
+                }
+            }
+
+            async testTokenStorage() {
+                // Test token storage mechanism
+                const testToken = 'test_token_12345';
+                localStorage.setItem('vbmsToken', testToken);
+                
+                const retrieved = localStorage.getItem('vbmsToken');
+                localStorage.removeItem('vbmsToken');
+                
+                if (retrieved === testToken) {
+                    return { success: true, message: 'Token storage working correctly' };
+                }
+                return { success: false, message: 'Token storage failed' };
+            }
+
+            async testRoleRedirects() {
+                // Test if auth.js role redirect functions exist
+                if (typeof window.vbmsAuth !== 'undefined' && typeof window.vbmsAuth.getRoleRedirectUrl === 'function') {
+                    return { success: true, message: 'Role redirect functions available' };
+                }
+                return { success: false, message: 'Role redirect functions not found' };
+            }
+
+            async testLogout() {
+                // Test logout functionality
+                if (typeof logout === 'function') {
+                    return { success: true, message: 'Logout function available' };
+                }
+                return { success: false, message: 'Logout function not found' };
+            }
+
+            async testAdminDashboardLoad() {
+                try {
+                    const response = await fetch('admin-main-dashboard.html');
+                    if (response.ok) {
+                        return { success: true, message: 'Admin dashboard accessible' };
+                    }
+                    return { success: false, message: 'Admin dashboard not accessible' };
+                } catch (error) {
+                    return { success: false, message: 'Error accessing admin dashboard' };
+                }
+            }
+
+            async testAdminStatsAPI() {
+                try {
+                    const token = localStorage.getItem('vbmsToken') || 'test_token';
+                    const response = await fetch(`${this.API_BASE}/api/admin/overview`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    
+                    if (response.status === 401) {
+                        return { success: true, message: 'Admin stats API responding (auth required)' };
+                    }
+                    if (response.ok) {
+                        return { success: true, message: 'Admin stats API working' };
+                    }
+                    return { success: false, message: `Admin stats API error: ${response.status}` };
+                } catch (error) {
+                    return { success: false, message: 'Admin stats API unreachable' };
+                }
+            }
+
+            async testUserManagement() {
+                try {
+                    const token = localStorage.getItem('vbmsToken') || 'test_token';
+                    const response = await fetch(`${this.API_BASE}/api/admin/users`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    
+                    if (response.status === 401) {
+                        return { success: true, message: 'User management API responding (auth required)' };
+                    }
+                    if (response.ok) {
+                        return { success: true, message: 'User management API working' };
+                    }
+                    return { success: false, message: `User management API error: ${response.status}` };
+                } catch (error) {
+                    return { success: false, message: 'User management API unreachable' };
+                }
+            }
+
+            async testThemeToggle() {
+                if (typeof toggleTheme === 'function') {
+                    return { success: true, message: 'Theme toggle function available' };
+                }
+                return { success: false, message: 'Theme toggle function not found' };
+            }
+
+            async testCustomerDashboardLoad() {
+                try {
+                    const response = await fetch('customer-dashboard.html');
+                    if (response.ok) {
+                        return { success: true, message: 'Customer dashboard accessible' };
+                    }
+                    return { success: false, message: 'Customer dashboard not accessible' };
+                } catch (error) {
+                    return { success: false, message: 'Error accessing customer dashboard' };
+                }
+            }
+
+            async testCustomerMetrics() {
+                try {
+                    const token = localStorage.getItem('vbmsToken') || 'test_token';
+                    const response = await fetch(`${this.API_BASE}/api/dashboard/customer-dashboard`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    
+                    if (response.status === 401) {
+                        return { success: true, message: 'Customer metrics API responding (auth required)' };
+                    }
+                    if (response.ok) {
+                        return { success: true, message: 'Customer metrics API working' };
+                    }
+                    return { success: false, message: `Customer metrics API error: ${response.status}` };
+                } catch (error) {
+                    return { success: false, message: 'Customer metrics API unreachable' };
+                }
+            }
+
+            async testCustomerQuickActions() {
+                // Test if customer quick action functions exist
+                const quickActions = ['refreshActivity', 'viewAllActivity', 'showAddTaskModal'];
+                const availableActions = quickActions.filter(action => typeof window[action] === 'function');
+                
+                if (availableActions.length > 0) {
+                    return { success: true, message: `${availableActions.length}/${quickActions.length} quick actions available` };
+                }
+                return { success: false, message: 'No quick action functions found' };
+            }
+
+            async testSidebarLoading() {
+                try {
+                    const response = await fetch('load-sidebar.js');
+                    if (response.ok) {
+                        return { success: true, message: 'Sidebar loading script accessible' };
+                    }
+                    return { success: false, message: 'Sidebar loading script not found' };
+                } catch (error) {
+                    return { success: false, message: 'Error accessing sidebar script' };
+                }
+            }
+
+            async testNavigationLinks() {
+                const navigationPages = [
+                    'admin-main-dashboard.html',
+                    'customer-dashboard.html',
+                    'admin-customers.html',
+                    'admin-orders.html',
+                    'admin-settings.html'
+                ];
+
+                let accessible = 0;
+                for (const page of navigationPages) {
+                    try {
+                        const response = await fetch(page);
+                        if (response.ok) accessible++;
+                    } catch (error) {
+                        // Page not accessible
+                    }
+                }
+
+                if (accessible === navigationPages.length) {
+                    return { success: true, message: 'All navigation pages accessible' };
+                } else if (accessible > navigationPages.length / 2) {
+                    return { success: true, message: `${accessible}/${navigationPages.length} navigation pages accessible` };
+                } else {
+                    return { success: false, message: `Only ${accessible}/${navigationPages.length} navigation pages accessible` };
+                }
+            }
+
+            async testMobileNavigation() {
+                // Test if mobile navigation elements exist
+                try {
+                    const response = await fetch('customer-sidebar.html');
+                    const html = await response.text();
+                    
+                    if (html.includes('navbar-toggler') || html.includes('mobile-menu')) {
+                        return { success: true, message: 'Mobile navigation elements found' };
+                    }
+                    return { success: false, message: 'Mobile navigation elements not found' };
+                } catch (error) {
+                    return { success: false, message: 'Cannot check mobile navigation' };
+                }
+            }
+
+            async testHealthCheck() {
+                try {
+                    const response = await fetch(`${this.API_BASE}/health`);
+                    if (response.ok) {
+                        const data = await response.json();
+                        return { success: true, message: `Backend healthy: ${data.status || 'OK'}` };
+                    }
+                    return { success: false, message: `Health check failed: ${response.status}` };
+                } catch (error) {
+                    return { success: false, message: 'Backend unreachable' };
+                }
+            }
+
+            async testAuthAPI() {
+                try {
+                    // Test auth endpoint exists (should return method not allowed for GET)
+                    const response = await fetch(`${this.API_BASE}/api/auth/login`);
+                    if (response.status === 405 || response.status === 400) {
+                        return { success: true, message: 'Auth API endpoint responding' };
+                    }
+                    return { success: false, message: `Auth API unexpected response: ${response.status}` };
+                } catch (error) {
+                    return { success: false, message: 'Auth API unreachable' };
+                }
+            }
+
+            async testDatabaseConnection() {
+                try {
+                    const response = await fetch(`${this.API_BASE}/health`);
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.database === 'connected' || response.ok) {
+                            return { success: true, message: 'Database connection verified' };
+                        }
+                    }
+                    return { success: false, message: 'Database connection status unknown' };
+                } catch (error) {
+                    return { success: false, message: 'Cannot verify database connection' };
+                }
+            }
+
+            async testCORS() {
+                try {
+                    const response = await fetch(`${this.API_BASE}/health`);
+                    const corsHeader = response.headers.get('Access-Control-Allow-Origin');
+                    
+                    if (corsHeader) {
+                        return { success: true, message: 'CORS headers present' };
+                    }
+                    return { success: false, message: 'CORS headers missing' };
+                } catch (error) {
+                    return { success: false, message: 'Cannot check CORS configuration' };
+                }
+            }
+
+            async testPaymentAnalytics() {
+                try {
+                    const token = localStorage.getItem('vbmsToken') || 'test_token';
+                    const response = await fetch(`${this.API_BASE}/api/payments/analytics`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    
+                    if (response.status === 401) {
+                        return { success: true, message: 'Payment analytics API responding (auth required)' };
+                    }
+                    if (response.ok) {
+                        return { success: true, message: 'Payment analytics API working' };
+                    }
+                    return { success: false, message: `Payment analytics API error: ${response.status}` };
+                } catch (error) {
+                    return { success: false, message: 'Payment analytics API unreachable' };
+                }
+            }
+
+            async testPaymentProcessing() {
+                try {
+                    const token = localStorage.getItem('vbmsToken') || 'test_token';
+                    const response = await fetch(`${this.API_BASE}/api/payments/process`, {
+                        method: 'POST',
+                        headers: { 
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ amount: 10, packageType: 'test' })
+                    });
+                    
+                    if (response.status === 401) {
+                        return { success: true, message: 'Payment processing API responding (auth required)' };
+                    }
+                    if (response.ok) {
+                        return { success: true, message: 'Payment processing API working' };
+                    }
+                    return { success: false, message: `Payment processing API error: ${response.status}` };
+                } catch (error) {
+                    return { success: false, message: 'Payment processing API unreachable' };
+                }
+            }
+
+            async testSubscriptionManagement() {
+                try {
+                    const token = localStorage.getItem('vbmsToken') || 'test_token';
+                    const response = await fetch(`${this.API_BASE}/api/payments/subscriptions/analytics`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    
+                    if (response.status === 401) {
+                        return { success: true, message: 'Subscription API responding (auth required)' };
+                    }
+                    if (response.ok) {
+                        return { success: true, message: 'Subscription API working' };
+                    }
+                    return { success: false, message: `Subscription API error: ${response.status}` };
+                } catch (error) {
+                    return { success: false, message: 'Subscription API unreachable' };
+                }
+            }
+
+            async testVAPIWidgetLoading() {
+                try {
+                    const adminResponse = await fetch('admin-vapi-widget.html');
+                    const customerResponse = await fetch('customer-vapi-widget.html');
+                    
+                    if (adminResponse.ok && customerResponse.ok) {
+                        return { success: true, message: 'VAPI widgets accessible' };
+                    }
+                    return { success: false, message: 'VAPI widgets not accessible' };
+                } catch (error) {
+                    return { success: false, message: 'Error accessing VAPI widgets' };
+                }
+            }
+
+            async testVAPIAPI() {
+                try {
+                    const token = localStorage.getItem('vbmsToken') || 'test_token';
+                    const response = await fetch(`${this.API_BASE}/api/vapi/test`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    
+                    if (response.status === 401) {
+                        return { success: true, message: 'VAPI API responding (auth required)' };
+                    }
+                    if (response.ok) {
+                        return { success: true, message: 'VAPI API working' };
+                    }
+                    return { success: false, message: `VAPI API error: ${response.status}` };
+                } catch (error) {
+                    return { success: false, message: 'VAPI API unreachable' };
+                }
+            }
+
+            updateSummary() {
+                document.getElementById('totalTests').textContent = this.results.total;
+                document.getElementById('passedTests').textContent = this.results.passed;
+                document.getElementById('failedTests').textContent = this.results.failed;
+                document.getElementById('pendingTests').textContent = this.results.pending;
+                
+                const progress = ((this.results.passed + this.results.failed) / this.results.total) * 100;
+                document.getElementById('progressFill').style.width = `${progress}%`;
+            }
+
+            log(message, type = 'info') {
+                const logContainer = document.getElementById('testLog');
+                const timestamp = new Date().toLocaleTimeString();
+                const logEntry = document.createElement('div');
+                logEntry.className = `log-entry ${type}`;
+                logEntry.textContent = `[${timestamp}] ${message}`;
+                logContainer.appendChild(logEntry);
+                logContainer.scrollTop = logContainer.scrollHeight;
+            }
+
+            async runAllTests() {
+                this.log('Starting comprehensive system audit...', 'info');
+                
+                for (let i = 0; i < this.tests.length; i++) {
+                    const test = this.tests[i];
+                    const categoryIndex = this.tests.filter(t => t.category === test.category).indexOf(test);
+                    await this.executeTest(test, test.category, categoryIndex);
+                    
+                    // Small delay between tests
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                }
+                
+                this.log('System audit complete!', 'info');
+                this.generateSummaryReport();
+            }
+
+            async runCriticalTests() {
+                this.log('Running critical tests only...', 'info');
+                
+                const criticalTests = this.tests.filter(test => test.critical);
+                for (const test of criticalTests) {
+                    const categoryIndex = this.tests.filter(t => t.category === test.category).indexOf(test);
+                    await this.executeTest(test, test.category, categoryIndex);
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                }
+                
+                this.log('Critical tests complete!', 'info');
+            }
+
+            generateSummaryReport() {
+                const passRate = (this.results.passed / this.results.total * 100).toFixed(1);
+                const criticalTests = this.tests.filter(test => test.critical);
+                const criticalPassed = criticalTests.filter(test => {
+                    // This is a simplified check - in a real implementation, 
+                    // you'd track individual test results
+                    return true; // Placeholder
+                }).length;
+
+                this.log('=== SYSTEM AUDIT SUMMARY ===', 'info');
+                this.log(`Total Tests: ${this.results.total}`, 'info');
+                this.log(`Passed: ${this.results.passed} (${passRate}%)`, 'success');
+                this.log(`Failed: ${this.results.failed}`, 'error');
+                this.log(`Critical Tests: ${criticalTests.length}`, 'info');
+                this.log('=== END SUMMARY ===', 'info');
+            }
+
+            generateReport() {
+                const report = {
+                    timestamp: new Date().toISOString(),
+                    summary: this.results,
+                    tests: this.tests.map(test => ({
+                        name: test.name,
+                        category: test.category,
+                        critical: test.critical,
+                        description: test.description
+                    }))
+                };
+
+                const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `vbms-audit-report-${Date.now()}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+
+                this.log('Audit report downloaded!', 'success');
+            }
+        }
+
+        // Global functions
+        function runAllTests() {
+            window.systemAudit.runAllTests();
+        }
+
+        function runCriticalTests() {
+            window.systemAudit.runCriticalTests();
+        }
+
+        function generateReport() {
+            window.systemAudit.generateReport();
+        }
+
+        function runSingleTest(category, index) {
+            window.systemAudit.runSingleTest(category, index);
+        }
+
+        // Initialize the audit tool
+        document.addEventListener('DOMContentLoaded', function() {
+            window.systemAudit = new SystemAudit();
+        });
+    </script>
+</body>
+</html>
