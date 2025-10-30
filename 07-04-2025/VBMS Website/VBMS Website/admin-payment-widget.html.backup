@@ -1,0 +1,445 @@
+<!-- Admin Payment Management Widget -->
+<div class="admin-payment-widget">
+    <div class="payment-header">
+        <h5><i class="bi bi-credit-card"></i> Payment Management</h5>
+        <div class="payment-controls">
+            <button class="btn-refresh" onclick="refreshPaymentData()" title="Refresh">
+                <i class="bi bi-arrow-clockwise"></i>
+            </button>
+            <button class="btn-export" onclick="exportPaymentData()" title="Export">
+                <i class="bi bi-download"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Payment Analytics Summary -->
+    <div class="payment-analytics">
+        <div class="analytics-grid">
+            <div class="analytics-card revenue">
+                <div class="analytics-icon">
+                    <i class="bi bi-cash-stack"></i>
+                </div>
+                <div class="analytics-content">
+                    <div class="analytics-number" id="totalRevenue">$0</div>
+                    <div class="analytics-label">Total Revenue</div>
+                </div>
+            </div>
+
+            <div class="analytics-card transactions">
+                <div class="analytics-icon">
+                    <i class="bi bi-arrow-left-right"></i>
+                </div>
+                <div class="analytics-content">
+                    <div class="analytics-number" id="totalTransactions">0</div>
+                    <div class="analytics-label">Transactions</div>
+                </div>
+            </div>
+
+            <div class="analytics-card success-rate">
+                <div class="analytics-icon">
+                    <i class="bi bi-check-circle"></i>
+                </div>
+                <div class="analytics-content">
+                    <div class="analytics-number" id="successRate">0%</div>
+                    <div class="analytics-label">Success Rate</div>
+                </div>
+            </div>
+
+            <div class="analytics-card avg-payment">
+                <div class="analytics-icon">
+                    <i class="bi bi-graph-up"></i>
+                </div>
+                <div class="analytics-content">
+                    <div class="analytics-number" id="avgPayment">$0</div>
+                    <div class="analytics-label">Avg Payment</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="payment-quick-actions">
+        <h6>Quick Actions</h6>
+        <div class="quick-actions-grid">
+            <button class="quick-action-btn" onclick="viewAllPayments()">
+                <i class="bi bi-list-ul"></i>
+                <span>All Payments</span>
+            </button>
+            <button class="quick-action-btn" onclick="viewSubscriptions()">
+                <i class="bi bi-arrow-repeat"></i>
+                <span>Subscriptions</span>
+            </button>
+            <button class="quick-action-btn" onclick="viewTopCustomers()">
+                <i class="bi bi-people"></i>
+                <span>Top Customers</span>
+            </button>
+            <button class="quick-action-btn" onclick="manualPayment()">
+                <i class="bi bi-plus-circle"></i>
+                <span>Manual Entry</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Recent Transactions -->
+    <div class="recent-transactions">
+        <div class="section-header">
+            <h6>Recent Transactions</h6>
+        </div>
+        <div class="transactions-list" id="recentTransactionsList">
+            <!-- Transactions will be loaded here -->
+        </div>
+    </div>
+</div>
+
+<style>
+.admin-payment-widget {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.admin-payment-widget::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    z-index: 0;
+}
+
+.admin-payment-widget > * {
+    position: relative;
+    z-index: 1;
+}
+
+.payment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.payment-header h5 {
+    margin: 0;
+    font-weight: 600;
+}
+
+.payment-controls {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.payment-controls button {
+    width: 36px;
+    height: 36px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.payment-controls button:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+.analytics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.analytics-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+}
+
+.analytics-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+.analytics-number {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+
+.analytics-label {
+    font-size: 0.875rem;
+    opacity: 0.8;
+}
+
+.payment-quick-actions {
+    margin-bottom: 1.5rem;
+}
+
+.payment-quick-actions h6 {
+    margin: 0 0 1rem 0;
+    font-weight: 600;
+}
+
+.quick-actions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 0.75rem;
+}
+
+.quick-action-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    color: white;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.quick-action-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+    color: white;
+}
+
+.quick-action-btn i {
+    font-size: 1.25rem;
+}
+
+.quick-action-btn span {
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.section-header h6 {
+    margin: 0;
+    font-weight: 600;
+}
+
+.transactions-list {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.transaction-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+}
+
+.transaction-info {
+    flex: 1;
+}
+
+.transaction-amount {
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+.transaction-details {
+    font-size: 0.75rem;
+    opacity: 0.8;
+    margin-top: 0.25rem;
+}
+
+.transaction-status {
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.status-succeeded {
+    background: rgba(74, 222, 128, 0.2);
+    color: #4ade80;
+}
+
+.no-data-message {
+    text-align: center;
+    padding: 2rem;
+    opacity: 0.7;
+    font-style: italic;
+}
+</style>
+
+<script>
+class AdminPaymentWidget {
+    constructor() {
+        this.API_BASE = window.location.hostname === 'localhost' 
+            ? 'http://localhost:5050' 
+            : 'https://vbms-fresh-production.up.railway.app';
+        this.init();
+    }
+
+    async init() {
+        console.log('💳 Initializing Admin Payment Widget...');
+        await this.loadPaymentAnalytics();
+        await this.loadRecentTransactions();
+    }
+
+    async loadPaymentAnalytics() {
+        try {
+            const token = localStorage.getItem('vbmsToken');
+            if (!token) return;
+
+            const response = await fetch(`${this.API_BASE}/api/payments/analytics`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                this.updateAnalyticsDisplay(data);
+            }
+        } catch (error) {
+            console.error('❌ Payment Analytics Error:', error);
+        }
+    }
+
+    updateAnalyticsDisplay(data) {
+        const summary = data.summary || {};
+        
+        document.getElementById('totalRevenue').textContent = 
+            this.formatCurrency(summary.total_revenue || 0);
+        document.getElementById('totalTransactions').textContent = 
+            summary.total_payments || 0;
+        document.getElementById('successRate').textContent = 
+            `${Math.round((summary.successful_payments / summary.total_payments) * 100) || 0}%`;
+        document.getElementById('avgPayment').textContent = 
+            this.formatCurrency(summary.average_payment || 0);
+    }
+
+    async loadRecentTransactions() {
+        try {
+            const token = localStorage.getItem('vbmsToken');
+            if (!token) return;
+
+            const response = await fetch(`${this.API_BASE}/api/payments/recent?limit=5`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (response.ok) {
+                const transactions = await response.json();
+                this.updateTransactionsList(transactions);
+            }
+        } catch (error) {
+            console.error('❌ Recent Transactions Error:', error);
+        }
+    }
+
+    updateTransactionsList(transactions) {
+        const container = document.getElementById('recentTransactionsList');
+        if (!container) return;
+
+        if (!transactions || transactions.length === 0) {
+            container.innerHTML = '<div class="no-data-message">No recent transactions</div>';
+            return;
+        }
+
+        container.innerHTML = transactions.slice(0, 5).map(transaction => `
+            <div class="transaction-item">
+                <div class="transaction-info">
+                    <div class="transaction-amount">${this.formatCurrency(transaction.amount)}</div>
+                    <div class="transaction-details">
+                        ${transaction.userEmail || transaction.email || 'Unknown'} • 
+                        ${this.formatTime(transaction.createdAt)}
+                    </div>
+                </div>
+                <div class="transaction-status status-${transaction.status}">
+                    ${transaction.status}
+                </div>
+            </div>
+        `).join('');
+    }
+
+    formatCurrency(amount) {
+        return new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD'
+        }).format(amount || 0);
+    }
+
+    formatTime(timestamp) {
+        if (!timestamp) return '';
+        const date = new Date(timestamp);
+        const now = new Date();
+        const diff = now - date;
+        const days = Math.floor(diff / (24 * 60 * 60 * 1000));
+        
+        if (days === 0) return 'Today';
+        if (days === 1) return 'Yesterday';
+        if (days < 7) return `${days} days ago`;
+        return date.toLocaleDateString();
+    }
+}
+
+// Global functions
+function refreshPaymentData() {
+    if (window.adminPaymentWidget) {
+        window.adminPaymentWidget.init();
+    }
+}
+
+function exportPaymentData() {
+    alert('Export functionality coming soon!');
+}
+
+function viewAllPayments() {
+    alert('Payments dashboard coming soon!');
+}
+
+function viewSubscriptions() {
+    alert('Subscriptions dashboard coming soon!');
+}
+
+function viewTopCustomers() {
+    alert('Top customers view coming soon!');
+}
+
+function manualPayment() {
+    alert('Manual payment entry coming soon!');
+}
+
+// Initialize widget
+document.addEventListener('DOMContentLoaded', function() {
+    window.adminPaymentWidget = new AdminPaymentWidget();
+});
+</script>
