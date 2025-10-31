@@ -7,7 +7,7 @@ class User {
     this.first_name = data.first_name;
     this.last_name = data.last_name;
     this.email = data.email;
-    this.password_hash = data.password_hash;
+    this.password_hash = data.password || data.password_hash; // Support both column names
     this.role = data.role;
     this.status = data.status;
     this.created_at = data.created_at;
@@ -23,8 +23,9 @@ class User {
     const saltRounds = 12;
     const password_hash = await bcrypt.hash(password, saltRounds);
     
+    // Use 'password' column to match existing database schema
     const query = `
-      INSERT INTO users (first_name, last_name, email, password_hash, role, status, created_at, updated_at)
+      INSERT INTO users (first_name, last_name, email, password, role, status, created_at, updated_at)
       VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
       RETURNING *
     `;
