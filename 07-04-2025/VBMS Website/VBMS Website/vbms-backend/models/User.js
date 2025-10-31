@@ -43,7 +43,8 @@ class User {
 
   // Find user by email
   static async findByEmail(email) {
-    const query = 'SELECT * FROM users WHERE email = $1';
+    // Use case-insensitive email matching
+    const query = 'SELECT * FROM users WHERE LOWER(email) = LOWER($1)';
     
     try {
       const result = await pgPool.query(query, [email]);
