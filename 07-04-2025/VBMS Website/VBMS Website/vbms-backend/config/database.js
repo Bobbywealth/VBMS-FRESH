@@ -175,7 +175,7 @@ const createTables = async () => {
                 message TEXT NOT NULL,
                 type VARCHAR(50) DEFAULT 'info',
                 user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-                read BOOLEAN DEFAULT false,
+                is_read BOOLEAN DEFAULT false,
                 action_url TEXT,
                 metadata JSONB DEFAULT '{}',
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

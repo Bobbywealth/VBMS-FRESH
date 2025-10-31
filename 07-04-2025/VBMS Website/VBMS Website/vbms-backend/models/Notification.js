@@ -7,7 +7,7 @@ class Notification {
     this.message = data.message;
     this.type = data.type;
     this.user_id = data.user_id;
-    this.read = data.read;
+    this.is_read = data.is_read;
     this.action_url = data.action_url;
     this.metadata = data.metadata;
     this.created_at = data.created_at;
@@ -23,7 +23,7 @@ class Notification {
         message TEXT NOT NULL,
         type VARCHAR(50) DEFAULT 'info',
         user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-        read BOOLEAN DEFAULT false,
+        is_read BOOLEAN DEFAULT false,
         action_url TEXT,
         metadata JSONB DEFAULT '{}',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -31,7 +31,7 @@ class Notification {
       );
 
       CREATE INDEX IF NOT EXISTS idx_notifications_user_id ON notifications(user_id);
-      CREATE INDEX IF NOT EXISTS idx_notifications_read ON notifications(read);
+      CREATE INDEX IF NOT EXISTS idx_notifications_is_read ON notifications(is_read);
       CREATE INDEX IF NOT EXISTS idx_notifications_type ON notifications(type);
       CREATE INDEX IF NOT EXISTS idx_notifications_created_at ON notifications(created_at);
     `;
@@ -147,7 +147,7 @@ class Notification {
     }
 
     if (read !== undefined) {
-      conditions.push(`read = $${paramCount}`);
+      conditions.push(`is_read = $${paramCount}`);
       values.push(read);
       paramCount++;
     }
@@ -159,7 +159,7 @@ class Notification {
     }
 
     if (unread_only) {
-      conditions.push('read = false');
+      conditions.push('is_read = false');
     }
 
     if (conditions.length > 0) {
@@ -195,7 +195,7 @@ class Notification {
 
   // Mark notification as read
   static async markAsRead(id, userId = null) {
-    let query = 'UPDATE notifications SET read = true, read_at = NOW() WHERE id = $1';
+    let query = 'UPDATE notifications SET is_read = true, read_at = NOW() WHERE id = $1';
     const values = [id];
 
     if (userId) {
@@ -219,8 +219,8 @@ class Notification {
   static async markAllAsRead(userId) {
     const query = `
       UPDATE notifications 
-      SET read = true, read_at = NOW() 
-      WHERE user_id = $1 AND read = false
+      SET is_read = true, read_at = NOW() 
+      WHERE user_id = $1 AND is_read = false
       RETURNING COUNT(*) as updated_count
     `;
 
@@ -259,8 +259,8 @@ class Notification {
     let query = `
       SELECT 
         COUNT(*) as total_notifications,
-        COUNT(*) FILTER (WHERE read = false) as unread_notifications,
-        COUNT(*) FILTER (WHERE read = true) as read_notifications,
+        COUNT(*) FILTER (WHERE is_read = false) as unread_notifications,
+        COUNT(*) FILTER (WHERE is_read = true) as read_notifications,
         COUNT(*) FILTER (WHERE type = 'info') as info_notifications,
         COUNT(*) FILTER (WHERE type = 'success') as success_notifications,
         COUNT(*) FILTER (WHERE type = 'warning') as warning_notifications,
