@@ -1,9 +1,9 @@
-// Only load .env in development - Railway provides env vars in production
+// Only load .env in development - Render provides env vars in production
 if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config();
   console.log('🔧 Loaded .env file for development');
 } else {
-  console.log('🚀 Production mode - using Railway environment variables');
+  console.log('🚀 Production mode - using Render environment variables');
 }
 
 // CRITICAL DEBUG - Show environment variables
@@ -59,7 +59,13 @@ const app = express();
 
 // Basic middleware
 app.use(cors({
-  origin: ['http://localhost:3000', 'https://vbmstest1.netlify.app', 'https://comfy-cannoli-f3cd91.netlify.app'],
+  origin: [
+    'http://localhost:3000', 
+    'http://localhost:5050',
+    'https://vbmstest1.netlify.app', 
+    'https://comfy-cannoli-f3cd91.netlify.app',
+    'https://vbms-fresh-offical-website-launch.onrender.com'
+  ],
   credentials: true
 }));
 
