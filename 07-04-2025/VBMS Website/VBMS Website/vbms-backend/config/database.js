@@ -205,28 +205,43 @@ const createTables = async () => {
             )
         `);
 
-        // Create indexes for Phase 2 tables
-        await client.query(`
-            CREATE INDEX IF NOT EXISTS idx_tasks_status ON tasks(status);
-            CREATE INDEX IF NOT EXISTS idx_tasks_assigned_to ON tasks(assigned_to);
-            CREATE INDEX IF NOT EXISTS idx_tasks_created_by ON tasks(created_by);
-            CREATE INDEX IF NOT EXISTS idx_tasks_due_date ON tasks(due_date);
-        `);
+        // Create indexes for Phase 2 tables (with error handling)
+        try {
+            await client.query(`
+                CREATE INDEX IF NOT EXISTS idx_tasks_status ON tasks(status);
+                CREATE INDEX IF NOT EXISTS idx_tasks_assigned_to ON tasks(assigned_to);
+                CREATE INDEX IF NOT EXISTS idx_tasks_created_by ON tasks(created_by);
+                CREATE INDEX IF NOT EXISTS idx_tasks_due_date ON tasks(due_date);
+            `);
+            console.log('✅ Tasks indexes created');
+        } catch (error) {
+            console.log('⚠️ Tasks indexes creation failed:', error.message);
+        }
 
-        await client.query(`
-            CREATE INDEX IF NOT EXISTS idx_notifications_user_id ON notifications(user_id);
-            CREATE INDEX IF NOT EXISTS idx_notifications_is_read ON notifications(is_read);
-            CREATE INDEX IF NOT EXISTS idx_notifications_type ON notifications(type);
-            CREATE INDEX IF NOT EXISTS idx_notifications_created_at ON notifications(created_at);
-        `);
+        try {
+            await client.query(`
+                CREATE INDEX IF NOT EXISTS idx_notifications_user_id ON notifications(user_id);
+                CREATE INDEX IF NOT EXISTS idx_notifications_is_read ON notifications(is_read);
+                CREATE INDEX IF NOT EXISTS idx_notifications_type ON notifications(type);
+                CREATE INDEX IF NOT EXISTS idx_notifications_created_at ON notifications(created_at);
+            `);
+            console.log('✅ Notifications indexes created');
+        } catch (error) {
+            console.log('⚠️ Notifications indexes creation failed:', error.message);
+        }
 
-        await client.query(`
-            CREATE INDEX IF NOT EXISTS idx_calendar_events_start_time ON calendar_events(start_time);
-            CREATE INDEX IF NOT EXISTS idx_calendar_events_end_time ON calendar_events(end_time);
-            CREATE INDEX IF NOT EXISTS idx_calendar_events_created_by ON calendar_events(created_by);
-            CREATE INDEX IF NOT EXISTS idx_calendar_events_status ON calendar_events(status);
-            CREATE INDEX IF NOT EXISTS idx_calendar_events_type ON calendar_events(event_type);
-        `);
+        try {
+            await client.query(`
+                CREATE INDEX IF NOT EXISTS idx_calendar_events_start_time ON calendar_events(start_time);
+                CREATE INDEX IF NOT EXISTS idx_calendar_events_end_time ON calendar_events(end_time);
+                CREATE INDEX IF NOT EXISTS idx_calendar_events_created_by ON calendar_events(created_by);
+                CREATE INDEX IF NOT EXISTS idx_calendar_events_status ON calendar_events(status);
+                CREATE INDEX IF NOT EXISTS idx_calendar_events_type ON calendar_events(event_type);
+            `);
+            console.log('✅ Calendar events indexes created');
+        } catch (error) {
+            console.log('⚠️ Calendar events indexes creation failed:', error.message);
+        }
 
         // Create time_logs table for employee time tracking
         await client.query(`
@@ -241,12 +256,17 @@ const createTables = async () => {
         `);
 
         // Create indexes for time_logs table
-        await client.query(`
-            CREATE INDEX IF NOT EXISTS idx_time_logs_employee_name ON time_logs(employee_name);
-            CREATE INDEX IF NOT EXISTS idx_time_logs_action ON time_logs(action);
-            CREATE INDEX IF NOT EXISTS idx_time_logs_timestamp_local ON time_logs(timestamp_local);
-            CREATE INDEX IF NOT EXISTS idx_time_logs_created_at ON time_logs(created_at);
-        `);
+        try {
+            await client.query(`
+                CREATE INDEX IF NOT EXISTS idx_time_logs_employee_name ON time_logs(employee_name);
+                CREATE INDEX IF NOT EXISTS idx_time_logs_action ON time_logs(action);
+                CREATE INDEX IF NOT EXISTS idx_time_logs_timestamp_local ON time_logs(timestamp_local);
+                CREATE INDEX IF NOT EXISTS idx_time_logs_created_at ON time_logs(created_at);
+            `);
+            console.log('✅ Time logs indexes created');
+        } catch (error) {
+            console.log('⚠️ Time logs indexes creation failed:', error.message);
+        }
 
         console.log('✅ PostgreSQL tables created successfully');
         
