@@ -280,10 +280,10 @@
          */
         function initializeEventListeners() {
             // Action buttons
-            document.getElementById('clockInBtn').addEventListener('click', () => handleClockEvent('clock_in'));
-            document.getElementById('clockOutBtn').addEventListener('click', () => handleClockEvent('clock_out'));
-            document.getElementById('breakStartBtn').addEventListener('click', () => handleClockEvent('break_start'));
-            document.getElementById('breakEndBtn').addEventListener('click', () => handleClockEvent('break_end'));
+            document.getElementById('clockInBtn').addEventListener('click', (event) => handleClockEvent('clock_in', event));
+            document.getElementById('clockOutBtn').addEventListener('click', (event) => handleClockEvent('clock_out', event));
+            document.getElementById('breakStartBtn').addEventListener('click', (event) => handleClockEvent('break_start', event));
+            document.getElementById('breakEndBtn').addEventListener('click', (event) => handleClockEvent('break_end', event));
             
             // View logs button
             document.getElementById('viewLogsBtn').addEventListener('click', viewEmployeeLogs);
@@ -436,8 +436,9 @@
         /**
          * Handle clock events (Clock In, Clock Out, Start Break, End Break)
          * @param {string} action - The action type
+         * @param {Event} event - The click event
          */
-        async function handleClockEvent(action) {
+        async function handleClockEvent(action, event) {
             // Validate employee selection
             const customName = document.getElementById('customEmployeeName').value.trim();
             if (customName) {
