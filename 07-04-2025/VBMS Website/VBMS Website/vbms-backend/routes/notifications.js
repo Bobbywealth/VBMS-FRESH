@@ -20,7 +20,7 @@ router.get('/', authenticateToken, async (req, res) => {
       user_id: req.user.id
     };
 
-    if (read !== undefined) filter.read = read === 'true';
+    if (read !== undefined) filter.is_read = read === 'true';
     if (type) filter.type = type;
     if (unread_only === 'true') filter.unread_only = true;
 

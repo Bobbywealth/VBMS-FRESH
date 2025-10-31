@@ -123,7 +123,7 @@ class Notification {
   static async find(filter = {}, options = {}) {
     const {
       user_id,
-      read,
+      is_read,
       type,
       unread_only = false
     } = filter;
@@ -146,9 +146,9 @@ class Notification {
       paramCount++;
     }
 
-    if (read !== undefined) {
+    if (is_read !== undefined) {
       conditions.push(`is_read = $${paramCount}`);
-      values.push(read);
+      values.push(is_read);
       paramCount++;
     }
 

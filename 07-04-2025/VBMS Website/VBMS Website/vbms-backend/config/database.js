@@ -215,7 +215,7 @@ const createTables = async () => {
 
         await client.query(`
             CREATE INDEX IF NOT EXISTS idx_notifications_user_id ON notifications(user_id);
-            CREATE INDEX IF NOT EXISTS idx_notifications_read ON notifications(read);
+            CREATE INDEX IF NOT EXISTS idx_notifications_is_read ON notifications(is_read);
             CREATE INDEX IF NOT EXISTS idx_notifications_type ON notifications(type);
             CREATE INDEX IF NOT EXISTS idx_notifications_created_at ON notifications(created_at);
         `);
