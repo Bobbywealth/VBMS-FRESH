@@ -90,6 +90,7 @@ const settingsRoutes = require('./routes/settings'); // ✅ Phase 1 - Settings m
 const taskRoutes = require('./routes/tasks'); // ✅ Phase 2 - Task management
 const notificationRoutes = require('./routes/notifications'); // ✅ Phase 2 - Notification system
 const calendarRoutes = require('./routes/calendar'); // ✅ Phase 2 - Calendar events
+const timeLogsRoutes = require('./routes/time-logs'); // ✅ Phase 3 - Time tracking system
 
 // Mount WORKING routes - PHASE 1 + PHASE 2
 app.use('/api/auth', authRoutes); // ✅ Essential - login/register works
@@ -102,6 +103,7 @@ app.use('/api/settings', settingsRoutes); // ✅ Phase 1 - Settings management w
 app.use('/api/tasks', taskRoutes); // ✅ Phase 2 - Task management works
 app.use('/api/notifications', notificationRoutes); // ✅ Phase 2 - Notification system works
 app.use('/api/calendar', calendarRoutes); // ✅ Phase 2 - Calendar events works
+app.use('/api/time-logs', timeLogsRoutes); // ✅ Phase 3 - Time tracking system works
 
 // Mount dashboard routes at root level for backward compatibility
 app.use('/api', dashboardRoutes);

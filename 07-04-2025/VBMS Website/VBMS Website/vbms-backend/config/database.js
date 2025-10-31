@@ -228,6 +228,26 @@ const createTables = async () => {
             CREATE INDEX IF NOT EXISTS idx_calendar_events_type ON calendar_events(event_type);
         `);
 
+        // Create time_logs table for employee time tracking
+        await client.query(`
+            CREATE TABLE IF NOT EXISTS time_logs (
+                id SERIAL PRIMARY KEY,
+                employee_name VARCHAR(255) NOT NULL,
+                action VARCHAR(50) NOT NULL CHECK (action IN ('clock_in', 'clock_out', 'break_start', 'break_end')),
+                timestamp_local TIMESTAMP NOT NULL,
+                timestamp_utc TIMESTAMP NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+
+        // Create indexes for time_logs table
+        await client.query(`
+            CREATE INDEX IF NOT EXISTS idx_time_logs_employee_name ON time_logs(employee_name);
+            CREATE INDEX IF NOT EXISTS idx_time_logs_action ON time_logs(action);
+            CREATE INDEX IF NOT EXISTS idx_time_logs_timestamp_local ON time_logs(timestamp_local);
+            CREATE INDEX IF NOT EXISTS idx_time_logs_created_at ON time_logs(created_at);
+        `);
+
         console.log('✅ PostgreSQL tables created successfully');
         
         // Initialize default settings

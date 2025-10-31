@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time Tracker - VBMS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --vbms-gold: #FFD600;
+            --vbms-dark: #0a0a0a;
+            --vbms-gray: #1a1a1a;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--vbms-dark) 0%, var(--vbms-gray) 100%);
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+        }
+
+        .time-display {
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--vbms-gold);
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .action-btn {
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+
+        .clock-in-btn {
+            background: linear-gradient(135deg, #10b981, #059669);
+            border-color: #10b981;
+        }
+
+        .clock-out-btn {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            border-color: #ef4444;
+        }
+
+        .break-start-btn {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            border-color: #f59e0b;
+        }
+
+        .break-end-btn {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            border-color: #3b82f6;
+        }
+
+        .status-card {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 214, 0, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .logs-table {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            min-width: 300px;
+        }
+
+        .employee-select {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 214, 0, 0.3);
+            color: white;
+        }
+
+        .employee-select option {
+            background: var(--vbms-dark);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark" style="background: rgba(0,0,0,0.3);">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <img src="https://iili.io/F7bM6Jt.md.png" alt="VBMS" height="40">
+                VBMS Time Tracker
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="customer-dashboard.html">
+                    <i class="bi bi-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-4 py-8">
+        <!-- Live Clock Display -->
+        <div class="text-center mb-8">
+            <div class="status-card rounded-lg p-6 mb-4">
+                <h1 class="text-2xl font-bold mb-4">Employee Time Tracker</h1>
+                <div id="currentTime" class="time-display mb-2"></div>
+                <div id="currentDate" class="text-lg text-gray-300"></div>
+            </div>
+        </div>
+
+        <!-- Employee Selection -->
+        <div class="max-w-md mx-auto mb-6">
+            <label for="employeeSelect" class="block text-sm font-medium mb-2">Select Employee:</label>
+            <select id="employeeSelect" class="employee-select w-full px-4 py-2 rounded-lg">
+                <option value="">Choose your name...</option>
+                <option value="John Doe">John Doe</option>
+                <option value="Jane Smith">Jane Smith</option>
+                <option value="Mike Johnson">Mike Johnson</option>
+                <option value="Sarah Wilson">Sarah Wilson</option>
+                <option value="David Brown">David Brown</option>
+                <option value="Lisa Davis">Lisa Davis</option>
+            </select>
+            <div class="mt-2">
+                <input type="text" id="customEmployeeName" placeholder="Or enter your name here..." 
+                       class="employee-select w-full px-4 py-2 rounded-lg" style="display: none;">
+                <button type="button" id="addCustomName" class="text-sm text-yellow-400 hover:text-yellow-300 mt-1">
+                    + Add custom name
+                </button>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 max-w-4xl mx-auto mb-8">
+            <button id="clockInBtn" class="action-btn clock-in-btn text-white font-semibold py-4 px-6 rounded-lg flex items-center justify-center space-x-2">
+                <i class="bi bi-clock text-xl"></i>
+                <span>Clock In</span>
+            </button>
+            
+            <button id="clockOutBtn" class="action-btn clock-out-btn text-white font-semibold py-4 px-6 rounded-lg flex items-center justify-center space-x-2">
+                <i class="bi bi-clock-history text-xl"></i>
+                <span>Clock Out</span>
+            </button>
+            
+            <button id="breakStartBtn" class="action-btn break-start-btn text-white font-semibold py-4 px-6 rounded-lg flex items-center justify-center space-x-2">
+                <i class="bi bi-pause-circle text-xl"></i>
+                <span>Start Break</span>
+            </button>
+            
+            <button id="breakEndBtn" class="action-btn break-end-btn text-white font-semibold py-4 px-6 rounded-lg flex items-center justify-center space-x-2">
+                <i class="bi bi-play-circle text-xl"></i>
+                <span>End Break</span>
+            </button>
+        </div>
+
+        <!-- Status Message Area -->
+        <div id="statusMessage" class="max-w-2xl mx-auto mb-8">
+            <div class="status-card rounded-lg p-4 text-center">
+                <p id="statusText" class="text-gray-300">Select an employee and choose an action to get started.</p>
+            </div>
+        </div>
+
+        <!-- View Logs Section -->
+        <div class="max-w-4xl mx-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold">Time Logs</h2>
+                <button id="viewLogsBtn" class="bg-yellow-600 hover:bg-yellow-700 text-white font-semibold py-2 px-4 rounded-lg flex items-center space-x-2">
+                    <i class="bi bi-list-ul"></i>
+                    <span>View My Logs</span>
+                </button>
+            </div>
+            
+            <div id="logsContainer" class="logs-table" style="display: none;">
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-800">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Action</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Time</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="logsTableBody" class="divide-y divide-gray-700">
+                            <!-- Logs will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- VBMS Configuration Override -->
+    <script src="config.js"></script>
+    
+    <script>
+        // API Configuration
+        const API_BASE = window.VBMS_CONFIG?.API_BASE || (
+            window.location.hostname === 'localhost' 
+                ? 'http://localhost:5050' 
+                : 'https://vbms-fresh-offical-website-launch.onrender.com'
+        );
+
+        // Global variables
+        let currentEmployee = '';
+        let isLoading = false;
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeClock();
+            initializeEventListeners();
+            loadEmployeeList();
+        });
+
+        /**
+         * Initialize the live clock display
+         */
+        function initializeClock() {
+            function updateClock() {
+                const now = new Date();
+                const timeString = now.toLocaleTimeString('en-US', {
+                    hour12: true,
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
+                const dateString = now.toLocaleDateString('en-US', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+                
+                document.getElementById('currentTime').textContent = timeString;
+                document.getElementById('currentDate').textContent = dateString;
+            }
+            
+            updateClock();
+            setInterval(updateClock, 1000);
+        }
+
+        /**
+         * Initialize all event listeners
+         */
+        function initializeEventListeners() {
+            // Action buttons
+            document.getElementById('clockInBtn').addEventListener('click', () => handleClockEvent('clock_in'));
+            document.getElementById('clockOutBtn').addEventListener('click', () => handleClockEvent('clock_out'));
+            document.getElementById('breakStartBtn').addEventListener('click', () => handleClockEvent('break_start'));
+            document.getElementById('breakEndBtn').addEventListener('click', () => handleClockEvent('break_end'));
+            
+            // View logs button
+            document.getElementById('viewLogsBtn').addEventListener('click', viewEmployeeLogs);
+            
+            // Employee selection
+            document.getElementById('employeeSelect').addEventListener('change', handleEmployeeSelection);
+            document.getElementById('addCustomName').addEventListener('click', toggleCustomNameInput);
+            document.getElementById('customEmployeeName').addEventListener('keypress', handleCustomNameKeypress);
+        }
+
+        /**
+         * Handle employee selection from dropdown
+         */
+        function handleEmployeeSelection() {
+            const select = document.getElementById('employeeSelect');
+            currentEmployee = select.value;
+            
+            if (currentEmployee) {
+                document.getElementById('customEmployeeName').style.display = 'none';
+                updateStatusMessage(`Selected employee: ${currentEmployee}`);
+            }
+        }
+
+        /**
+         * Toggle custom name input visibility
+         */
+        function toggleCustomNameInput() {
+            const customInput = document.getElementById('customEmployeeName');
+            const select = document.getElementById('employeeSelect');
+            
+            if (customInput.style.display === 'none') {
+                customInput.style.display = 'block';
+                customInput.focus();
+                select.value = '';
+                currentEmployee = '';
+            } else {
+                customInput.style.display = 'none';
+                customInput.value = '';
+            }
+        }
+
+        /**
+         * Handle keypress in custom name input
+         */
+        function handleCustomNameKeypress(event) {
+            if (event.key === 'Enter') {
+                const customName = event.target.value.trim();
+                if (customName) {
+                    currentEmployee = customName;
+                    updateStatusMessage(`Selected employee: ${currentEmployee}`);
+                }
+            }
+        }
+
+        /**
+         * Handle clock events (Clock In, Clock Out, Start Break, End Break)
+         * @param {string} action - The action type
+         */
+        async function handleClockEvent(action) {
+            // Validate employee selection
+            const customName = document.getElementById('customEmployeeName').value.trim();
+            if (customName) {
+                currentEmployee = customName;
+            }
+            
+            if (!currentEmployee) {
+                showToast('Please select or enter an employee name first.', 'warning');
+                return;
+            }
+
+            if (isLoading) {
+                return;
+            }
+
+            isLoading = true;
+            const button = event.target.closest('button');
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="bi bi-spinner-border animate-spin"></i> Processing...';
+            button.disabled = true;
+
+            try {
+                const now = new Date();
+                const timeLogData = {
+                    employee_name: currentEmployee,
+                    action: action,
+                    timestamp_local: now.toISOString(),
+                    timestamp_utc: now.toISOString()
+                };
+
+                const response = await fetch(`${API_BASE}/api/time-logs`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(timeLogData)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    const actionText = getActionDisplayText(action);
+                    const timeString = now.toLocaleTimeString('en-US', { hour12: true });
+                    
+                    updateStatusMessage(`${actionText} recorded successfully for ${currentEmployee} at ${timeString}`);
+                    showToast(`${actionText} recorded successfully!`, 'success');
+                } else {
+                    throw new Error(result.message || 'Failed to record time log');
+                }
+
+            } catch (error) {
+                console.error('Error recording time log:', error);
+                showToast('Failed to record time log. Please try again.', 'error');
+                updateStatusMessage('Error recording time log. Please try again.');
+            } finally {
+                isLoading = false;
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }
+        }
+
+        /**
+         * Get display text for action types
+         * @param {string} action - The action type
+         * @returns {string} Display text
+         */
+        function getActionDisplayText(action) {
+            const actionMap = {
+                'clock_in': 'Clock In',
+                'clock_out': 'Clock Out',
+                'break_start': 'Break Start',
+                'break_end': 'Break End'
+            };
+            return actionMap[action] || action;
+        }
+
+        /**
+         * View employee logs
+         */
+        async function viewEmployeeLogs() {
+            const customName = document.getElementById('customEmployeeName').value.trim();
+            if (customName) {
+                currentEmployee = customName;
+            }
+            
+            if (!currentEmployee) {
+                showToast('Please select or enter an employee name first.', 'warning');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/api/time-logs/${encodeURIComponent(currentEmployee)}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    displayLogs(result.data);
+                } else {
+                    throw new Error(result.message || 'Failed to fetch logs');
+                }
+
+            } catch (error) {
+                console.error('Error fetching logs:', error);
+                showToast('Failed to load logs. Please try again.', 'error');
+            }
+        }
+
+        /**
+         * Display logs in the table
+         * @param {Array} logs - Array of log entries
+         */
+        function displayLogs(logs) {
+            const logsContainer = document.getElementById('logsContainer');
+            const tableBody = document.getElementById('logsTableBody');
+            
+            tableBody.innerHTML = '';
+            
+            if (logs.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="3" class="px-6 py-4 text-center text-gray-400">
+                            No time logs found for ${currentEmployee}
+                        </td>
+                    </tr>
+                `;
+            } else {
+                logs.forEach(log => {
+                    const date = new Date(log.timestamp_local);
+                    const timeString = date.toLocaleTimeString('en-US', { hour12: true });
+                    const dateString = date.toLocaleDateString('en-US');
+                    const actionText = getActionDisplayText(log.action);
+                    
+                    const row = document.createElement('tr');
+                    row.className = 'hover:bg-gray-800';
+                    row.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <i class="bi bi-${getActionIcon(log.action)} mr-2"></i>
+                                ${actionText}
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-gray-300">${timeString}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-gray-300">${dateString}</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            }
+            
+            logsContainer.style.display = 'block';
+        }
+
+        /**
+         * Get icon for action type
+         * @param {string} action - The action type
+         * @returns {string} Bootstrap icon class
+         */
+        function getActionIcon(action) {
+            const iconMap = {
+                'clock_in': 'clock',
+                'clock_out': 'clock-history',
+                'break_start': 'pause-circle',
+                'break_end': 'play-circle'
+            };
+            return iconMap[action] || 'clock';
+        }
+
+        /**
+         * Update status message
+         * @param {string} message - The message to display
+         */
+        function updateStatusMessage(message) {
+            document.getElementById('statusText').textContent = message;
+        }
+
+        /**
+         * Show toast notification
+         * @param {string} message - The message to display
+         * @param {string} type - The type of toast (success, error, warning)
+         */
+        function showToast(message, type = 'info') {
+            const toastContainer = document.getElementById('toastContainer');
+            
+            const toastColors = {
+                success: 'bg-green-600',
+                error: 'bg-red-600',
+                warning: 'bg-yellow-600',
+                info: 'bg-blue-600'
+            };
+            
+            const toastIcons = {
+                success: 'bi-check-circle',
+                error: 'bi-x-circle',
+                warning: 'bi-exclamation-triangle',
+                info: 'bi-info-circle'
+            };
+            
+            const toast = document.createElement('div');
+            toast.className = `toast ${toastColors[type]} text-white p-4 rounded-lg shadow-lg mb-2 flex items-center space-x-2`;
+            toast.innerHTML = `
+                <i class="bi ${toastIcons[type]}"></i>
+                <span>${message}</span>
+                <button class="ml-auto text-white hover:text-gray-200" onclick="this.parentElement.remove()">
+                    <i class="bi bi-x"></i>
+                </button>
+            `;
+            
+            toastContainer.appendChild(toast);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (toast.parentElement) {
+                    toast.remove();
+                }
+            }, 5000);
+        }
+
+        /**
+         * Load employee list from the database (future enhancement)
+         */
+        async function loadEmployeeList() {
+            try {
+                // This would fetch employees from the database
+                // For now, we're using the hardcoded list in the HTML
+                console.log('Employee list loaded from static options');
+            } catch (error) {
+                console.error('Error loading employee list:', error);
+            }
+        }
+    </script>
+</body>
+</html>
