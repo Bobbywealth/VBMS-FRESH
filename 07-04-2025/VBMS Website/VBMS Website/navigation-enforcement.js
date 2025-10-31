@@ -54,20 +54,34 @@
         return url;
     }
     
-    // Override window.location assignments
-    let originalLocationSetter = Object.getOwnPropertyDescriptor(window, 'location').set;
-    Object.defineProperty(window, 'location', {
-        set: function(url) {
-            const correctedUrl = ensureHtmlExtension(url);
-            if (correctedUrl !== url) {
-                console.log(`🔧 Navigation enforced: ${url} → ${correctedUrl}`);
-            }
-            originalLocationSetter.call(this, correctedUrl);
-        },
-        get: function() {
-            return window.location;
+    // Override window.location assignments (safely)
+    try {
+        let originalLocationDescriptor = Object.getOwnPropertyDescriptor(window, 'location');
+        if (originalLocationDescriptor && !originalLocationDescriptor.configurable) {
+            console.log('⚠️ Location property is not configurable, using alternative approach');
+            // Alternative: Override common navigation methods
+            const originalAssign = window.location.assign;
+            const originalReplace = window.location.replace;
+            
+            window.location.assign = function(url) {
+                const correctedUrl = ensureHtmlExtension(url);
+                if (correctedUrl !== url) {
+                    console.log(`🔧 Navigation enforced (assign): ${url} → ${correctedUrl}`);
+                }
+                return originalAssign.call(this, correctedUrl);
+            };
+            
+            window.location.replace = function(url) {
+                const correctedUrl = ensureHtmlExtension(url);
+                if (correctedUrl !== url) {
+                    console.log(`🔧 Navigation enforced (replace): ${url} → ${correctedUrl}`);
+                }
+                return originalReplace.call(this, correctedUrl);
+            };
         }
-    });
+    } catch (error) {
+        console.log('⚠️ Could not override location property:', error.message);
+    }
     
     // Override location.href assignments  
     const originalHref = Object.getOwnPropertyDescriptor(Location.prototype, 'href');

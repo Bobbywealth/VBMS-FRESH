@@ -1,61 +1,61 @@
-// VBMS Configuration
-const VBMS_CONFIG = {
-  // Backend URLs
-  LOCAL_BACKEND: 'http://localhost:5050',
-  PRODUCTION_BACKEND: 'https://vbms-fresh-production.up.railway.app',
-  
-  // Current environment (change this to switch between local/production)
-  ENVIRONMENT: 'local', // 'local' or 'production'
-  
-  // Get the current backend URL
-  getBackendUrl: function() {
-    return this.ENVIRONMENT === 'local' ? this.LOCAL_BACKEND : this.PRODUCTION_BACKEND;
-  },
-  
-  // Get API URL
-  getApiUrl: function() {
-    return this.getBackendUrl() + '/api';
-  },
-  
-  // Check if running locally
-  isLocal: function() {
-    return this.ENVIRONMENT === 'local';
-  },
-  
-  // Check if running in production
-  isProduction: function() {
-    return this.ENVIRONMENT === 'production';
-  },
-  
-  // Switch to local development
-  useLocal: function() {
-    this.ENVIRONMENT = 'local';
-    console.log('🔄 Switched to LOCAL backend:', this.LOCAL_BACKEND);
-  },
-  
-  // Switch to production
-  useProduction: function() {
-    this.ENVIRONMENT = 'production';
-    console.log('🚀 Switched to PRODUCTION backend:', this.PRODUCTION_BACKEND);
-  }
-};
+// VBMS Configuration Override
+// This file ensures all API calls go to the correct backend URL
 
-// Auto-detect environment based on hostname
-if (typeof window !== 'undefined') {
-  const hostname = window.location.hostname;
-  if (hostname === 'localhost' || hostname === '127.0.0.1') {
-    VBMS_CONFIG.useLocal();
-  } else {
-    VBMS_CONFIG.useProduction();
-  }
-}
-
-// Export for Node.js environments
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = VBMS_CONFIG;
-}
-
-// Make it globally available in browser
-if (typeof window !== 'undefined') {
-  window.VBMS_CONFIG = VBMS_CONFIG;
-}
+(function() {
+    'use strict';
+    
+    // Force the correct backend URL
+    const CORRECT_BACKEND_URL = 'https://vbms-fresh-offical-website-launch.onrender.com';
+    
+    console.log('🚀 VBMS Config: Setting backend to', CORRECT_BACKEND_URL);
+    
+    // Override any existing API_BASE configurations
+    window.VBMS_API_BASE = CORRECT_BACKEND_URL;
+    window.API_BASE = CORRECT_BACKEND_URL;
+    
+    // Override common API base configurations
+    if (window.vbmsConfig) {
+        window.vbmsConfig.apiBase = CORRECT_BACKEND_URL;
+    } else {
+        window.vbmsConfig = {
+            apiBase: CORRECT_BACKEND_URL,
+            environment: 'production'
+        };
+    }
+    
+    // Override pricing integration API base if it exists
+    if (window.VBMSPricingIntegration && window.VBMSPricingIntegration.prototype) {
+        const originalGetApiBase = window.VBMSPricingIntegration.prototype.getApiBase;
+        window.VBMSPricingIntegration.prototype.getApiBase = function() {
+            return CORRECT_BACKEND_URL;
+        };
+    }
+    
+    // Intercept fetch requests to redirect Railway URLs
+    const originalFetch = window.fetch;
+    window.fetch = function(url, options) {
+        if (typeof url === 'string' && url.includes('vbms-fresh-production.up.railway.app')) {
+            const correctedUrl = url.replace('https://vbms-fresh-production.up.railway.app', CORRECT_BACKEND_URL);
+            console.log('🔄 Redirecting API call:', url, '→', correctedUrl);
+            return originalFetch(correctedUrl, options);
+        }
+        return originalFetch(url, options);
+    };
+    
+    // Also handle Request objects
+    const originalFetchWithRequest = window.fetch;
+    window.fetch = function(input, options) {
+        if (input instanceof Request) {
+            const url = input.url;
+            if (url.includes('vbms-fresh-production.up.railway.app')) {
+                const correctedUrl = url.replace('https://vbms-fresh-production.up.railway.app', CORRECT_BACKEND_URL);
+                console.log('🔄 Redirecting Request API call:', url, '→', correctedUrl);
+                const newRequest = new Request(correctedUrl, input);
+                return originalFetchWithRequest(newRequest, options);
+            }
+        }
+        return originalFetchWithRequest(input, options);
+    };
+    
+    console.log('✅ VBMS Config: Backend URL override active');
+})();
