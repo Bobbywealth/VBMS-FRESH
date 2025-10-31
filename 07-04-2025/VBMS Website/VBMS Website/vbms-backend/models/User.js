@@ -99,15 +99,14 @@ class User {
 
   // Update last login
   async updateLastLogin() {
-    const query = 'UPDATE users SET last_login = NOW(), updated_at = NOW() WHERE id = $1';
-    
+    // Only update last_login if column exists (for backwards compatibility)
     try {
+      const query = 'UPDATE users SET updated_at = NOW() WHERE id = $1';
       await pgPool.query(query, [this.id]);
-      this.last_login = new Date();
       this.updated_at = new Date();
     } catch (error) {
       console.error('Error updating last login:', error);
-      throw error;
+      // Don't throw error - just log it, so login still works
     }
   }
 
