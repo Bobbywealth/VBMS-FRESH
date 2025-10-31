@@ -255,6 +255,17 @@ const createTables = async () => {
             )
         `);
 
+        // Create employee_pins table for PIN security
+        await client.query(`
+            CREATE TABLE IF NOT EXISTS employee_pins (
+                id SERIAL PRIMARY KEY,
+                employee_name VARCHAR(255) UNIQUE NOT NULL,
+                pin_hash VARCHAR(255) NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+
         // Create indexes for time_logs table
         try {
             await client.query(`
@@ -266,6 +277,16 @@ const createTables = async () => {
             console.log('✅ Time logs indexes created');
         } catch (error) {
             console.log('⚠️ Time logs indexes creation failed:', error.message);
+        }
+
+        // Create indexes for employee_pins table
+        try {
+            await client.query(`
+                CREATE INDEX IF NOT EXISTS idx_employee_pins_name ON employee_pins(employee_name);
+            `);
+            console.log('✅ Employee pins indexes created');
+        } catch (error) {
+            console.log('⚠️ Employee pins indexes creation failed:', error.message);
         }
 
         console.log('✅ PostgreSQL tables created successfully');

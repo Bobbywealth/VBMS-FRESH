@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const TimeLog = require('../models/TimeLog');
+const EmployeePin = require('../models/EmployeePin');
 
 /**
  * Create a new time log entry
@@ -331,6 +332,97 @@ router.get('/entry/:id', async (req, res) => {
 
   } catch (error) {
     console.error('Error fetching time log:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Something went wrong'
+    });
+  }
+});
+
+/**
+ * Verify employee PIN
+ * POST /api/time-logs/verify-pin
+ */
+router.post('/verify-pin', async (req, res) => {
+  try {
+    const { employee_name, pin } = req.body;
+
+    if (!employee_name || !pin) {
+      return res.status(400).json({
+        success: false,
+        message: 'Employee name and PIN are required'
+      });
+    }
+
+    if (!/^\d{4}$/.test(pin)) {
+      return res.status(400).json({
+        success: false,
+        message: 'PIN must be exactly 4 digits'
+      });
+    }
+
+    const isValid = await EmployeePin.verifyPin(employee_name, pin);
+
+    if (isValid) {
+      res.json({
+        success: true,
+        message: 'PIN verified successfully',
+        employee_name
+      });
+    } else {
+      res.status(401).json({
+        success: false,
+        message: 'Invalid PIN'
+      });
+    }
+
+  } catch (error) {
+    console.error('Error verifying PIN:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Something went wrong'
+    });
+  }
+});
+
+/**
+ * Set employee PIN (admin only)
+ * POST /api/time-logs/set-pin
+ */
+router.post('/set-pin', async (req, res) => {
+  try {
+    const { employee_name, pin } = req.body;
+
+    if (!employee_name || !pin) {
+      return res.status(400).json({
+        success: false,
+        message: 'Employee name and PIN are required'
+      });
+    }
+
+    if (!/^\d{4}$/.test(pin)) {
+      return res.status(400).json({
+        success: false,
+        message: 'PIN must be exactly 4 digits'
+      });
+    }
+
+    const employeePin = await EmployeePin.setPin(employee_name, pin);
+
+    res.json({
+      success: true,
+      message: 'PIN set successfully',
+      data: {
+        employee_name: employeePin.employee_name,
+        created_at: employeePin.created_at,
+        updated_at: employeePin.updated_at
+      }
+    });
+
+  } catch (error) {
+    console.error('Error setting PIN:', error);
     res.status(500).json({
       success: false,
       message: 'Internal server error',
