@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: vbms-full-stack
+    env: node
+    plan: free
+    buildCommand: cd "07-04-2025/VBMS Website/VBMS Website/vbms-backend" && npm install
+    startCommand: cd "07-04-2025/VBMS Website/VBMS Website/vbms-backend" && node server.js
+    rootDir: ./
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        value: postgresql://vbms_official_database_user:xNSBQdx8Lg1pe6sO9r5wwFsILiFKr8bm@dpg-d4219j9r0fns738rnjb0-a.oregon-postgres.render.com/vbms_official_database
+      - key: JWT_SECRET
+        value: vbms_jwt_secret_2024_secure_key_production
+      - key: PORT
+        value: 10000
+      - key: CORS_ORIGIN
+        value: https://vbms-fresh-offical-website-launch.onrender.com
+      - key: FRONTEND_URL
+        value: https://vbms-fresh-offical-website-launch.onrender.com

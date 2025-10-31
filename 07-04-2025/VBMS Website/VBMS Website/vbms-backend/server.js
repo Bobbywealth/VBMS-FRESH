@@ -75,6 +75,9 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // Serve static files from uploads directory
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// Serve frontend static files
+app.use(express.static(path.join(__dirname, '..')));
+
 // Import WORKING routes - PHASE 1 + PHASE 2
 const authRoutes = require('./routes/auth'); // ✅ Essential - login/register
 const usersRoutes = require('./routes/users'); // ✅ Essential - user management
