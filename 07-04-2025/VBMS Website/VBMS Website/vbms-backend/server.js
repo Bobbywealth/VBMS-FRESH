@@ -82,6 +82,9 @@ const openai = new OpenAI({
 
   // Serve static files from uploads directory
   app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+  
+  // Serve frontend static files from parent directory
+  app.use(express.static(path.join(__dirname, '..')));
 
   // Import routes
   const authRoutes = require('./routes/auth');
