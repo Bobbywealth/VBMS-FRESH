@@ -7,7 +7,7 @@ const auth = require('../middleware/auth');
 const role = require('../middleware/role');
 
 // Master Admin Only
-router.use(auth, role(['main_admin']));
+router.use(auth, role('main_admin'));
 
 // Test IMAP/SMTP connection
 router.post('/test-connection', async (req, res) => {
