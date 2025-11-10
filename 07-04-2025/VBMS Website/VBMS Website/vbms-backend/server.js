@@ -160,7 +160,7 @@ const openai = new OpenAI({
   });
   app.use('/api', dashboardRoutes);
 
-  const PORT = 5050;
+  const PORT = process.env.PORT || 5050;
 
   // --- Connect to PostgreSQL ---
   initializeDatabase()
