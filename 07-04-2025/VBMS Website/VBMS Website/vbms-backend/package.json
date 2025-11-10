@@ -35,7 +35,8 @@
     "nodemailer": "^6.9.7",
     "openai": "^4.20.1",
     "pg": "^8.11.3",
-    "stripe": "^14.7.0"
+    "stripe": "^14.7.0",
+    "xss-clean": "^0.1.4"
   },
   "devDependencies": {
     "nodemon": "^3.0.2"
