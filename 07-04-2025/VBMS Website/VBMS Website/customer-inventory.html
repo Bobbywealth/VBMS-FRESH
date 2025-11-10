@@ -1039,6 +1039,33 @@
     </div>
   </div>
 
+  <!-- Receipts Section -->
+  <div class="receipts-section" style="margin: 30px 0; padding: 25px; background: var(--card-bg); border-radius: 16px; box-shadow: var(--card-shadow);">
+    <div class="receipts-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+      <h3 style="margin: 0; color: var(--text);"><i class="bi bi-receipt"></i> Receipts</h3>
+      <button class="btn-primary" onclick="document.getElementById('receiptUpload').click()">
+        <i class="bi bi-cloud-upload"></i> Upload Receipt
+      </button>
+    </div>
+    <input type="file" id="receiptUpload" accept=".pdf,.csv,.xlsx,.xls" style="display: none;" onchange="handleReceiptUpload(event)">
+    <div class="receipts-table-container" style="overflow-x: auto;">
+      <table class="table" style="color: var(--text);">
+        <thead style="background: var(--table-header);">
+          <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Size</th>
+            <th>Upload Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="receiptsTableBody">
+          <!-- Receipts will be populated here -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
   <!-- Enhanced Products Section -->
   <div class="products-section">
     <div class="products-header">
@@ -1141,6 +1168,7 @@
 <script src="navigation-enforcement.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
 <script src="auth.js"></script>
 <script src="load-sidebar.js"></script>
 <script src="theme-manager.js"></script>
@@ -1922,7 +1950,238 @@ document.addEventListener('DOMContentLoaded', function() {
   if (icon) {
     icon.className = savedTheme === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
   }
+  
+  // Load receipts on page load
+  loadReceipts();
 });
+
+// ===== RECEIPT UPLOAD AND AUTO-IMPORT FUNCTIONS =====
+let receipts = [];
+
+function loadReceipts() {
+  const saved = localStorage.getItem('vbms_receipts');
+  if (saved) {
+    receipts = JSON.parse(saved);
+  }
+  renderReceipts();
+}
+
+function saveReceipts() {
+  localStorage.setItem('vbms_receipts', JSON.stringify(receipts));
+}
+
+function renderReceipts() {
+  const tbody = document.getElementById('receiptsTableBody');
+  if (!tbody) return;
+  
+  if (receipts.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 20px;">No receipts uploaded yet. Click "Upload Receipt" to get started.</td></tr>';
+    return;
+  }
+  
+  tbody.innerHTML = receipts.map(receipt => `
+    <tr>
+      <td>${receipt.name}</td>
+      <td><span class="badge bg-info">${receipt.type.toUpperCase()}</span></td>
+      <td>${(receipt.size / 1024).toFixed(2)} KB</td>
+      <td>${receipt.uploadDate}</td>
+      <td>
+        <button class="btn btn-sm btn-outline-primary" onclick="viewReceipt(${receipt.id})" title="View">
+          <i class="bi bi-eye"></i>
+        </button>
+        <button class="btn btn-sm btn-outline-success" onclick="downloadReceipt(${receipt.id})" title="Download">
+          <i class="bi bi-download"></i>
+        </button>
+        <button class="btn btn-sm btn-outline-danger" onclick="deleteReceipt(${receipt.id})" title="Delete">
+          <i class="bi bi-trash"></i>
+        </button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function handleReceiptUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const fileType = file.name.split('.').pop().toLowerCase();
+  const reader = new FileReader();
+
+  reader.onload = function(e) {
+    const fileContent = e.target.result;
+    const newReceipt = {
+      id: Date.now(),
+      name: file.name,
+      type: fileType,
+      size: file.size,
+      uploadDate: new Date().toISOString().slice(0, 10),
+      content: fileContent
+    };
+    receipts.push(newReceipt);
+    saveReceipts();
+    renderReceipts();
+    showToast(`Receipt "${file.name}" uploaded successfully!`, 'success');
+
+    // Attempt to process data for inventory auto-import
+    processReceiptData(fileContent, fileType);
+  };
+
+  if (fileType === 'pdf') {
+    reader.readAsDataURL(file);
+  } else if (['csv', 'xlsx', 'xls'].includes(fileType)) {
+    reader.readAsArrayBuffer(file);
+  } else {
+    showToast('Unsupported file type. Please upload PDF, CSV, or Excel.', 'error');
+    return;
+  }
+  event.target.value = '';
+}
+
+function processReceiptData(fileContent, fileType) {
+  if (fileType === 'pdf') {
+    showToast('PDFs cannot be auto-imported. Please add items manually.', 'info');
+    return;
+  }
+
+  try {
+    let workbook;
+    if (fileType === 'csv') {
+      workbook = XLSX.read(fileContent, { type: 'array', raw: true });
+    } else {
+      workbook = XLSX.read(fileContent, { type: 'array', raw: true });
+    }
+
+    const sheetName = workbook.SheetNames[0];
+    const worksheet = workbook.Sheets[sheetName];
+    const json = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+    if (json.length < 2) {
+      showToast('No data found in the uploaded file for import.', 'warning');
+      return;
+    }
+
+    const headers = json[0].map(h => String(h).toLowerCase().trim());
+    const dataRows = json.slice(1);
+    let importedCount = 0;
+
+    dataRows.forEach(row => {
+      const productData = {};
+      headers.forEach((header, index) => {
+        const value = row[index];
+        if (value !== undefined && value !== null) {
+          if (header.includes('name')) productData.name = String(value).trim();
+          if (header.includes('sku')) productData.sku = String(value).trim();
+          if (header.includes('quantity') || header.includes('stock')) productData.stock = parseInt(value) || 0;
+          if (header.includes('price') || header.includes('cost')) productData.price = parseFloat(value) || 0;
+          if (header.includes('category')) productData.category = String(value).trim();
+          if (header.includes('description') || header.includes('notes')) productData.description = String(value).trim();
+          if (header.includes('image') || header.includes('url')) productData.image = String(value).trim();
+        }
+      });
+
+      if (productData.name && productData.stock !== undefined && productData.price !== undefined) {
+        const existingProductIndex = inventoryProducts.findIndex(p => 
+          (productData.sku && p.sku === productData.sku) || p.name === productData.name
+        );
+
+        if (existingProductIndex !== -1) {
+          const existingProduct = inventoryProducts[existingProductIndex];
+          existingProduct.stock += productData.stock;
+          existingProduct.price = productData.price;
+          existingProduct.lastUpdated = new Date().toISOString().slice(0, 10);
+          if (productData.category) existingProduct.category = productData.category;
+          if (productData.description) existingProduct.description = productData.description;
+          if (productData.image) existingProduct.image = productData.image;
+          showToast(`Updated stock for "${existingProduct.name}"`, 'info');
+        } else {
+          const newId = Math.max(...inventoryProducts.map(p => p.id), 0) + 1;
+          inventoryProducts.push({
+            id: newId,
+            name: productData.name,
+            sku: productData.sku || `AUTO-${Date.now()}-${newId}`,
+            price: productData.price,
+            stock: productData.stock,
+            category: productData.category || 'Other',
+            description: productData.description || '',
+            image: productData.image || null,
+            status: 'active',
+            source: 'receipt',
+            stripeProductId: null,
+            lastUpdated: new Date().toISOString().slice(0, 10)
+          });
+          showToast(`Added new product "${productData.name}" from receipt`, 'success');
+        }
+        importedCount++;
+      }
+    });
+
+    if (importedCount > 0) {
+      showToast(`Successfully imported and updated ${importedCount} products from receipt!`, 'success');
+      renderProducts();
+      renderCharts();
+      saveInventory();
+    } else {
+      showToast('No valid products found in the file for import.', 'warning');
+    }
+
+  } catch (error) {
+    console.error('Error processing uploaded file:', error);
+    showToast('Error processing file. Please ensure it\'s correctly formatted.', 'error');
+  }
+}
+
+function viewReceipt(id) {
+  const receipt = receipts.find(r => r.id === id);
+  if (!receipt) return;
+  
+  if (receipt.type === 'pdf') {
+    const newWindow = window.open();
+    newWindow.document.write(`<iframe src="${receipt.content}" style="width:100%;height:100%;border:none;"></iframe>`);
+  } else {
+    showToast('Viewing is only available for PDF files.', 'info');
+  }
+}
+
+function downloadReceipt(id) {
+  const receipt = receipts.find(r => r.id === id);
+  if (!receipt) return;
+  
+  const blob = receipt.type === 'pdf' 
+    ? dataURLtoBlob(receipt.content)
+    : new Blob([receipt.content], { type: 'application/octet-stream' });
+  
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = receipt.name;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function deleteReceipt(id) {
+  if (confirm('Are you sure you want to delete this receipt?')) {
+    receipts = receipts.filter(r => r.id !== id);
+    saveReceipts();
+    renderReceipts();
+    showToast('Receipt deleted successfully.', 'success');
+  }
+}
+
+function dataURLtoBlob(dataURL) {
+  const arr = dataURL.split(',');
+  const mime = arr[0].match(/:(.*?);/)[1];
+  const bstr = atob(arr[1]);
+  let n = bstr.length;
+  const u8arr = new Uint8Array(n);
+  while (n--) {
+    u8arr[n] = bstr.charCodeAt(n);
+  }
+  return new Blob([u8arr], { type: mime });
+}
+
+function saveInventory() {
+  localStorage.setItem('vbms_inventory', JSON.stringify(inventoryProducts));
+}
 </script>
 </body>
 </html>
