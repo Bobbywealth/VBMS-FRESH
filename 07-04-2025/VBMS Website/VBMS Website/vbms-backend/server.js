@@ -166,6 +166,12 @@ const openai = new OpenAI({
   initializeDatabase()
     .then(() => {
       console.log('✅ PostgreSQL database initialized successfully');
+      
+      // Start server only after database is ready
+      app.listen(PORT, '0.0.0.0', () => {
+        console.log(`🚀 Server started on port ${PORT}`);
+        console.log(`🌐 Environment: ${process.env.NODE_ENV || 'development'}`);
+      });
     })
     .catch((err) => {
       console.error('❌ PostgreSQL initialization error:', err);
@@ -612,9 +618,4 @@ app.use((err, req, res, next) => {
     console.log(`Settings API: ${req.method} ${req.url}`);
     console.log('Headers:', req.headers);
     next();
-  });
-
-  // --- LISTEN ---
-  app.listen(PORT, () => {
-    console.log(`Server started on http://localhost:${PORT}`);
   });
