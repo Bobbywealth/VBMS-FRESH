@@ -183,90 +183,93 @@ const openai = new OpenAI({
   });
 
   // --- ONBOARDING ROUTE ---
-  app.post('/api/onboard', async (req, res) => {
-    try {
-      const data = req.body;
-      // Save onboarding to MongoDB
-      const record = await Onboarding.create(data);
-      res.json({ message: "Onboarding received", record });
-    } catch (e) {
-      console.error('Onboarding save error:', e);
-      res.status(500).json({ error: "Failed to save onboarding data." });
-    }
-  });
+  // DISABLED: MongoDB onboarding route - use /api/onboarding instead
+  // app.post('/api/onboard', async (req, res) => {
+  //   try {
+  //     const data = req.body;
+  //     // Save onboarding to MongoDB
+  //     const record = await Onboarding.create(data);
+  //     res.json({ message: "Onboarding received", record });
+  //   } catch (e) {
+  //     console.error('Onboarding save error:', e);
+  //     res.status(500).json({ error: "Failed to save onboarding data." });
+  //   }
+  // });
 
 // --- REGISTER ROUTE ---
-app.post('/api/auth/register', 
-  ValidationMiddleware.validateUserRegistration(),
-  async (req, res) => {
-    try {
-      const { name, email, password } = req.body;
+// DISABLED: MongoDB registration route - use /api/auth routes instead
+// app.post('/api/auth/register', 
+//   ValidationMiddleware.validateUserRegistration(),
+//   async (req, res) => {
+//     try {
+//       const { name, email, password } = req.body;
 
-      const exists = await User.findOne({ email });
-      if (exists)
-        return res.status(409).json({ message: 'Email already registered.' });
+//       const exists = await User.findOne({ email });
+//       if (exists)
+//         return res.status(409).json({ message: 'Email already registered.' });
 
-      const user = new User({
-        name,
-        email,
-        password,
-        role: 'client'    // force all signups to client
-      });
-      await user.save();
+//       const user = new User({
+//         name,
+//         email,
+//         password,
+//         role: 'client'    // force all signups to client
+//       });
+//       await user.save();
 
-      const token = jwt.sign(
-        { id: user._id, email: user.email, name: user.name, role: user.role },
-        JWT_SECRET,
-        { expiresIn: '7d' }
-      );
-      res.status(201).json({ token, user: { name: user.name, email: user.email, role: user.role } });
-    } catch (err) {
-      console.error('Registration error:', err);
-      res.status(500).json({ message: 'Registration failed.', error: err.message });
-    }
-  }
-);
+//       const token = jwt.sign(
+//         { id: user._id, email: user.email, name: user.name, role: user.role },
+//         JWT_SECRET,
+//         { expiresIn: '7d' }
+//       );
+//       res.status(201).json({ token, user: { name: user.name, email: user.email, role: user.role } });
+//     } catch (err) {
+//       console.error('Registration error:', err);
+//       res.status(500).json({ message: 'Registration failed.', error: err.message });
+//     }
+//   }
+// );
 
 // --- LOGIN ROUTE ---
-app.post('/api/auth/login',
-  ValidationMiddleware.validateUserLogin(),
-  async (req, res) => {
-    try {
-      const { email, password } = req.body;
+// DISABLED: MongoDB login route - use /api/auth routes instead
+// app.post('/api/auth/login',
+//   ValidationMiddleware.validateUserLogin(),
+//   async (req, res) => {
+//     try {
+//       const { email, password } = req.body;
 
-      const user = await User.findOne({ email });
-      if (!user)
-        return res.status(401).json({ message: 'Invalid email or password.' });
+//       const user = await User.findOne({ email });
+//       if (!user)
+//         return res.status(401).json({ message: 'Invalid email or password.' });
 
-      const match = await user.comparePassword(password); // Password validation method in User model
-      if (!match)
-        return res.status(401).json({ message: 'Invalid email or password.' });
+//       const match = await user.comparePassword(password); // Password validation method in User model
+//       if (!match)
+//         return res.status(401).json({ message: 'Invalid email or password.' });
 
-      // Update last login time
-      user.lastLogin = new Date();
-      await user.save();
+//       // Update last login time
+//       user.lastLogin = new Date();
+//       await user.save();
 
-      const token = jwt.sign(
-        { id: user._id, email: user.email, name: user.name, role: user.role }, // INCLUDE ROLE
-        JWT_SECRET,
-        { expiresIn: '7d' }
-      );
+//       const token = jwt.sign(
+//         { id: user._id, email: user.email, name: user.name, role: user.role }, // INCLUDE ROLE
+//         JWT_SECRET,
+//         { expiresIn: '7d' }
+//       );
 
-      // Send role in user object
-      res.json({
-        token,
-        user: {
-          name: user.name,
-          email: user.email,
-          role: user.role // INCLUDE ROLE
-        }
-      });
-    } catch (err) {
-      console.error('Login error:', err);
-      res.status(500).json({ message: 'Login failed.', error: err.message });
-    }
-  }
-);
+//       // Send role in user object
+//       res.json({
+//         token,
+//         user: {
+//           name: user.name,
+//           email: user.email,
+//           role: user.role // INCLUDE ROLE
+//         }
+//       });
+//     } catch (err) {
+//       console.error('Login error:', err);
+//       res.status(500).json({ message: 'Login failed.', error: err.message });
+//     }
+//   }
+// );
 
 // --- STRIPE PAYMENT INTENT ROUTE ---
   app.post('/api/create-payment-intent',
