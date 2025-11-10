@@ -1,0 +1,2290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>VBMS - My Orders</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="customer-theme.css" rel="stylesheet">
+  <style>
+    :root {
+        --accent: #f0b90b;
+        --accent-light: #ffd700;
+        --accent-glow: rgba(240, 185, 11, 0.4);
+        --primary-dark: #d4a109;
+        --secondary: #2c3e50;
+        --success: #22c55e;
+        --danger: #ef4444;
+        --warning: #f59e0b;
+        --info: #3b82f6;
+        --purple: #a855f7;
+        --cyan: #06b6d4;
+        --light: #f8f9fa;
+        --dark: #212529;
+        --glass: rgba(255,255,255,0.95);
+        --glass-glow: rgba(240, 185, 11, 0.15);
+        --border: #e9ecef;
+        --text: #212529;
+        --text-muted: #6c757d;
+        --card-bg: #ffffff;
+        --card-shadow: 0 8px 32px rgba(240, 185, 11, 0.1);
+        --bg: linear-gradient(135deg, #f8f9fa 0%, #f0f8ff 50%, #f8f4ff 100%);
+        --sidebar-bg: rgba(255,255,255,0.98);
+        --sidebar-link: #333;
+        --sidebar-link-active: #000;
+        --input-bg: rgba(255, 255, 255, 0.9);
+        --text-main: #212529;
+        --table-header: rgba(248, 249, 250, 0.95);
+        --card-shadow-heavy: 0 12px 40px rgba(240, 185, 11, 0.15);
+    }
+
+    /* Dark theme - Modern Black/Gray with Energy */
+    [data-theme="dark"] {
+        --bg: linear-gradient(135deg, #000000 0%, #0a0a0a 25%, #1a1a1a 50%, #0f0f0f 100%);
+        --light: #ffffff;
+        --dark: #000000;
+        --text: #ffffff;
+        --text-muted: #a1a1aa;
+        --card-bg: rgba(20, 20, 20, 0.95);
+        --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.8), 0 0 20px rgba(240, 185, 11, 0.15);
+        --card-shadow-heavy: 0 12px 40px rgba(0, 0, 0, 0.6), 0 0 30px rgba(240, 185, 11, 0.2);
+        --border: rgba(64, 64, 64, 0.4);
+        --glass: rgba(18, 18, 18, 0.95);
+        --glass-glow: rgba(240, 185, 11, 0.2);
+        --sidebar-bg: rgba(12, 12, 12, 0.98);
+        --sidebar-link: #d4d4d8;
+        --sidebar-link-active: #ffffff;
+        --accent: #f0b90b;
+        --accent-light: #ffd700;
+        --success: #22c55e;
+        --danger: #ef4444;
+        --warning: #f59e0b;
+        --info: #3b82f6;
+        --purple: #a855f7;
+        --cyan: #06b6d4;
+        --input-bg: rgba(30, 30, 30, 0.9);
+        --text-main: #ffffff;
+        --table-header: rgba(30, 30, 30, 0.95);
+    }
+
+    body {
+        font-family: 'Inter', sans-serif;
+        background: var(--bg);
+        background-attachment: fixed;
+        color: var(--text);
+        margin: 0;
+        padding: 0;
+        transition: all 0.3s ease;
+        min-height: 100vh;
+        position: relative;
+        overflow-x: hidden;
+    }
+
+    /* Animated Background Particles */
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: 
+            radial-gradient(circle at 20% 80%, rgba(240, 185, 11, 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(240, 185, 11, 0.08) 0%, transparent 50%),
+            radial-gradient(circle at 40% 40%, rgba(240, 185, 11, 0.05) 0%, transparent 50%);
+        animation: float 20s ease-in-out infinite;
+        pointer-events: none;
+        z-index: -1;
+    }
+
+    [data-theme="dark"] body::before {
+        background: 
+            radial-gradient(circle at 20% 80%, rgba(240, 185, 11, 0.15) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(240, 185, 11, 0.12) 0%, transparent 50%),
+            radial-gradient(circle at 40% 40%, rgba(240, 185, 11, 0.08) 0%, transparent 50%);
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        33% { transform: translateY(-30px) rotate(1deg); }
+        66% { transform: translateY(-10px) rotate(-1deg); }
+    }
+
+    /* Sidebar */
+    .vbms-sidebar {
+        background: var(--sidebar-bg);
+        color: #bbb;
+        min-height: 100vh;
+        width: 240px;
+        padding: 28px 16px 18px 16px;
+        position: fixed;
+        top: 0; left: 0; bottom: 0;
+        border-right: 1px solid var(--border);
+        z-index: 100;
+        display: flex;
+        flex-direction: column;
+        transition: background .3s;
+        backdrop-filter: blur(20px);
+        box-shadow: 2px 0 30px rgba(240, 185, 11, 0.1);
+    }
+    .light-mode .vbms-sidebar {
+        background: rgba(255, 255, 255, 0.98);
+        color: #333;
+        border-color: #eee;
+    }
+    .sidebar-logo h4 { color: var(--accent); font-weight: bold; letter-spacing: 1px; margin-bottom: 32px; }
+    .vbms-nav {
+        flex: 1;
+        margin-bottom: 16px;
+    }
+    .vbms-nav .sidebar-link {
+        display: flex;
+        align-items: center;
+        padding: 10px 14px;
+        color: inherit;
+        border-radius: 8px;
+        margin-bottom: 8px;
+        font-size: 1.05em;
+        transition: .18s;
+        text-decoration: none;
+        font-weight: 500;
+    }
+    .sidebar-link.active,
+    .sidebar-link:hover {
+        background: var(--accent);
+        color: #181818 !important;
+    }
+    .sidebar-link .bi { margin-right: 10px; }
+    .sidebar-logout {
+        margin-top: 20px;
+    }
+    .sidebar-heading {
+        font-size: .72rem;
+        color: #888;
+        margin: .8rem 0 .4rem .4rem;
+        text-transform: uppercase;
+        font-weight: 600;
+    }
+
+    /* Main Content */
+    .main-content {
+        margin-left: 300px;
+        padding: 30px;
+        min-height: 100vh;
+        background: none;
+        transition: margin-left 0.3s ease;
+    }
+
+    /* Enhanced Header */
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        padding: 25px 35px;
+        background: var(--glass);
+        backdrop-filter: blur(15px);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        box-shadow: var(--card-shadow);
+        transition: all 0.3s ease;
+    }
+
+    .header:hover {
+        transform: translateY(-2px);
+        box-shadow: 
+            0 15px 40px rgba(240, 185, 11, 0.2),
+            0 0 0 1px rgba(240, 185, 11, 0.1);
+    }
+
+    .header h1 {
+        color: var(--accent);
+        font-weight: 800;
+        font-size: 2rem;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        text-shadow: 0 2px 10px rgba(240, 185, 11, 0.3);
+    }
+
+    .header-controls {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .btn-theme {
+        background: var(--glass);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 12px 16px;
+        color: var(--accent);
+        font-size: 1.2rem;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(240, 185, 11, 0.1);
+    }
+
+    .btn-theme:hover {
+        background: var(--accent);
+        color: #000;
+        transform: translateY(-2px) scale(1.05);
+        box-shadow: 0 8px 25px rgba(240, 185, 11, 0.3);
+    }
+
+/* Enhanced Stats Grid */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 25px;
+        margin-bottom: 35px;
+    }
+
+    .stat-card {
+        background: var(--glass);
+        backdrop-filter: blur(15px);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: var(--card-shadow);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        cursor: pointer;
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--accent), var(--accent-light));
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .stat-card:hover::before {
+        opacity: 1;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 
+            0 20px 50px rgba(240, 185, 11, 0.25),
+            0 0 0 1px rgba(240, 185, 11, 0.1);
+    }
+
+    .stat-card.active {
+        border-color: var(--accent);
+        background: linear-gradient(135deg, var(--glass), rgba(240, 185, 11, 0.05));
+        box-shadow: 
+            0 15px 40px rgba(240, 185, 11, 0.3),
+            0 0 0 2px rgba(240, 185, 11, 0.2);
+    }
+
+    .stat-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 15px;
+    }
+
+    .stat-info {
+        flex: 1;
+    }
+
+    .stat-icon {
+        font-size: 2.5rem;
+        color: var(--accent);
+        opacity: 0.8;
+        transition: all 0.3s ease;
+    }
+
+    .stat-card:hover .stat-icon {
+        transform: scale(1.1) rotate(5deg);
+        opacity: 1;
+    }
+
+    .analytics-title {
+        font-weight: 700;
+        font-size: 1rem;
+        color: var(--accent);
+        margin-bottom: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .analytics-value {
+        font-size: 2.8rem;
+        font-weight: 800;
+        letter-spacing: 1px;
+        color: var(--text);
+        line-height: 1;
+        margin-bottom: 8px;
+    }
+
+    .analytics-desc {
+        font-size: 0.9rem;
+        color: var(--text-muted);
+        margin: 0;
+    }
+
+    .stat-card.lowstock .analytics-value {
+        color: var(--warning);
+    }
+
+    .stat-card.outofstock .analytics-value {
+        color: var(--danger);
+    }
+
+/* User/notification styles */
+.user-pill-dropdown {
+  background: var(--accent);
+  border: none;
+  border-radius: 28px;
+  color: #fff;
+  font-weight: 700;
+  padding: .3rem 1.2rem .3rem .7rem;
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  font-size: 1.08rem;
+  box-shadow: 0 1px 7px 0 var(--border);
+  cursor: pointer;
+  position: relative;
+}
+.user-pill-dropdown .avatar-img {
+  width:32px; height:32px;
+  border-radius:50%;
+  object-fit:cover;
+  margin-right:.2em;
+  border:2px solid var(--accent);
+}
+.user-pill-dropdown .dropdown-caret {
+  font-size:1.25em; margin-left:.4em;
+}
+.user-menu-dropdown {
+  position: absolute;
+  top: 110%; right: 0;
+  min-width: 180px;
+  background: var(--glass);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: var(--accent);
+  box-shadow: 0 3px 14px 0 #b59e0022;
+  display: none;
+  z-index: 30;
+}
+.user-menu-dropdown.show { display: block }
+.user-menu-dropdown a, .user-menu-dropdown button {
+  display: block;
+  width: 100%;
+  padding: 10px 16px;
+  color: var(--accent);
+  background: transparent;
+  border: none;
+  text-align: left;
+  font-weight: 600;
+  cursor: pointer;
+}
+.user-menu-dropdown a:hover, .user-menu-dropdown button:hover {
+  background: var(--accent); color: #000;
+}
+
+/* Notification bell & dropdown */
+.notification-btn {
+  background:transparent;
+  border:none;
+  color:var(--accent);
+  position:relative;
+  font-size:1.6rem;
+  margin-left:.2em;
+  margin-right:.6em;
+  cursor:pointer;
+}
+.notification-btn .badge {
+  position:absolute;top:-8px;right:-5px;
+  font-size:.75rem;
+  background:#dc3545;
+  color:#fff;
+  padding:1.5px 6px;
+  border-radius:12px;
+  font-weight:700;
+}
+.notif-dropdown {
+  position: absolute;
+  top: 120%; right: 0;
+  min-width: 260px;
+  background: var(--glass);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: var(--accent);
+  box-shadow: 0 3px 16px 0 #b59e0022;
+  display: none;
+  z-index: 30;
+  padding: 0;
+}
+.notif-dropdown.show { display:block }
+.notif-dropdown ul { list-style:none; margin:0; padding:0 }
+.notif-dropdown li {
+  padding: 11px 18px 11px 18px;
+  border-bottom: 1px solid #ffe28b44;
+  display: flex; align-items: center; gap:.85rem;
+  color: #fffde1;
+  font-size: .97em;
+}
+[data-theme="light"] .notif-dropdown li {
+  color: #222;
+}
+.notif-dropdown .notif-time {
+  font-size: .87em;
+  color: #c2a900;
+  margin-left: auto;
+}
+
+/* Dark/Light toggle */
+.darkmode-btn {
+  border: none;
+  background: transparent;
+  color: var(--accent);
+  font-size: 1.45em;
+  margin-left: 1.3em;
+  cursor: pointer;
+  outline: none;
+}
+.darkmode-btn:focus { outline: 2px solid var(--accent) }
+
+/* Enhanced Controls Section */
+    .controls-section {
+        background: var(--glass);
+        backdrop-filter: blur(15px);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 30px;
+        margin-bottom: 30px;
+        box-shadow: var(--card-shadow);
+        transition: all 0.3s ease;
+    }
+
+    .controls-section:hover {
+        transform: translateY(-3px);
+        box-shadow: 
+            0 15px 40px rgba(240, 185, 11, 0.2),
+            0 0 0 1px rgba(240, 185, 11, 0.1);
+    }
+
+    .controls-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .controls-header h3 {
+        color: var(--accent);
+        font-weight: 700;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .orders-toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .orders-toolbar input,
+    .orders-toolbar select {
+        background: var(--glass);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 12px 16px;
+        color: var(--text);
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        min-width: 150px;
+    }
+
+    .orders-toolbar input:focus,
+    .orders-toolbar select:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(240, 185, 11, 0.1);
+        transform: translateY(-1px);
+    }
+
+    .btn-secondary,
+    .btn-primary {
+        background: var(--glass);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--accent);
+        border-radius: 12px;
+        padding: 12px 20px;
+        color: var(--accent);
+        font-weight: 600;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+    }
+
+    .btn-primary {
+        background: var(--accent);
+        color: #000;
+        font-weight: 700;
+    }
+
+    .btn-secondary:hover {
+        background: var(--accent);
+        color: #000;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(240, 185, 11, 0.3);
+    }
+
+    .btn-primary:hover {
+        background: var(--accent-light);
+        transform: translateY(-2px) scale(1.02);
+        box-shadow: 0 8px 25px rgba(240, 185, 11, 0.4);
+    }
+
+    .control-actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+/* Metrics Row - Enhanced */
+    .metrics-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 25px;
+        margin-bottom: 35px;
+    }
+
+    .metric-card {
+        background: var(--glass);
+        backdrop-filter: blur(15px);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: var(--card-shadow);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        cursor: pointer;
+    }
+
+    .metric-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--accent), var(--accent-light));
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .metric-card:hover::before,
+    .metric-card.active::before {
+        opacity: 1;
+    }
+
+    .metric-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 
+            0 20px 50px rgba(240, 185, 11, 0.25),
+            0 0 0 1px rgba(240, 185, 11, 0.1);
+    }
+
+    .metric-card.active {
+        border-color: var(--accent);
+        background: linear-gradient(135deg, var(--glass), rgba(240, 185, 11, 0.05));
+        box-shadow: 
+            0 15px 40px rgba(240, 185, 11, 0.3),
+            0 0 0 2px rgba(240, 185, 11, 0.2);
+    }
+
+    .metric-title {
+        color: var(--accent);
+        font-weight: 700;
+        font-size: 1rem;
+        margin-bottom: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .metric-value {
+        font-size: 2.8rem;
+        font-weight: 800;
+        letter-spacing: 1px;
+        color: var(--text);
+        line-height: 1;
+    }
+
+/* Enhanced Charts Section */
+    .charts-section {
+        background: var(--glass);
+        backdrop-filter: blur(15px);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 30px;
+        margin-bottom: 30px;
+        box-shadow: var(--card-shadow);
+        transition: all 0.3s ease;
+    }
+
+    .charts-section:hover {
+        transform: translateY(-5px);
+        box-shadow: 
+            0 20px 50px rgba(240, 185, 11, 0.15),
+            0 0 0 1px rgba(240, 185, 11, 0.1);
+    }
+
+    .charts-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .charts-header h3 {
+        color: var(--accent);
+        font-weight: 700;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .charts-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 25px;
+    }
+
+    .chart-box {
+        background: var(--glass);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 25px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        height: 300px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .chart-box canvas {
+        max-width: 100% !important;
+        max-height: 200px !important;
+        height: auto !important;
+        flex: 1;
+        object-fit: contain;
+    }
+
+    .chart-box::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, var(--accent), var(--accent-light));
+    }
+
+    .chart-box:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(240, 185, 11, 0.2);
+    }
+
+    .chart-title {
+        color: var(--accent);
+        font-weight: 700;
+        font-size: 1.1rem;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    [data-theme="light"] .charts-section {
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.95));
+        border: 1px solid #e2e8f0;
+    }
+
+    [data-theme="light"] .chart-box {
+        background: rgba(255, 255, 255, 0.95);
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+    }
+
+/* Enhanced Table Section */
+    .table-section {
+        background: var(--glass);
+        backdrop-filter: blur(15px);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 30px;
+        margin-bottom: 30px;
+        box-shadow: var(--card-shadow);
+        transition: all 0.3s ease;
+    }
+
+    .table-section:hover {
+        transform: translateY(-3px);
+        box-shadow: 
+            0 15px 40px rgba(240, 185, 11, 0.2),
+            0 0 0 1px rgba(240, 185, 11, 0.1);
+    }
+
+    .table-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .table-header h3 {
+        color: var(--accent);
+        font-weight: 700;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .table-responsive {
+        border-radius: 16px;
+        overflow: hidden;
+        border: 1px solid var(--border);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .orders-table {
+        background: var(--glass);
+        backdrop-filter: blur(10px);
+        margin: 0;
+        border: none;
+    }
+
+    .orders-table thead th {
+        background: linear-gradient(135deg, var(--glass), rgba(240, 185, 11, 0.1));
+        color: var(--accent);
+        font-size: 1rem;
+        font-weight: 700;
+        border: none;
+        padding: 20px 16px;
+        position: relative;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .orders-table thead th::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, var(--accent), var(--accent-light));
+    }
+
+    .orders-table tbody tr {
+        transition: all 0.3s ease;
+        border: none;
+    }
+
+    .orders-table tbody tr:hover {
+        background: linear-gradient(135deg, rgba(240, 185, 11, 0.05), rgba(240, 185, 11, 0.02));
+        transform: scale(1.01);
+    }
+
+    .orders-table td {
+        vertical-align: middle;
+        font-size: 0.95rem;
+        padding: 16px;
+        border: none;
+        border-bottom: 1px solid rgba(240, 185, 11, 0.1);
+        color: var(--text);
+    }
+
+    .orders-table .btn-action {
+        background: var(--glass);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--accent);
+        border-radius: 10px;
+        padding: 8px 12px;
+        color: var(--accent);
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-right: 8px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .orders-table .btn-action:hover {
+        background: var(--accent);
+        color: #000;
+        transform: translateY(-2px) scale(1.05);
+        box-shadow: 0 5px 15px rgba(240, 185, 11, 0.3);
+    }
+
+/* Enhanced Status Badges */
+    .status-badge {
+        font-size: 0.85rem;
+        padding: 8px 16px;
+        border-radius: 25px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        display: inline-block;
+        text-transform: uppercase;
+        backdrop-filter: blur(10px);
+        border: 1px solid transparent;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .status-badge::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s ease;
+    }
+
+    .status-badge:hover::before {
+        left: 100%;
+    }
+
+    .status-Pending {
+        background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+        color: #856404;
+        border-color: #f0b90b;
+        box-shadow: 0 4px 15px rgba(255, 234, 167, 0.3);
+    }
+
+    .status-Processing {
+        background: linear-gradient(135deg, #e1f5fe, #b3e5fc);
+        color: #01579b;
+        border-color: #03a9f4;
+        box-shadow: 0 4px 15px rgba(179, 229, 252, 0.3);
+    }
+
+    .status-Ready {
+        background: linear-gradient(135deg, #f3e5f5, #e1bee7);
+        color: #4a148c;
+        border-color: #9c27b0;
+        box-shadow: 0 4px 15px rgba(225, 190, 231, 0.3);
+    }
+
+    .status-OutforDelivery {
+        background: linear-gradient(135deg, #fff8e1, #ffecb3);
+        color: #e65100;
+        border-color: #ff9800;
+        box-shadow: 0 4px 15px rgba(255, 236, 179, 0.3);
+    }
+
+    .status-Shipped {
+        background: linear-gradient(135deg, #d1ecf1, #74c0fc);
+        color: #0c5460;
+        border-color: #3b82f6;
+        box-shadow: 0 4px 15px rgba(116, 192, 252, 0.3);
+    }
+
+    .status-Delivered {
+        background: linear-gradient(135deg, #d4edda, #c3e6cb);
+        color: #155724;
+        border-color: #22c55e;
+        box-shadow: 0 4px 15px rgba(195, 230, 203, 0.3);
+    }
+
+    .status-Cancelled {
+        background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+        color: #721c24;
+        border-color: #ef4444;
+        box-shadow: 0 4px 15px rgba(245, 198, 203, 0.3);
+    }
+
+    .status-Refunded {
+        background: linear-gradient(135deg, #fce4ec, #f8bbd9);
+        color: #880e4f;
+        border-color: #e91e63;
+        box-shadow: 0 4px 15px rgba(248, 187, 217, 0.3);
+    }
+
+/* Enhanced Comments Drawer */
+    .comments-drawer {
+        position: fixed;
+        right: -420px;
+        top: 0;
+        width: 380px;
+        height: 100vh;
+        background: var(--glass);
+        backdrop-filter: blur(20px);
+        border-left: 2px solid var(--accent);
+        box-shadow: 
+            -10px 0 40px rgba(0, 0, 0, 0.3),
+            0 0 20px rgba(240, 185, 11, 0.2);
+        z-index: 1111;
+        padding: 2rem 1.5rem;
+        transition: right 0.4s cubic-bezier(0.7, 0.2, 0.21, 0.91);
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+    }
+
+    .comments-drawer.show {
+        right: 0;
+    }
+
+    .comments-title {
+        color: var(--accent);
+        font-weight: 700;
+        font-size: 1.4rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-shadow: 0 2px 10px rgba(240, 185, 11, 0.3);
+    }
+
+    .comments-list {
+        list-style: none;
+        padding: 0;
+        max-height: 50vh;
+        overflow-y: auto;
+        margin-bottom: 1.5rem;
+        scrollbar-width: thin;
+        scrollbar-color: var(--accent) transparent;
+    }
+
+    .comments-list::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .comments-list::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .comments-list::-webkit-scrollbar-thumb {
+        background: var(--accent);
+        border-radius: 3px;
+    }
+
+    .comments-list li {
+        margin-bottom: 1rem;
+        background: var(--glass);
+        backdrop-filter: blur(10px);
+        padding: 16px 20px;
+        border-radius: 16px;
+        border: 1px solid var(--border);
+        box-shadow: 0 4px 15px rgba(240, 185, 11, 0.1);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .comments-list li::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        background: var(--accent);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .comments-list li:hover::before {
+        opacity: 1;
+    }
+
+    .comments-list li:hover {
+        transform: translateX(5px);
+        box-shadow: 0 8px 25px rgba(240, 185, 11, 0.2);
+    }
+
+    .comment-user {
+        font-weight: 700;
+        color: var(--accent);
+        margin-bottom: 5px;
+    }
+
+    .comment-time {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        margin-top: 8px;
+    }
+
+    .comment-input-row {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+    }
+
+    .comment-input-row input {
+        flex: 1;
+        padding: 12px 16px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        background: var(--glass);
+        backdrop-filter: blur(10px);
+        color: var(--text);
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+    }
+
+    .comment-input-row input:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(240, 185, 11, 0.1);
+    }
+
+    .comment-add-btn {
+        background: var(--accent);
+        color: #000;
+        border: none;
+        padding: 12px 16px;
+        border-radius: 12px;
+        font-weight: 700;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .comment-add-btn:hover {
+        background: var(--accent-light);
+        transform: scale(1.05);
+        box-shadow: 0 5px 15px rgba(240, 185, 11, 0.3);
+    }
+
+/* Enhanced Activity Modal */
+    .activity-modal {
+        position: fixed;
+        top: 100px;
+        right: 40px;
+        background: var(--glass);
+        backdrop-filter: blur(20px);
+        color: var(--text);
+        border-radius: 20px;
+        box-shadow: 
+            0 10px 40px rgba(0, 0, 0, 0.3),
+            0 0 20px rgba(240, 185, 11, 0.2),
+            inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        padding: 2rem 2.5rem;
+        border: 2px solid var(--accent);
+        min-width: 320px;
+        z-index: 2000;
+        display: none;
+        animation: slideInFade 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .activity-modal.show {
+        display: block;
+    }
+
+    .activity-modal h5 {
+        color: var(--accent);
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-shadow: 0 2px 10px rgba(240, 185, 11, 0.3);
+    }
+
+    .activity-modal ul {
+        list-style: none;
+        padding: 0;
+        margin-bottom: 1.5rem;
+    }
+
+    .activity-modal li {
+        padding: 12px 0;
+        border-bottom: 1px solid rgba(240, 185, 11, 0.2);
+        color: var(--text);
+        font-size: 0.95rem;
+    }
+
+    .activity-modal li:last-child {
+        border-bottom: none;
+    }
+
+    @keyframes slideInFade {
+        from {
+            opacity: 0;
+            transform: translateY(-20px) scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+/* Enhanced Toast Container */
+    .toast-container {
+        position: fixed;
+        top: 30px;
+        right: 30px;
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .toast-vbms {
+        background: var(--glass);
+        backdrop-filter: blur(15px);
+        border: 1px solid var(--accent);
+        border-radius: 16px;
+        padding: 16px 24px;
+        color: var(--text);
+        font-size: 1rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        box-shadow: 
+            0 8px 25px rgba(240, 185, 11, 0.3),
+            0 0 0 1px rgba(240, 185, 11, 0.1);
+        animation: slideInRight 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: all 0.3s ease;
+        min-width: 280px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .toast-vbms::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, var(--accent), var(--accent-light));
+    }
+
+    .toast-vbms:hover {
+        transform: translateY(-2px) scale(1.02);
+        box-shadow: 
+            0 12px 30px rgba(240, 185, 11, 0.4),
+            0 0 0 1px rgba(240, 185, 11, 0.2);
+    }
+
+    .toast-vbms.success {
+        border-color: var(--success);
+    }
+
+    .toast-vbms.success::before {
+        background: var(--success);
+    }
+
+    .toast-vbms.error {
+        border-color: var(--danger);
+    }
+
+    .toast-vbms.error::before {
+        background: var(--danger);
+    }
+
+    .toast-vbms.warning {
+        border-color: var(--warning);
+    }
+
+    .toast-vbms.warning::before {
+        background: var(--warning);
+    }
+
+    .toast-vbms i {
+        color: var(--accent);
+        font-size: 1.2rem;
+    }
+
+    .toast-vbms.success i {
+        color: var(--success);
+    }
+
+    .toast-vbms.error i {
+        color: var(--danger);
+    }
+
+    .toast-vbms.warning i {
+        color: var(--warning);
+    }
+
+    @keyframes slideInRight {
+        from {
+            opacity: 0;
+            transform: translateX(100px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1200px) {
+        .main-content {
+            margin-left: 0;
+            padding: 20px 15px;
+        }
+
+        .vbms-sidebar {
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+            position: fixed;
+            z-index: 1000;
+            width: 280px;
+        }
+
+        .vbms-sidebar.open {
+            transform: translateX(0);
+        }
+
+        .stats-grid {
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .charts-row {
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .metrics-row {
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .main-content {
+            padding: 15px 10px;
+        }
+
+        .header {
+            flex-direction: column;
+            gap: 15px;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        .stat-card,
+        .metric-card {
+            padding: 20px;
+        }
+
+        .analytics-value {
+            font-size: 2.2rem;
+        }
+
+        .controls-section,
+        .charts-section,
+        .table-section {
+            padding: 20px;
+        }
+
+        .orders-toolbar {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 10px;
+        }
+
+        .orders-toolbar input,
+        .orders-toolbar select {
+            min-width: auto;
+        }
+
+        .comments-drawer {
+            width: 90%;
+            right: -90%;
+        }
+
+        .toast-container {
+            top: 15px;
+            right: 15px;
+            left: 15px;
+        }
+
+        .toast-vbms {
+            min-width: auto;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .main-content {
+            padding: 10px 8px;
+        }
+
+        .header {
+            padding: 15px;
+        }
+
+        .header h1 {
+            font-size: 1.3rem;
+        }
+
+        .stat-card,
+        .metric-card {
+            padding: 15px;
+        }
+
+        .analytics-value {
+            font-size: 2rem;
+        }
+
+        .controls-section,
+        .charts-section,
+        .table-section {
+            padding: 15px;
+        }
+
+        .table-responsive {
+            font-size: 0.85rem;
+        }
+
+        .orders-table td,
+        .orders-table th {
+            padding: 12px 8px;
+        }
+    }
+
+    /* Enhanced Scrollbars */
+    ::-webkit-scrollbar {
+        width: 10px;
+        background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: linear-gradient(135deg, var(--accent), var(--accent-light));
+        border-radius: 6px;
+        border: 2px solid transparent;
+        background-clip: content-box;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(135deg, var(--accent-light), var(--accent));
+        background-clip: content-box;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: rgba(240, 185, 11, 0.1);
+        border-radius: 6px;
+    }
+  </style>
+</head>
+<body>
+<!--  SIDEBAR  -->
+<div id="sidebar-container"></div>
+
+<!--  MAIN  -->
+<main class="main-content">
+  <!-- Enhanced Header -->
+  <div class="header">
+    <h1><i class="bi bi-box"></i> My Orders</h1>
+    <div class="header-controls">
+      <button class="btn-theme" onclick="toggleTheme()" title="Toggle light/dark theme">
+        <i id="themeIcon" class="bi bi-moon-fill"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Enhanced Controls Section -->
+  <div class="controls-section">
+    <div class="controls-header">
+      <h3><i class="bi bi-funnel"></i> Order Filters</h3>
+    </div>
+    <div class="orders-toolbar">
+      <input type="date" id="filterStartDate" title="Start date" placeholder="Start date"/>
+      <input type="date" id="filterEndDate" title="End date" placeholder="End date"/>
+      <select id="filterPlatform" title="Platform">
+        <option value="">All Platforms</option>
+        <option>Uber Eats</option>
+        <option>DoorDash</option>
+        <option>Grubhub</option>
+        <option>Website</option>
+        <option>Phone</option>
+        <option>Stripe</option>
+        <option>Other</option>
+      </select>
+      <select id="filterStatus" title="Status">
+        <option value="">All Status</option>
+        <option>Pending</option>
+        <option>Processing</option>
+        <option>Ready</option>
+        <option>Out for Delivery</option>
+        <option>Delivered</option>
+        <option>Cancelled</option>
+        <option>Refunded</option>
+      </select>
+      <input type="search" id="ordersSearch" placeholder="🔍 Search by order ID, customer, or items..." />
+      <select id="sortBy" title="Sort by">
+        <option value="date-desc">Newest First</option>
+        <option value="date-asc">Oldest First</option>
+        <option value="total-desc">Highest Total</option>
+        <option value="total-asc">Lowest Total</option>
+        <option value="platform">Platform</option>
+      </select>
+      <div class="control-actions">
+        <button class="btn-secondary" id="refreshBtn"><i class="bi bi-arrow-repeat"></i> Refresh</button>
+        <button class="btn-secondary" id="clearFiltersBtn"><i class="bi bi-funnel-fill"></i> Clear Filters</button>
+        <button class="btn-primary" id="exportBtn"><i class="bi bi-download"></i> Export</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- METRICS -->
+  <div class="metrics-row">
+    <div class="metric-card active" data-metric="all">
+      <div class="metric-title">Total Orders</div>
+      <div class="metric-value" id="allOrdersCard">8</div>
+    </div>
+    <div class="metric-card" data-metric="active">
+      <div class="metric-title">Active Orders</div>
+      <div class="metric-value" id="activeOrdersCard">3</div>
+    </div>
+    <div class="metric-card" data-metric="delivered">
+      <div class="metric-title">Delivered</div>
+      <div class="metric-value" id="deliveredOrdersCard">4</div>
+    </div>
+    <div class="metric-card" data-metric="cancelled">
+      <div class="metric-title">Cancelled</div>
+      <div class="metric-value" id="cancelledOrdersCard">1</div>
+    </div>
+    <div class="metric-card" data-metric="revenue">
+      <div class="metric-title">Total Revenue</div>
+      <div class="metric-value" id="revenueCard">$284.69</div>
+    </div>
+    <div class="metric-card" data-metric="stripe">
+      <div class="metric-title">Stripe Orders</div>
+      <div class="metric-value" id="stripeOrdersCard">2</div>
+    </div>
+  </div>
+
+  <!-- Enhanced Charts Section -->
+  <div class="charts-section">
+    <div class="charts-header">
+      <h3><i class="bi bi-bar-chart"></i> Order Analytics</h3>
+    </div>
+    <div class="charts-row">
+      <div class="chart-box">
+        <div class="chart-title"><i class="bi bi-graph-up"></i> Order Trend (Last 7 days)</div>
+        <canvas id="ordersTrendChart" width="400" height="200"></canvas>
+      </div>
+      <div class="chart-box">
+        <div class="chart-title"><i class="bi bi-pie-chart"></i> Orders by Platform</div>
+        <canvas id="ordersPlatformChart" width="400" height="200"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Enhanced Table Section -->
+  <div class="table-section">
+    <div class="table-header">
+      <h3><i class="bi bi-table"></i> My Orders</h3>
+    </div>
+    <div class="table-responsive">
+      <table class="table orders-table mb-0">
+        <thead>
+          <tr>
+            <th>Platform</th>
+            <th>Order #</th>
+            <th>Customer</th>
+            <th>Items</th>
+            <th>Total</th>
+            <th>Date & Time</th>
+            <th>Status</th>
+            <th>ETA</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="ordersTableBody">
+          <!-- Populated by JS -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Enhanced Comments Drawer -->
+  <div class="comments-drawer" id="commentsDrawer">
+    <div class="comments-title"><i class="bi bi-chat-dots"></i> Order Notes</div>
+    <ul class="comments-list" id="commentsList"></ul>
+    <div class="comment-input-row">
+      <input type="text" id="commentInput" placeholder="Add a note...">
+      <button class="comment-add-btn" id="addCommentBtn"><i class="bi bi-send"></i></button>
+    </div>
+    <button class="btn-secondary mt-3" onclick="closeComments()"><i class="bi bi-x-lg"></i> Close</button>
+  </div>
+
+  <!-- Enhanced Activity Modal -->
+  <div class="activity-modal" id="activityModal">
+    <h5><i class="bi bi-lightning"></i> Live Alerts</h5>
+    <ul id="alertsList">
+      <li><span class="text-warning">Order #UE34322</span> is ready for pickup</li>
+      <li><span class="text-success">Payment</span> processed successfully</li>
+    </ul>
+    <button class="btn-secondary" onclick="closeActivityModal()"><i class="bi bi-x-lg"></i> Close</button>
+  </div>
+
+  <!-- Enhanced Toast Container -->
+  <div class="toast-container" id="toastArea"></div>
+
+  <footer class="mt-5 text-center" style="color: var(--text-muted); font-size: 0.9rem; padding: 20px;">
+    &copy; 2025 VBMS. All rights reserved.
+  </footer>
+</main>
+
+<!-- SCRIPTS -->
+<script src="config.js"></script>
+<script src="navigation-enforcement.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="auth.js"></script>
+<script src="load-sidebar.js"></script>
+<script src="theme-manager.js"></script>
+<script>
+// Customer Orders - Check authentication
+console.log('Customer Orders - Checking authentication...');
+
+// Check if user is authenticated and is a customer
+if (!vbmsAuth.isAuthenticated()) {
+  console.log('Not authenticated - redirecting to login');
+  window.location.href = 'customer-login.html';
+}
+
+// Role-based access control
+const userRole = vbmsAuth.getCurrentRole();
+if (userRole !== 'customer' && userRole !== 'client') {
+  alert('Access Denied: Customer access required');
+  window.location.href = vbmsAuth.getRoleRedirectUrl();
+}
+
+console.log('Customer Orders - Access granted');
+
+// Update user name in UI
+document.querySelectorAll('.user-name').forEach(el => {
+  el.textContent = user.name;
+});
+
+// ===== ENHANCED DEMO DATA =====
+const customerOrdersData = [
+  {
+    platform: "Uber Eats",
+    orderId: "UE34322",
+    customer: "John Smith",
+    items: "3x Classic Burger, 2x Crispy Fries, 1x Coke",
+    total: "$45.90",
+    date: "2025-01-31",
+    time: "14:23",
+    status: "Out for Delivery",
+    eta: "12m",
+    paymentMethod: "Credit Card",
+    notes: [
+      {user:"Driver", text:"On my way, traffic is light", time:"2025-01-31 14:45"},
+      {user:"Restaurant", text:"Order ready for pickup", time:"2025-01-31 14:30"}
+    ]
+  },
+  {
+    platform: "DoorDash",
+    orderId: "DD18920",
+    customer: "Sarah Johnson",
+    items: "4x Buffalo Wings, 1x Ranch Dip, 1x Sprite",
+    total: "$38.00",
+    date: "2025-01-31",
+    time: "13:15",
+    status: "Ready",
+    eta: "8m",
+    paymentMethod: "DoorDash Credits",
+    notes: [
+      {user:"Restaurant", text:"Order is ready for pickup", time:"2025-01-31 13:45"}
+    ]
+  },
+  {
+    platform: "Grubhub",
+    orderId: "GH44883",
+    customer: "Mike Davis",
+    items: "2x Margherita Pizza, 1x Garlic Bread",
+    total: "$31.50",
+    date: "2025-01-30",
+    time: "19:45",
+    status: "Delivered",
+    eta: "Delivered",
+    paymentMethod: "PayPal",
+    notes: [
+      {user:"Customer", text:"Great service, thank you!", time:"2025-01-30 20:30"}
+    ]
+  },
+  {
+    platform: "Website",
+    orderId: "WEB5567",
+    customer: "Emily Chen",
+    items: "1x Quinoa Salad, 1x Green Smoothie, 1x Protein Bar",
+    total: "$28.75",
+    date: "2025-01-30",
+    time: "12:00",
+    status: "Processing",
+    eta: "45m",
+    paymentMethod: "Stripe",
+    notes: [
+      {user:"Kitchen", text:"Preparing fresh ingredients", time:"2025-01-30 12:15"}
+    ]
+  },
+  {
+    platform: "Phone",
+    orderId: "PH9988",
+    customer: "Robert Wilson",
+    items: "1x Family Meal Deal (4x Burgers, 4x Fries, 4x Drinks)",
+    total: "$52.99",
+    date: "2025-01-30",
+    time: "18:30",
+    status: "Delivered",
+    eta: "Delivered",
+    paymentMethod: "Cash on Delivery",
+    notes: [
+      {user:"Staff", text:"Customer paid exact change", time:"2025-01-30 19:15"}
+    ]
+  },
+  {
+    platform: "Stripe",
+    orderId: "STR7741",
+    customer: "Lisa Martinez",
+    items: "2x Gourmet Coffee, 2x Pastry, 1x Breakfast Sandwich",
+    total: "$19.25",
+    date: "2025-01-29",
+    time: "08:45",
+    status: "Delivered",
+    eta: "Delivered",
+    paymentMethod: "Stripe Checkout",
+    notes: [
+      {user:"Customer", text:"Perfect morning order!", time:"2025-01-29 09:30"}
+    ]
+  },
+  {
+    platform: "Uber Eats",
+    orderId: "UE77234",
+    customer: "Alex Thompson",
+    items: "1x Chicken Tikka Masala, 1x Basmati Rice, 1x Naan",
+    total: "$24.50",
+    date: "2025-01-29",
+    time: "20:15",
+    status: "Cancelled",
+    eta: "Cancelled",
+    paymentMethod: "Uber Wallet",
+    notes: [
+      {user:"Customer", text:"Had to cancel due to emergency", time:"2025-01-29 20:45"},
+      {user:"Support", text:"Refund processed", time:"2025-01-29 21:00"}
+    ]
+  },
+  {
+    platform: "DoorDash",
+    orderId: "DD55432",
+    customer: "Jennifer Brown",
+    items: "1x Sushi Combo, 1x Miso Soup, 1x Green Tea",
+    total: "$34.80",
+    date: "2025-01-28",
+    time: "17:20",
+    status: "Delivered",
+    eta: "Delivered",
+    paymentMethod: "Credit Card",
+    notes: [
+      {user:"Restaurant", text:"Fresh sushi prepared with care", time:"2025-01-28 17:45"}
+    ]
+  }
+];
+
+// Theme functions now handled by theme-manager.js
+function logout() {
+  vbmsAuth.logout();
+}
+
+// Enhanced notification and UI functions
+function toggleNotifications() {
+  // This would connect to real notifications in production
+  showToast('Notifications feature coming soon!', 'info', 'bi-bell');
+}
+
+// Theme functions now handled by theme-manager.js
+// Custom function to re-render charts when theme changes
+function renderChartsOnThemeChange() {
+  renderCharts();
+}
+
+// Listen for theme changes to re-render charts (removed duplicate listener)
+
+
+// ===== ENHANCED METRICS CARDS =====
+function updateMetricCards(filtered) {
+  const activeStatuses = ["Pending", "Processing", "Ready", "Out for Delivery"];
+  const activeOrders = filtered.filter(o => activeStatuses.includes(o.status));
+  const deliveredOrders = filtered.filter(o => o.status === "Delivered");
+  const cancelledOrders = filtered.filter(o => o.status === "Cancelled" || o.status === "Refunded");
+  const stripeOrders = filtered.filter(o => o.platform === "Stripe" || o.paymentMethod?.includes("Stripe"));
+  
+  // Calculate total revenue
+  const totalRevenue = filtered.reduce((sum, order) => {
+    const amount = parseFloat(order.total.replace('$', ''));
+    return sum + (isNaN(amount) ? 0 : amount);
+  }, 0);
+  
+  document.getElementById("allOrdersCard").innerText = filtered.length;
+  document.getElementById("activeOrdersCard").innerText = activeOrders.length;
+  document.getElementById("deliveredOrdersCard").innerText = deliveredOrders.length;
+  document.getElementById("cancelledOrdersCard").innerText = cancelledOrders.length;
+  document.getElementById("revenueCard").innerText = `$${totalRevenue.toFixed(2)}`;
+  document.getElementById("stripeOrdersCard").innerText = stripeOrders.length;
+}
+
+// ====== ENHANCED FILTERS ======
+const filterStartDate = document.getElementById("filterStartDate");
+const filterEndDate = document.getElementById("filterEndDate");
+const filterPlatform = document.getElementById("filterPlatform");
+const filterStatus = document.getElementById("filterStatus");
+const ordersSearch = document.getElementById("ordersSearch");
+const sortBy = document.getElementById("sortBy");
+
+// ==== ENHANCED TABLE RENDER ====
+let currentOrderNotes = null;
+function renderOrdersTable(){
+  let filtered = getFilteredAndSortedOrders();
+  updateMetricCards(filtered);
+  let tbody = document.getElementById("ordersTableBody");
+  tbody.innerHTML = "";
+  filtered.forEach((o,i) => {
+    const statusClass = o.status.replace(/\s+/g, '');
+    const platformIcon = getPlatformIcon(o.platform);
+    const dateTime = `${o.date} ${o.time}`;
+    
+    tbody.innerHTML += `<tr>
+      <td><i class="bi ${platformIcon}"></i> ${o.platform}</td>
+      <td><strong>${o.orderId}</strong></td>
+      <td>${o.customer}</td>
+      <td title="${o.items}">${truncateText(o.items, 30)}</td>
+      <td><strong>${o.total}</strong></td>
+      <td>${dateTime}</td>
+      <td>
+        <span class="status-badge status-${statusClass}">${o.status}</span>
+      </td>
+      <td>${o.eta}</td>
+      <td>
+        <button class="btn-action" onclick="viewNotes(${i})" title="View Notes"><i class="bi bi-chat-dots"></i></button>
+        <button class="btn-action" onclick="trackOrder('${o.orderId}')" title="Track Order"><i class="bi bi-geo-alt"></i></button>
+        <button class="btn-action" onclick="viewOrderDetails(${i})" title="Order Details"><i class="bi bi-eye"></i></button>
+      </td>
+    </tr>`;
+  });
+}
+
+function getPlatformIcon(platform) {
+  const icons = {
+    "Uber Eats": "bi-truck",
+    "DoorDash": "bi-box-seam",
+    "Grubhub": "bi-bag",
+    "Website": "bi-globe",
+    "Phone": "bi-telephone",
+    "Stripe": "bi-credit-card-2-front"
+  };
+  return icons[platform] || "bi-shop";
+}
+
+function truncateText(text, maxLength) {
+  return text.length > maxLength ? text.substring(0, maxLength) + "..." : text;
+}
+
+function trackOrder(orderId) {
+  showToast(`Tracking order ${orderId}...`, 'info', 'bi-geo-alt');
+  // In a real implementation, this would integrate with delivery tracking APIs
+}
+
+function viewOrderDetails(index) {
+  const order = getFilteredAndSortedOrders()[index];
+  const details = `
+    <strong>Order:</strong> ${order.orderId}<br>
+    <strong>Platform:</strong> ${order.platform}<br>
+    <strong>Customer:</strong> ${order.customer}<br>
+    <strong>Payment:</strong> ${order.paymentMethod}<br>
+    <strong>Items:</strong> ${order.items}<br>
+    <strong>Total:</strong> ${order.total}
+  `;
+  
+  // Create a simple modal for order details
+  const modal = document.createElement('div');
+  modal.innerHTML = `
+    <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; align-items: center; justify-content: center;">
+      <div style="background: var(--card-bg); padding: 30px; border-radius: 20px; max-width: 500px; width: 90%;">
+        <h3 style="color: var(--accent); margin-bottom: 20px;"><i class="bi bi-info-circle"></i> Order Details</h3>
+        <div style="margin-bottom: 20px;">${details}</div>
+        <button onclick="this.closest('div').parentElement.remove()" class="btn-primary">Close</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+}
+
+function getFilteredAndSortedOrders(){
+  let term = ordersSearch.value.toLowerCase();
+  let filtered = customerOrdersData.filter(o => {
+    // Date range filtering
+    let dateMatch = true;
+    if (filterStartDate.value || filterEndDate.value) {
+      const orderDate = new Date(o.date);
+      if (filterStartDate.value) {
+        const startDate = new Date(filterStartDate.value);
+        dateMatch = dateMatch && orderDate >= startDate;
+      }
+      if (filterEndDate.value) {
+        const endDate = new Date(filterEndDate.value);
+        dateMatch = dateMatch && orderDate <= endDate;
+      }
+    }
+    
+    return (
+      (!filterPlatform.value || o.platform === filterPlatform.value) &&
+      (!filterStatus.value   || o.status === filterStatus.value) &&
+      dateMatch &&
+      (
+        !term || 
+        o.orderId.toLowerCase().includes(term) ||
+        o.customer.toLowerCase().includes(term) ||
+        o.items.toLowerCase().includes(term) ||
+        o.platform.toLowerCase().includes(term) ||
+        o.status.toLowerCase().includes(term)
+      )
+    );
+  });
+  
+  // Apply sorting
+  const sortValue = sortBy.value;
+  filtered.sort((a, b) => {
+    switch(sortValue) {
+      case 'date-desc':
+        return new Date(b.date + ' ' + b.time) - new Date(a.date + ' ' + a.time);
+      case 'date-asc':
+        return new Date(a.date + ' ' + a.time) - new Date(b.date + ' ' + b.time);
+      case 'total-desc':
+        return parseFloat(b.total.replace('$', '')) - parseFloat(a.total.replace('$', ''));
+      case 'total-asc':
+        return parseFloat(a.total.replace('$', '')) - parseFloat(b.total.replace('$', ''));
+      case 'platform':
+        return a.platform.localeCompare(b.platform);
+      default:
+        return 0;
+    }
+  });
+  
+  return filtered;
+}
+
+// Add event listeners for all filter elements
+[filterStartDate, filterEndDate, filterPlatform, filterStatus, ordersSearch, sortBy].forEach(input=>{
+  input && input.addEventListener("input", ()=>{
+    renderOrdersTable();
+    renderCharts();
+  });
+});
+
+// Clear filters functionality
+document.getElementById("clearFiltersBtn").onclick = function(){
+  filterStartDate.value = "";
+  filterEndDate.value = "";
+  filterPlatform.value = "";
+  filterStatus.value = "";
+  ordersSearch.value = "";
+  sortBy.value = "date-desc";
+  renderOrdersTable();
+  renderCharts();
+  showToast("Filters cleared!", 'info', 'bi-funnel');
+};
+
+// ===== ENHANCED CHARTS =====
+let platformChart, trendChart;
+function renderCharts(){
+  if (isRenderingCharts) return; // Prevent recursive calls
+  
+  const isDarkTheme = document.documentElement.getAttribute('data-theme') === 'dark';
+  const textColor = isDarkTheme ? '#fff' : '#222';
+  const gridColor = isDarkTheme ? '#2b2b2b' : '#ddd';
+  
+  // Destroy existing charts to prevent memory leaks
+  if (platformChart) {
+    platformChart.destroy();
+    platformChart = null;
+  }
+  if (trendChart) {
+    trendChart.destroy();
+    trendChart = null;
+  }
+
+  // Donut Chart - Platform breakdown with enhanced colors
+  let filtered = getFilteredAndSortedOrders();
+  let platforms = ["Uber Eats", "DoorDash", "Grubhub", "Website", "Phone", "Stripe"];
+  let data = platforms.map(p => filtered.filter(o => o.platform === p).length);
+  
+  // Filter out platforms with 0 orders for cleaner chart
+  let filteredPlatforms = [];
+  let filteredData = [];
+  platforms.forEach((platform, index) => {
+    if (data[index] > 0) {
+      filteredPlatforms.push(platform);
+      filteredData.push(data[index]);
+    }
+  });
+
+  if(platformChart) platformChart.destroy();
+  platformChart = new Chart(document.getElementById('ordersPlatformChart').getContext('2d'), {
+    type: "doughnut",
+    data: {
+      labels: filteredPlatforms,
+      datasets: [{
+        data: filteredData,
+        backgroundColor: [
+          "#f0b90b", // Uber Eats - Golden
+          "#ff6b6b", // DoorDash - Red
+          "#4ecdc4", // Grubhub - Teal
+          "#45b7d1", // Website - Blue
+          "#96ceb4", // Phone - Green
+          "#feca57"  // Stripe - Yellow
+        ],
+        borderWidth: 3,
+        borderColor: isDarkTheme ? '#1a1a1a' : '#fff',
+        hoverOffset: 8
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: true,
+          position: 'bottom',
+          labels: {
+            color: textColor, 
+            font: { size: 11, weight: '600' },
+            padding: 15,
+            usePointStyle: true
+          }
+        },
+        tooltip: {
+          backgroundColor: isDarkTheme ? '#2a2a2a' : '#fff',
+          titleColor: textColor,
+          bodyColor: textColor,
+          borderColor: '#f0b90b',
+          borderWidth: 1,
+          callbacks: {
+            label: function(context) {
+              const total = context.dataset.data.reduce((a, b) => a + b, 0);
+              const percentage = ((context.parsed / total) * 100).toFixed(1);
+              return `${context.label}: ${context.parsed} orders (${percentage}%)`;
+            }
+          }
+        }
+      }
+    }
+  });
+
+  // Enhanced Line Chart - Last 7 days with better styling
+  let dates = [];
+  for(let i = 6; i >= 0; i--) {
+    let d = new Date(Date.now() - i * 24 * 3600 * 1000);
+    dates.push(d.toISOString().slice(0, 10));
+  }
+  let ordersPerDay = dates.map(date => 
+    filtered.filter(o => o.date === date).length
+  );
+
+  if(trendChart) trendChart.destroy();
+  trendChart = new Chart(document.getElementById('ordersTrendChart').getContext('2d'), {
+    type: "line",
+    data: {
+      labels: dates.map(d => {
+        const date = new Date(d);
+        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      }),
+      datasets: [{
+        label: "Daily Orders",
+        data: ordersPerDay,
+        borderColor: "#f0b90b",
+        backgroundColor: "rgba(240, 185, 11, 0.1)",
+        tension: 0.4,
+        pointRadius: 6,
+        pointHoverRadius: 8,
+        pointBackgroundColor: "#f0b90b",
+        pointBorderColor: "#fff",
+        pointBorderWidth: 3,
+        fill: true
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: isDarkTheme ? '#2a2a2a' : '#fff',
+          titleColor: textColor,
+          bodyColor: textColor,
+          borderColor: '#f0b90b',
+          borderWidth: 1
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: { 
+            color: textColor,
+            font: { size: 11 },
+            stepSize: 1
+          },
+          grid: { 
+            color: gridColor,
+            drawBorder: false
+          }
+        },
+        x: {
+          ticks: { 
+            color: textColor,
+            font: { size: 11 }
+          },
+          grid: { 
+            color: gridColor,
+            drawBorder: false
+          }
+        }
+      },
+      interaction: {
+        intersect: false,
+        mode: 'index'
+      }
+    }
+  });
+  
+  // Reset the rendering flag
+  setTimeout(() => {
+    isRenderingCharts = false;
+  }, 500);
+}
+
+// ===== REFRESH & EXPORT =====
+document.getElementById("refreshBtn").onclick = function(){
+  renderOrdersTable(); 
+  renderCharts();
+  showToast("Orders refreshed!", 'success', 'bi-arrow-repeat');
+};
+
+document.getElementById("exportBtn").onclick = function(){
+  let filtered = getFilteredAndSortedOrders();
+  let csv = "Platform,Order #,Customer,Items,Total,Date,Time,Status,ETA,Payment Method\n";
+  filtered.forEach(o=>{
+    // Escape commas in fields that might contain them
+    const items = `"${o.items.replace(/"/g, '""')}"`;
+    const customer = `"${o.customer.replace(/"/g, '""')}"`;
+    csv += [o.platform, o.orderId, customer, items, o.total, o.date, o.time, o.status, o.eta, o.paymentMethod].join(",") + "\n";
+  });
+  let a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = `my-orders-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  showToast("Orders exported successfully!", 'success', 'bi-download');
+};
+
+// ===== ENHANCED COMMENTS / NOTES =====
+function viewNotes(i){
+  const filtered = getFilteredAndSortedOrders();
+  const order = filtered[i];
+  
+  // Find the original order in customerOrdersData to maintain notes persistence
+  const originalIndex = customerOrdersData.findIndex(o => o.orderId === order.orderId);
+  currentOrderNotes = originalIndex;
+  
+  document.getElementById("commentsDrawer").classList.add("show");
+  renderComments();
+}
+window.viewNotes = viewNotes;
+
+function closeComments(){
+  document.getElementById("commentsDrawer").classList.remove("show");
+  currentOrderNotes = null;
+}
+
+function renderComments(){
+  let list = document.getElementById("commentsList");
+  list.innerHTML = "";
+  const orderData = customerOrdersData[currentOrderNotes];
+  if (!orderData) return;
+  
+  // Show order info at top of comments
+  list.innerHTML = `
+    <li style="background: var(--accent); color: #000; font-weight: bold; border-radius: 12px; margin-bottom: 15px;">
+      <div>Order: ${orderData.orderId}</div>
+      <div>Customer: ${orderData.customer}</div>
+      <div>Status: ${orderData.status}</div>
+    </li>
+  `;
+  
+  (orderData.notes || []).forEach(c => {
+    list.innerHTML += `<li>
+      <span class="comment-user">${c.user}</span>: 
+      ${c.text}
+      <div class="comment-time">${c.time}</div>
+    </li>`;
+  });
+}
+
+document.getElementById("addCommentBtn").onclick = function(){
+  let val = document.getElementById("commentInput").value.trim();
+  if(val && currentOrderNotes !== null){
+    customerOrdersData[currentOrderNotes].notes = customerOrdersData[currentOrderNotes].notes || [];
+    customerOrdersData[currentOrderNotes].notes.push({
+      user: "You", 
+      text: val, 
+      time: new Date().toLocaleString()
+    });
+    document.getElementById("commentInput").value = "";
+    renderComments();
+    showToast("Note added successfully!", 'success', 'bi-chat-dots');
+  }
+}
+
+// ===== ACTIVITY MODAL =====
+function closeActivityModal(){
+  document.getElementById("activityModal").classList.remove("show");
+}
+window.closeActivityModal = closeActivityModal;
+
+// ===== ENHANCED TOASTS =====
+function showToast(msg, type = 'info', icon = null) {
+  const toast = document.createElement('div');
+  toast.className = `toast-vbms ${type}`;
+  
+  const iconClass = icon || getToastIcon(type);
+  toast.innerHTML = `<i class="bi ${iconClass}"></i> <span>${msg}</span>`;
+  
+  const container = document.getElementById('toastArea');
+  container.appendChild(toast);
+  
+  // Animate in
+  setTimeout(() => toast.classList.add('show'), 100);
+  
+  // Remove after 4 seconds
+  setTimeout(() => {
+    toast.style.animation = 'slideOutRight 0.3s ease-in forwards';
+    setTimeout(() => {
+      if (toast.parentNode) {
+        container.removeChild(toast);
+      }
+    }, 300);
+  }, 4000);
+}
+
+function getToastIcon(type) {
+  const icons = {
+    'success': 'bi-check-circle-fill',
+    'error': 'bi-exclamation-triangle-fill', 
+    'warning': 'bi-exclamation-circle-fill',
+    'info': 'bi-info-circle-fill'
+  };
+  return icons[type] || 'bi-info-circle-fill';
+}
+
+// Add slideOutRight animation to CSS
+const style = document.createElement('style');
+style.textContent = `
+  @keyframes slideOutRight {
+    from {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    to {
+      opacity: 0;
+      transform: translateX(100px);
+    }
+  }
+`;
+document.head.appendChild(style);
+
+
+// ===== INITIAL RENDER =====
+document.addEventListener('DOMContentLoaded', function() {
+  // Theme preference now handled by theme-manager.js
+  renderOrdersTable();
+  renderCharts();
+});
+
+// ===== THEME ON CHARTS =====
+let isRenderingCharts = false;
+const observer = new MutationObserver(function(mutations){
+  const themeChanged = mutations.some(m => 
+    m.type === 'attributes' && m.attributeName === 'data-theme'
+  );
+  if (!isRenderingCharts && themeChanged) {
+    isRenderingCharts = true;
+    setTimeout(() => {
+      renderCharts();
+      isRenderingCharts = false;
+    }, 200);
+  }
+});
+observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+// ===== CLEANUP ON PAGE UNLOAD =====
+window.addEventListener('beforeunload', function() {
+  // Destroy charts to prevent memory leaks
+  if (platformChart) {
+    platformChart.destroy();
+    platformChart = null;
+  }
+  if (trendChart) {
+    trendChart.destroy();
+    trendChart = null;
+  }
+  
+  // Disconnect observer
+  if (observer) {
+    observer.disconnect();
+  }
+  
+  console.log('Page cleanup completed');
+});
+</script>
+<!-- Duplicate theme toggle removed - handled by theme-manager.js -->
+</script>
+<script src="load-sidebar.js"></script>
+</body>
+</html>

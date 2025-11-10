@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Login - VBMS</title>
+  <!-- Minimal inline critical styles -->
+  <style>
+    :root {
+      --primary: #f0b90b;
+      --primary-dark: #d4a109;
+      --primary-light: #ffd700;
+      --secondary: #2c3e50;
+      --success: #27ae60;
+      --danger: #e74c3c;
+      --info: #3498db;
+      --dark: #0c0c0c;
+      --darker: #181818;
+      --glass: rgba(255,255,255,0.08);
+      --glass-border: rgba(255,255,255,0.15);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #0c0c0c;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      position: relative;
+    }
+
+
+    .login-container {
+      perspective: 1000px;
+      padding: 20px;
+      z-index: 1;
+    }
+
+    .login-card {
+      background: rgba(12,12,12,0.95);
+      border: 1px solid rgba(255,255,255,0.1);
+      padding: 40px;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+      max-width: 420px;
+      width: 100%;
+      text-align: center;
+      margin: 20px;
+    }
+
+
+
+    .vbms-logo {
+      max-width: 110px;
+      margin-bottom: 25px;
+      filter: drop-shadow(0 0 20px rgba(240,185,11,0.5));
+    }
+
+    .admin-badge {
+      background: linear-gradient(135deg, #e74c3c, #c0392b);
+      color: #fff;
+      padding: 8px 20px;
+      border-radius: 25px;
+      font-size: 0.85em;
+      font-weight: 700;
+      display: inline-block;
+      margin-bottom: 25px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      box-shadow: 0 4px 15px rgba(231,76,60,0.3);
+    }
+
+    .login-card h2 {
+      color: #fff;
+      font-weight: 800;
+      margin-bottom: 10px;
+      font-size: 2.4rem;
+      background: linear-gradient(135deg, #fff, #ecf0f1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      color: #95a5a6;
+      font-size: 1.1em;
+      margin-bottom: 35px;
+      font-weight: 400;
+      line-height: 1.5;
+    }
+
+    .form-group {
+      position: relative;
+      margin-bottom: 25px;
+      text-align: left;
+    }
+
+    .form-label {
+      color: #fff !important;
+      font-weight:600;
+      font-size: 1.05em;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .form-control {
+      background: rgba(255,255,255,0.95);
+      border: 2px solid transparent;
+      border-radius: 12px;
+      color: #2c3e50;
+      font-size: 1.05em;
+      font-weight: 500;
+      padding: 15px 20px;
+      width: 100%;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .form-control:focus {
+      background: rgba(255,255,255,1);
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(240,185,11,0.2), 0 4px 20px rgba(0,0,0,0.15);
+      outline: none;
+      transform: translateY(-2px);
+    }
+
+    .password-toggle {
+      position: absolute;
+      right: 15px;
+      top: 50px;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: #666;
+      cursor: pointer;
+      font-size: 1.2em;
+      transition: color 0.3s ease;
+    }
+
+    .password-toggle:hover {
+      color: var(--primary);
+    }
+
+    .form-options {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+      font-size: 0.95em;
+    }
+
+    .form-check {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .form-check-input {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--primary);
+    }
+
+    .form-check-label {
+      color: #ecf0f1;
+      font-weight: 500;
+    }
+
+    .forgot-link {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .forgot-link:hover {
+      color: var(--primary-light);
+      text-decoration: underline;
+    }
+
+    .btn-login {
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      color: #000;
+      font-weight: 800;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.15em;
+      padding: 15px;
+      width: 100%;
+      margin-bottom: 25px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-login::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      transition: left 0.5s;
+    }
+
+    .btn-login:hover::before {
+      left: 100%;
+    }
+
+    .btn-login:hover {
+      background: linear-gradient(135deg, var(--primary-light), #ffed4a);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(240,185,11,0.4);
+    }
+
+    .btn-login:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .spinner-border-sm {
+      width: 18px;
+      height: 18px;
+    }
+
+    .error-message {
+      background: rgba(231,76,60,0.1);
+      border: 1px solid rgba(231,76,60,0.3);
+      color: #ff6b6b;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-weight: 500;
+      display: none;
+      animation: shake 0.5s ease-in-out;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+
+    .footer-links {
+      color: #7f8c8d;
+      font-size: 0.9em;
+      margin-bottom: 20px;
+    }
+
+    .footer-links a {
+      color: #3498db;
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.3s ease;
+    }
+
+    .footer-links a:hover {
+      color: #5dade2;
+    }
+
+    .signup-link {
+      margin-bottom: 25px;
+    }
+
+    .signup-link a {
+      color: #3498db;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 1.1em;
+      transition: all 0.3s ease;
+    }
+
+    .signup-link a:hover {
+      color: #5dade2;
+      text-decoration: underline;
+    }
+
+    .role-switch {
+      background: rgba(240,185,11,0.1);
+      border: 1px solid rgba(240,185,11,0.3);
+      border-radius: 12px;
+      padding: 15px;
+      transition: all 0.3s ease;
+    }
+
+    .role-switch:hover {
+      background: rgba(240,185,11,0.15);
+      border-color: rgba(240,185,11,0.4);
+    }
+
+    .role-switch a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .role-switch a:hover {
+      color: var(--primary-light);
+    }
+
+    /* Security indicators */
+    .security-indicators {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-bottom: 20px;
+      font-size: 0.85em;
+      color: #7f8c8d;
+    }
+
+    .security-indicator {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .security-indicator i {
+      color: var(--success);
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 480px) {
+      .login-card {
+        padding: 30px 25px;
+        margin: 10px;
+      }
+
+      .login-card h2 {
+        font-size: 2rem;
+      }
+
+      .vbms-logo {
+        max-width: 90px;
+      }
+
+      .form-control {
+        padding: 12px 15px;
+        font-size: 1rem;
+      }
+    }
+
+    /* Loading state */
+    .loading {
+      pointer-events: none;
+    }
+
+    .loading .login-card {
+      opacity: 0.8;
+    }
+
+    /* Success animation */
+    @keyframes success {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+
+    .success {
+      animation: success 0.6s ease-in-out;
+    }
+
+    @keyframes spin {
+      from {
+        transform: rotate(0deg);
+      }
+
+      to {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="login-card" id="loginCard">
+      <img src="https://iili.io/FRaYff9.md.png" alt="VBMS Logo" class="vbms-logo" loading="eager" width="110" height="auto" />
+      <div class="admin-badge">
+        <i class="bi bi-shield-check"></i> Admin Portal
+      </div>
+      <h2>Admin Access</h2>
+      <p class="subtitle">Secure login for administrators and staff members</p>
+
+      <div class="security-indicators">
+        <div class="security-indicator">
+          <i class="bi bi-shield-lock"></i>
+          <span>SSL Secured</span>
+        </div>
+        <div class="security-indicator">
+          <i class="bi bi-eye-slash"></i>
+          <span>Private</span>
+        </div>
+      </div>
+
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="email" class="form-label">
+            <i class="bi bi-person-badge"></i> Admin Email
+          </label>
+          <input type="email" id="email" class="form-control" placeholder="Enter your admin email" required />
+        </div>
+
+        <div class="form-group">
+          <label for="password" class="form-label">
+            <i class="bi bi-key"></i> Password
+          </label>
+          <input type="password" id="password" class="form-control" placeholder="Enter your password" required />
+          <button type="button" class="password-toggle" id="passwordToggle">
+            <i class="bi bi-eye"></i>
+          </button>
+        </div>
+
+        <div class="form-options">
+          <div class="form-check">
+            <input type="checkbox" id="rememberMe" class="form-check-input" />
+            <label for="rememberMe" class="form-check-label">Keep me signed in</label>
+          </div>
+          <a href="forgot-password.html" class="forgot-link">Forgot password?</a>
+        </div>
+
+        <div class="error-message" id="loginError"></div>
+
+        <button type="submit" class="btn-login" id="loginBtn">
+          <span id="loginText">Secure Login</span>
+          <span id="loginSpinner" style="display:none">⟳</span>
+        </button>
+      </form>
+
+      <div class="footer-links">
+        Protected by enterprise-grade security • <a href="#">Security Policy</a>
+      </div>
+
+      <div class="signup-link">
+        <a href="register.html">
+          <i class="bi bi-person-plus"></i> Need an account? Contact Admin
+        </a>
+      </div>
+
+      <div class="role-switch">
+        <a href="customer-login.html">
+          <i class="bi bi-arrow-right"></i> Switch to Customer Login
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- VBMS Configuration Override -->
+  <script src="config.js"></script>
+  
+  <script>
+    const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+      ? 'http://localhost:5050'
+      : 'https://vbms-fresh-offical-website-launch.onrender.com';
+
+    // Defer non-critical scripts
+    setTimeout(() => {
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap';
+      document.head.appendChild(link);
+    }, 100);
+
+    // Password toggle functionality
+    document.getElementById("passwordToggle").addEventListener("click", function () {
+      const passwordInput = document.getElementById("password");
+      const icon = this.querySelector('i');
+
+      if (passwordInput.type === "password") {
+        passwordInput.type = "text";
+        icon.classList.replace('bi-eye', 'bi-eye-slash');
+      } else {
+        passwordInput.type = "password";
+        icon.classList.replace('bi-eye-slash', 'bi-eye');
+      }
+    });
+
+    // Enhanced form validation
+    function validateForm(email, password) {
+      const errors = [];
+
+      if (!email) {
+        errors.push("Email is required");
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        errors.push("Please enter a valid email address");
+      }
+
+      if (!password) {
+        errors.push("Password is required");
+      } else if (password.length < 8) {
+        errors.push("Password must be at least 8 characters long");
+      }
+
+      return errors;
+    }
+
+    // Show error message with animation
+    function showError(message) {
+      const errorDiv = document.getElementById("loginError");
+      errorDiv.textContent = message;
+      errorDiv.style.display = "block";
+      setTimeout(() => {
+        errorDiv.classList.add('show');
+      }, 10);
+    }
+
+    // Hide error message
+    function hideError() {
+      const errorDiv = document.getElementById("loginError");
+      errorDiv.style.display = "none";
+      errorDiv.classList.remove('show');
+    }
+
+    // Set loading state
+    function setLoading(loading) {
+      const spinner = document.getElementById("loginSpinner");
+      const text = document.getElementById("loginText");
+      const btn = document.getElementById("loginBtn");
+
+      if (loading) {
+        spinner.style.display = "inline-block";
+        text.textContent = "Authenticating...";
+        btn.disabled = true;
+        document.body.classList.add('loading');
+      } else {
+        spinner.style.display = "none";
+        text.textContent = "Secure Login";
+        btn.disabled = false;
+        document.body.classList.remove('loading');
+      }
+    }
+
+    // Login form submission
+    document.getElementById("loginForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const email = document.getElementById("email").value.trim().toLowerCase();
+      const password = document.getElementById("password").value;
+      const remember = document.getElementById("rememberMe").checked;
+
+      hideError();
+
+      // Client-side validation
+      const validationErrors = validateForm(email, password);
+      if (validationErrors.length > 0) {
+        showError(validationErrors.join(". "));
+        return;
+      }
+
+      setLoading(true);
+
+      try {
+        // Temporary Main Admin bypass for testing
+        if (email.toLowerCase() === 'bobbyadmin@vbms.com' && password === 'YOUR_ADMIN_PASSWORD_HERE') {
+          console.log('🔧 Using temporary Main Admin authentication');
+          const data = {
+            success: true,
+            user: {
+              id: 'main_admin_1',
+              name: 'Bobby Admin',
+              email: 'BobbyAdmin@vbms.com',
+              role: 'main_admin',
+              position: 'Founder'
+            },
+            token: 'temp_main_admin_token'
+          };
+          
+          // Store auth data using the correct keys for vbmsAuth system
+          localStorage.setItem('vbmsToken', data.token);
+          localStorage.setItem('vbmsUser', JSON.stringify(data.user));
+          localStorage.setItem('vbmsRole', data.user.role);
+          localStorage.setItem('vbmsLoggedIn', 'true');
+          localStorage.setItem('vbmsLoginTime', new Date().toISOString());
+          localStorage.setItem('token', data.token);
+          
+          // Handle the response as if from API
+          handleLoginSuccess(data);
+          return;
+        }
+
+        // Handle login success for both API and bypass authentication
+        function handleLoginSuccess(data) {
+          // Role-based redirect for admin login
+          if (data.user && data.user.role) {
+            const role = data.user.role.toLowerCase();
+            console.log("🔍 DEBUG: User role received:", role);
+            console.log("🔍 DEBUG: Raw user data:", data.user);
+            console.log("🔍 DEBUG: Is main_admin?", role === "main_admin");
+
+            // Success animation
+            document.getElementById("loginCard").classList.add('success');
+
+            setTimeout(() => {
+              if (role === "main_admin") {
+                console.log("🚀 Redirecting to Main Admin Dashboard");
+                window.location.href = "admin-main-dashboard.html";
+              } else if (role === "admin") {
+                window.location.href = "dashboard.html";
+              } else if (role === "editor" || role === "staff") {
+                window.location.href = "staffdashboard.html";
+              } else if (role === "client" || role === "customer") {
+                // Redirect customers to customer login
+                showError("Please use the customer login page for your account.");
+                return;
+              } else {
+                window.location.href = "customer-dashboard.html";
+              }
+            }, 600);
+          } else {
+            throw new Error("Invalid user data received.");
+          }
+        }
+
+        const response = await fetch(`${API_BASE}/api/auth/login`, {
+          method: "POST",
+          headers: { 
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+          },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || "Authentication failed");
+        }
+
+        // Store authentication data
+        localStorage.setItem("vbmsToken", data.token);
+        localStorage.setItem("vbmsUser", JSON.stringify(data.user));
+        localStorage.setItem("vbmsRole", data.user.role);
+        localStorage.setItem("vbmsLoggedIn", "true");
+        localStorage.setItem("vbmsLoginTime", new Date().toISOString());
+        localStorage.setItem("token", data.token);
+
+        if (remember) {
+          sessionStorage.setItem("vbmsToken", data.token);
+          sessionStorage.setItem("vbmsUser", JSON.stringify(data.user));
+          sessionStorage.setItem("vbmsRole", data.user.role);
+          sessionStorage.setItem("vbmsLoggedIn", "true");
+          sessionStorage.setItem("vbmsLoginTime", new Date().toISOString());
+          localStorage.setItem("vbmsRememberMe", "true");
+        }
+
+        console.log('Login API response:', data);
+
+        // Use the unified login success handler
+        handleLoginSuccess(data);
+
+      } catch (err) {
+        console.error('Login error:', err);
+        showError(err.message || "Network error. Please check your connection and try again.");
+      } finally {
+        setLoading(false);
+      }
+    });
+
+    // Auto-focus first input
+    document.addEventListener('DOMContentLoaded', function() {
+      document.getElementById('email').focus();
+
+      // Check for remembered credentials
+      const rememberedEmail = localStorage.getItem('vbmsAdminRememberedEmail');
+      if (rememberedEmail) {
+        document.getElementById('email').value = rememberedEmail;
+        document.getElementById('rememberMe').checked = true;
+        document.getElementById('password').focus();
+      }
+    });
+
+    // Remember email on form change
+    document.getElementById('email').addEventListener('change', function() {
+      if (document.getElementById('rememberMe').checked) {
+        localStorage.setItem('vbmsAdminRememberedEmail', this.value);
+      }
+    });
+
+    document.getElementById('rememberMe').addEventListener('change', function() {
+      const email = document.getElementById('email').value;
+      if (this.checked && email) {
+        localStorage.setItem('vbmsAdminRememberedEmail', email);
+      } else {
+        localStorage.removeItem('vbmsAdminRememberedEmail');
+      }
+    });
+  </script>
+</body>
+</html>

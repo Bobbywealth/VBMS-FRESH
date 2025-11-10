@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>System Settings - VBMS Admin</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+        :root {
+            --accent: #f0b90b;
+            --accent-light: #ffd700;
+            --accent-glow: rgba(240, 185, 11, 0.4);
+            --primary-dark: #d4a109;
+            --secondary: #2c3e50;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --purple: #a855f7;
+            --cyan: #06b6d4;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --glass: rgba(255,255,255,0.95);
+            --glass-glow: rgba(240, 185, 11, 0.15);
+            --border: #e9ecef;
+            --text: #212529;
+            --text-muted: #6c757d;
+            --card-bg: #ffffff;
+            --card-shadow: 0 8px 32px rgba(240, 185, 11, 0.1);
+            --bg: linear-gradient(135deg, #f8f9fa 0%, #f0f8ff 50%, #f8f4ff 100%);
+            --sidebar-bg: rgba(255,255,255,0.98);
+            --sidebar-link: #333;
+            --sidebar-link-active: #000;
+        }
+
+        /* Dark theme */
+        [data-theme="dark"] {
+            --bg: linear-gradient(135deg, #000000 0%, #0a0a0a 25%, #1a1a1a 50%, #0f0f0f 100%);
+            --light: #ffffff;
+            --dark: #000000;
+            --text: #ffffff;
+            --text-muted: #a1a1aa;
+            --card-bg: rgba(20, 20, 20, 0.95);
+            --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.8), 0 0 20px rgba(240, 185, 11, 0.15);
+            --border: rgba(64, 64, 64, 0.4);
+            --glass: rgba(18, 18, 18, 0.95);
+            --glass-glow: rgba(240, 185, 11, 0.2);
+            --sidebar-bg: rgba(12, 12, 12, 0.98);
+            --sidebar-link: #d4d4d8;
+            --sidebar-link-active: #ffffff;
+            --accent: #f0b90b;
+            --accent-light: #ffd700;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --purple: #a855f7;
+            --cyan: #06b6d4;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+            transition: all 0.3s ease;
+            position: relative;
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(240, 185, 11, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(59, 130, 246, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.03) 0%, transparent 60%);
+            animation: enhancedGlow 25s ease-in-out infinite;
+        }
+
+        [data-theme="dark"] body::before {
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(240, 185, 11, 0.12) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.06) 0%, transparent 60%);
+        }
+
+        @keyframes enhancedGlow {
+            0%, 100% {
+                opacity: 0.6;
+                transform: rotate(0deg) scale(1);
+            }
+            33% {
+                opacity: 0.8;
+                transform: rotate(120deg) scale(1.05);
+            }
+            66% {
+                opacity: 0.7;
+                transform: rotate(240deg) scale(0.95);
+            }
+        }
+
+/* Sidebar CSS removed - now handled by admin-sidebar.html */
+
+.main-content {
+  margin-left: 320px;
+  padding: 30px;
+  min-height: 100vh;
+  background: transparent;
+  transition: all 0.3s ease;
+}
+
+/* Mobile content adjustments */
+@media (max-width: 1024px) {
+  .main-content {
+    margin-left: 280px;
+    padding: 25px;
+  }
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 0;
+    padding: 80px 15px 15px 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .main-content {
+    padding: 75px 10px 10px 10px;
+  }
+}
+
+@media (max-width: 320px) {
+  .main-content {
+    padding: 70px 8px 8px 8px;
+  }
+}
+
+/* Card styles */
+.card {
+  background: var(--glass);
+  backdrop-filter: blur(15px);
+  border: 1px solid var(--border);
+  box-shadow: var(--card-shadow);
+  border-radius: 20px;
+}
+
+.card-header {
+  background: var(--accent);
+  color: #000;
+  border-radius: 20px 20px 0 0 !important;
+  font-weight: 700;
+}
+
+.form-control, .form-select {
+  background: var(--glass);
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
+.form-control:focus, .form-select:focus {
+  background: var(--glass);
+  border-color: var(--accent);
+  color: var(--text);
+  box-shadow: 0 0 0 0.2rem rgba(240, 185, 11, 0.25);
+}
+
+.btn-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #000;
+  font-weight: 600;
+}
+
+.btn-primary:hover {
+  background: var(--accent-light);
+  border-color: var(--accent-light);
+  color: #000;
+}
+
+.form-switch .form-check-input:checked {
+  background-color: var(--accent);
+  border-color: var(--accent);
+}
+
+.alert-info {
+  background: rgba(59, 130, 246, 0.1);
+  border-color: var(--info);
+  color: var(--text);
+}
+
+.badge {
+  font-size: 0.75em;
+}
+  </style>
+</head>
+<body>
+<!-- Universal Sidebar Container -->
+<div id="sidebar-container"></div>
+
+<main class="main-content">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="bi bi-gear-wide-connected"></i> System Settings</h1>
+    <button class="btn btn-outline-warning btn-sm" onclick="toggleTheme()" title="Toggle light/dark theme">
+      <i id="themeIcon" class="bi bi-moon-fill"></i>
+    </button>
+  </div>
+
+  <div class="alert alert-info mb-4">
+    <i class="bi bi-info-circle"></i>
+    <strong>Main Admin Only:</strong> These system-wide settings affect all users and require main administrator privileges.
+  </div>
+
+  <div class="row">
+    <!-- General Settings -->
+    <div class="col-lg-6 mb-4">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0"><i class="bi bi-gear"></i> General Settings</h5>
+        </div>
+        <div class="card-body">
+          <form id="generalSettingsForm">
+            <div class="mb-3">
+              <label for="systemName" class="form-label">System Name</label>
+              <input type="text" class="form-control" id="systemName" value="VBMS - Video Business Management System">
+            </div>
+            
+            <div class="mb-3">
+              <label for="companyName" class="form-label">Company Name</label>
+              <input type="text" class="form-control" id="companyName" value="VBMS Corporation">
+            </div>
+            
+            <div class="mb-3">
+              <label for="systemEmail" class="form-label">System Email</label>
+              <input type="email" class="form-control" id="systemEmail" value="system@vbms.com">
+            </div>
+            
+            <div class="mb-3">
+              <label for="timezone" class="form-label">Default Timezone</label>
+              <select class="form-select" id="timezone">
+                <option value="UTC">UTC</option>
+                <option value="America/New_York" selected>Eastern Time</option>
+                <option value="America/Chicago">Central Time</option>
+                <option value="America/Denver">Mountain Time</option>
+                <option value="America/Los_Angeles">Pacific Time</option>
+              </select>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">
+              <i class="bi bi-check-circle"></i> Save General Settings
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Security Settings -->
+    <div class="col-lg-6 mb-4">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0"><i class="bi bi-shield-lock"></i> Security Settings</h5>
+        </div>
+        <div class="card-body">
+          <form id="securitySettingsForm">
+            <div class="mb-3">
+              <label for="passwordPolicy" class="form-label">Password Policy</label>
+              <select class="form-select" id="passwordPolicy">
+                <option value="standard" selected>Standard (8+ chars, mixed case)</option>
+                <option value="strong">Strong (12+ chars, special chars)</option>
+                <option value="enterprise">Enterprise (16+ chars, complex)</option>
+              </select>
+            </div>
+            
+            <div class="mb-3">
+              <label for="sessionTimeout" class="form-label">Session Timeout (minutes)</label>
+              <input type="number" class="form-control" id="sessionTimeout" value="60" min="15" max="480">
+            </div>
+            
+            <div class="mb-3">
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="require2FA" checked>
+                <label class="form-check-label" for="require2FA">
+                  Require Two-Factor Authentication
+                </label>
+              </div>
+            </div>
+            
+            <div class="mb-3">
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="loginNotifications" checked>
+                <label class="form-check-label" for="loginNotifications">
+                  Send Login Notifications
+                </label>
+              </div>
+            </div>
+            
+            <div class="mb-3">
+              <label for="maxLoginAttempts" class="form-label">Max Login Attempts</label>
+              <input type="number" class="form-control" id="maxLoginAttempts" value="5" min="3" max="10">
+            </div>
+            
+            <button type="submit" class="btn btn-primary">
+              <i class="bi bi-shield-check"></i> Save Security Settings
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Feature Toggles -->
+    <div class="col-lg-6 mb-4">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0"><i class="bi bi-toggles"></i> Feature Controls</h5>
+        </div>
+        <div class="card-body">
+          <form id="featureSettingsForm">
+            <div class="mb-3">
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="enableAI" checked>
+                <label class="form-check-label" for="enableAI">
+                  AI Assistant Features <span class="badge bg-success">Active</span>
+                </label>
+              </div>
+            </div>
+            
+            <div class="mb-3">
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="enableVideoMonitoring" checked>
+                <label class="form-check-label" for="enableVideoMonitoring">
+                  Video Monitoring System <span class="badge bg-success">Active</span>
+                </label>
+              </div>
+            </div>
+            
+            <div class="mb-3">
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="enableAffiliates" checked>
+                <label class="form-check-label" for="enableAffiliates">
+                  Affiliate Program <span class="badge bg-success">Active</span>
+                </label>
+              </div>
+            </div>
+            
+            <div class="mb-3">
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="enableTraining" checked>
+                <label class="form-check-label" for="enableTraining">
+                  Training Modules <span class="badge bg-success">Active</span>
+                </label>
+              </div>
+            </div>
+            
+            <div class="mb-3">
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="enableUberEats">
+                <label class="form-check-label" for="enableUberEats">
+                  Uber Eats Integration <span class="badge bg-secondary">Beta</span>
+                </label>
+              </div>
+            </div>
+            
+            <div class="mb-3">
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="enableAnalytics" checked>
+                <label class="form-check-label" for="enableAnalytics">
+                  Advanced Analytics <span class="badge bg-success">Active</span>
+                </label>
+              </div>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">
+              <i class="bi bi-toggles"></i> Save Feature Settings
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- System Status -->
+    <div class="col-lg-6 mb-4">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0"><i class="bi bi-activity"></i> System Status</h5>
+        </div>
+        <div class="card-body">
+          <div class="row text-center">
+            <div class="col-6 mb-3">
+              <div class="h4 text-success mb-1">99.9%</div>
+              <div class="text-muted">Uptime</div>
+            </div>
+            <div class="col-6 mb-3">
+              <div class="h4 text-primary mb-1">0.2s</div>
+              <div class="text-muted">Avg Response</div>
+            </div>
+            <div class="col-6 mb-3">
+              <div class="h4 text-warning mb-1">2.1GB</div>
+              <div class="text-muted">Memory Usage</div>
+            </div>
+            <div class="col-6 mb-3">
+              <div class="h4 text-info mb-1">45%</div>
+              <div class="text-muted">CPU Usage</div>
+            </div>
+          </div>
+          
+          <hr>
+          
+          <h6>Service Status:</h6>
+          <div class="mb-2">
+            <i class="bi bi-circle-fill text-success"></i> Database Connection
+          </div>
+          <div class="mb-2">
+            <i class="bi bi-circle-fill text-success"></i> Video Streaming
+          </div>
+          <div class="mb-2">
+            <i class="bi bi-circle-fill text-success"></i> AI Services
+          </div>
+          <div class="mb-2">
+            <i class="bi bi-circle-fill text-warning"></i> Email Service (Degraded)
+          </div>
+          <div class="mb-2">
+            <i class="bi bi-circle-fill text-success"></i> Payment Processing
+          </div>
+          
+          <div class="mt-3">
+            <button class="btn btn-outline-primary btn-sm" onclick="refreshSystemStatus()">
+              <i class="bi bi-arrow-clockwise"></i> Refresh Status
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Emergency Actions -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card border-danger">
+        <div class="card-header bg-danger text-white">
+          <h5 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Emergency Actions</h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-4 mb-3">
+              <button class="btn btn-outline-danger w-100" onclick="confirmAction('maintenance')">
+                <i class="bi bi-tools"></i> Enable Maintenance Mode
+              </button>
+            </div>
+            <div class="col-md-4 mb-3">
+              <button class="btn btn-outline-warning w-100" onclick="confirmAction('backup')">
+                <i class="bi bi-hdd-stack"></i> Force System Backup
+              </button>
+            </div>
+            <div class="col-md-4 mb-3">
+              <button class="btn btn-outline-info w-100" onclick="confirmAction('restart')">
+                <i class="bi bi-arrow-repeat"></i> Restart Services
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="auth.js"></script>
+<script src="load-sidebar.js"></script>
+<script src="theme-manager.js"></script>
+<script src="notifications-manager.js"></script>
+<script src="activity-tracker.js"></script>
+
+<script>
+// Authentication check - require main admin role
+let authCheckInProgress = false;
+let lastAuthCheck = 0;
+
+function checkAuthWithRetry(maxRetries = 5, delay = 150) {
+  const now = Date.now();
+  if (authCheckInProgress || (now - lastAuthCheck < 500)) {
+    console.log('Auth check already in progress or too recent, skipping...');
+    return;
+  }
+  authCheckInProgress = true;
+  lastAuthCheck = now;
+  
+  let retries = 0;
+  
+  function attemptAuth() {
+    console.log(`Auth attempt ${retries + 1}/${maxRetries}`);
+    
+    if (!vbmsAuth.isAuthenticated()) {
+      console.log('User not authenticated - redirecting to login');
+      authCheckInProgress = false;
+      window.location.href = 'login.html';
+      return;
+    }
+
+    const userRole = vbmsAuth.getCurrentRole();
+    console.log(`Current user role: "${userRole}"`);
+    
+    if ((!userRole || userRole === '' || userRole === 'null' || userRole === 'undefined') && retries < maxRetries) {
+      retries++;
+      console.log(`Role not loaded yet, retrying in ${delay}ms...`);
+      setTimeout(attemptAuth, delay);
+      return;
+    }
+    
+    if (!userRole || userRole === '' || userRole === 'null' || userRole === 'undefined') {
+      console.log('Auth check failed - no valid role found after retries');
+      authCheckInProgress = false;
+      alert('Session expired. Please log in again.');
+      window.location.href = 'login.html';
+      return;
+    }
+    
+    // This page requires MAIN ADMIN access only
+    const isMainAdmin = (userRole === 'main_admin');
+    console.log(`User role: ${userRole}, isMainAdmin: ${isMainAdmin}`);
+    
+    if (!isMainAdmin) {
+      console.log(`Access denied for role: ${userRole}`); 
+      authCheckInProgress = false;
+      alert('Access Denied: Main Admin access required for system settings');
+      window.location.href = 'dashboard.html';
+      return;
+    }
+    
+    console.log('Authentication successful - main admin confirmed');
+    authCheckInProgress = false;
+  }
+  
+  attemptAuth();
+}
+
+// Start the authentication check
+setTimeout(() => {
+  checkAuthWithRetry();
+}, 50);
+
+// Form handlers
+document.getElementById('generalSettingsForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  
+  const settings = {
+    systemName: document.getElementById('systemName').value,
+    companyName: document.getElementById('companyName').value,
+    systemEmail: document.getElementById('systemEmail').value,
+    timezone: document.getElementById('timezone').value
+  };
+  
+  // In a real application, this would make an API call
+  console.log('Saving general settings:', settings);
+  
+  // Track activity
+  if (window.activityTracker) {
+    activityTracker.trackCustomActivity('system_settings_updated', 'General system settings updated', {
+      priority: 'high',
+      module: 'System Settings'
+    });
+  }
+  
+  alert('General settings saved successfully!');
+});
+
+document.getElementById('securitySettingsForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  
+  const settings = {
+    passwordPolicy: document.getElementById('passwordPolicy').value,
+    sessionTimeout: document.getElementById('sessionTimeout').value,
+    require2FA: document.getElementById('require2FA').checked,
+    loginNotifications: document.getElementById('loginNotifications').checked,
+    maxLoginAttempts: document.getElementById('maxLoginAttempts').value
+  };
+  
+  console.log('Saving security settings:', settings);
+  
+  if (window.activityTracker) {
+    activityTracker.trackCustomActivity('security_settings_updated', 'Security settings updated', {
+      priority: 'high',
+      module: 'System Settings'
+    });
+  }
+  
+  alert('Security settings saved successfully!');
+});
+
+document.getElementById('featureSettingsForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  
+  const features = {
+    enableAI: document.getElementById('enableAI').checked,
+    enableVideoMonitoring: document.getElementById('enableVideoMonitoring').checked,
+    enableAffiliates: document.getElementById('enableAffiliates').checked,
+    enableTraining: document.getElementById('enableTraining').checked,
+    enableUberEats: document.getElementById('enableUberEats').checked,
+    enableAnalytics: document.getElementById('enableAnalytics').checked
+  };
+  
+  console.log('Saving feature settings:', features);
+  
+  if (window.activityTracker) {
+    activityTracker.trackCustomActivity('feature_settings_updated', 'Feature toggles updated', {
+      priority: 'medium',
+      module: 'System Settings'
+    });
+  }
+  
+  alert('Feature settings saved successfully!');
+});
+
+// Emergency actions
+function confirmAction(action) {
+  const actions = {
+    maintenance: 'Enable Maintenance Mode',
+    backup: 'Force System Backup',
+    restart: 'Restart Services'
+  };
+  
+  if (confirm(`Are you sure you want to ${actions[action]}? This may affect system availability.`)) {
+    console.log(`Emergency action: ${action}`);
+    
+    if (window.activityTracker) {
+      activityTracker.trackCustomActivity('emergency_action', `Emergency action: ${actions[action]}`, {
+        priority: 'critical',
+        module: 'System Settings',
+        action: action
+      });
+    }
+    
+    alert(`${actions[action]} initiated successfully!`);
+  }
+}
+
+function refreshSystemStatus() {
+  // In a real application, this would fetch fresh status data
+  alert('System status refreshed!');
+}
+
+// Theme toggle function
+function toggleTheme() {
+  if (window.vbmsThemeManager) {
+    window.vbmsThemeManager.toggleTheme();
+  }
+}
+</script>
+
+</body>
+</html>

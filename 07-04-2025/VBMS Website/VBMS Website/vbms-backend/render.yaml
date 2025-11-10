@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: vbms-backend-api
+    env: node
+    plan: starter
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        value: postgresql://vbms_official_database_user:xNSBQdx8Lg1pe6sO9r5wwFsILiFKr8bm@dpg-d4219j9r0fns738rnjb0-a.oregon-postgres.render.com/vbms_official_database
+      - key: JWT_SECRET
+        value: vbms_super_secure_jwt_secret_key_2025_production
+      - key: CORS_ORIGIN
+        value: https://vbms-fresh-offical-website-launch.onrender.com
+      - key: PORT
+        value: 10000

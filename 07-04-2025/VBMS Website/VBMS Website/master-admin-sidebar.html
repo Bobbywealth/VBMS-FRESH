@@ -1,0 +1,809 @@
+<!-- BOOTSTRAP & ICONS (required, keep in your <head> OR in sidebar.html if using fetch) -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+<style>
+    :root {
+        --accent: #f0b90b;
+        --accent-light: #ffd700;
+        --accent-glow: rgba(240, 185, 11, 0.4);
+        --primary-dark: #d4a109;
+        --secondary: #2c3e50;
+        --success: #22c55e;
+        --danger: #ef4444;
+        --warning: #f59e0b;
+        --info: #3b82f6;
+        --purple: #a855f7;
+        --cyan: #06b6d4;
+        --light: #f8f9fa;
+        --dark: #212529;
+        --glass: rgba(255,255,255,0.95);
+        --glass-glow: rgba(240, 185, 11, 0.15);
+        --border: #e9ecef;
+        --text: #212529;
+        --text-muted: #6c757d;
+        --card-bg: #ffffff;
+        --card-shadow: 0 8px 32px rgba(240, 185, 11, 0.1);
+        --bg: linear-gradient(135deg, #f8f9fa 0%, #f0f8ff 50%, #f8f4ff 100%);
+        --sidebar-bg: rgba(255,255,255,0.98);
+        --sidebar-link: #333;
+        --sidebar-link-active: #000;
+        --master-admin-glow: rgba(255, 0, 0, 0.2);
+        --master-admin-accent: #dc3545;
+    }
+
+    /* Dark theme - Modern Black/Gray with Energy */
+    [data-theme="dark"] {
+        --bg: linear-gradient(135deg, #000000 0%, #0a0a0a 25%, #1a1a1a 50%, #0f0f0f 100%);
+        --light: #ffffff;
+        --dark: #000000;
+        --text: #ffffff;
+        --text-muted: #a1a1aa;
+        --card-bg: rgba(20, 20, 20, 0.95);
+        --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.8), 0 0 20px rgba(240, 185, 11, 0.15);
+        --border: rgba(64, 64, 64, 0.4);
+        --glass: rgba(18, 18, 18, 0.95);
+        --glass-glow: rgba(240, 185, 11, 0.2);
+        --sidebar-bg: rgba(12, 12, 12, 0.98);
+        --sidebar-link: #d4d4d8;
+        --sidebar-link-active: #ffffff;
+        --accent: #f0b90b;
+        --accent-light: #ffd700;
+        --success: #22c55e;
+        --danger: #ef4444;
+        --warning: #f59e0b;
+        --info: #3b82f6;
+        --purple: #a855f7;
+        --cyan: #06b6d4;
+        --master-admin-glow: rgba(220, 53, 69, 0.3);
+        --master-admin-accent: #dc3545;
+    }
+
+    .master-admin-sidebar {
+        width: 320px;
+        background: var(--sidebar-bg);
+        backdrop-filter: blur(20px);
+        border-right: 2px solid var(--master-admin-accent);
+        padding: 20px;
+        position: fixed;
+        height: 100vh;
+        overflow-y: auto;
+        box-shadow: 
+            2px 0 30px rgba(240, 185, 11, 0.15),
+            inset 1px 0 0 rgba(255, 255, 255, 0.1),
+            0 0 50px var(--master-admin-glow);
+        z-index: 1000;
+        transition: all 0.35s ease;
+        font-family: 'Segoe UI', sans-serif;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+        top: 0;
+        left: 0;
+    }
+    
+    .master-admin-sidebar::-webkit-scrollbar { display: none; }
+    
+    /* Enhanced Master Admin Styling */
+    .master-admin-sidebar::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 5px;
+        background: linear-gradient(90deg, var(--master-admin-accent), var(--danger), var(--accent));
+        animation: masterAdminGlow 3s ease-in-out infinite;
+    }
+
+    @keyframes masterAdminGlow {
+        0%, 100% { opacity: 0.8; }
+        50% { opacity: 1; }
+    }
+    
+    /* Mobile hamburger menu button */
+    .mobile-menu-btn {
+        display: none;
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        z-index: 1001;
+        background: var(--master-admin-accent);
+        border: none;
+        border-radius: 8px;
+        padding: 10px;
+        color: white;
+        font-size: 1.5rem;
+        cursor: pointer;
+        box-shadow: 0 4px 15px var(--master-admin-glow);
+        transition: all 0.3s ease;
+    }
+    
+    .mobile-menu-btn:hover {
+        transform: scale(1.05);
+        box-shadow: 0 6px 20px var(--master-admin-glow);
+    }
+    
+    /* Mobile overlay */
+    .mobile-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    
+    .mobile-overlay.active {
+        opacity: 1;
+    }
+
+    .logo { 
+        text-align: center; 
+        margin-bottom: 20px;
+        position: relative;
+    }
+    
+    .logo img { 
+        max-width: 150px; 
+        height: auto; 
+    }
+
+    /* Master Admin Badge */
+    .master-admin-badge {
+        background: linear-gradient(135deg, var(--master-admin-accent), var(--danger));
+        color: white;
+        padding: 8px 15px;
+        border-radius: 25px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        text-align: center;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 15px var(--master-admin-glow);
+        animation: masterAdminBadgePulse 2s ease-in-out infinite;
+    }
+
+    @keyframes masterAdminBadgePulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.02); }
+    }
+
+    .sidebar-heading {
+        color: var(--accent);
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin: 20px 0 10px 0;
+        opacity: 0.8;
+        position: relative;
+    }
+
+    /* Special styling for Master Admin sections */
+    .sidebar-heading.master-admin-section {
+        color: var(--master-admin-accent);
+        font-weight: 700;
+        opacity: 1;
+    }
+
+    .sidebar-heading.master-admin-section::before {
+        content: '⚡';
+        margin-right: 5px;
+        animation: masterAdminIcon 2s ease-in-out infinite;
+    }
+
+    @keyframes masterAdminIcon {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+    }
+
+    .sidebar-link {
+        display: block;
+        padding: 12px 15px;
+        color: var(--text);
+        text-decoration: none;
+        border-radius: 8px;
+        margin-bottom: 5px;
+        transition: all 0.3s ease;
+        border-left: 3px solid transparent;
+        position: relative;
+        overflow: hidden;
+        font-size: 0.95rem;
+        white-space: nowrap;
+    }
+
+    .sidebar-link::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(240, 185, 11, 0.2), transparent);
+        transition: left 0.5s ease;
+    }
+
+    .sidebar-link:hover, .sidebar-link.active {
+        background: var(--glass-glow);
+        color: var(--accent);
+        border-left-color: var(--accent);
+        transform: translateX(8px);
+        box-shadow: 0 4px 15px rgba(240, 185, 11, 0.3);
+        font-weight: 600;
+    }
+
+    .sidebar-link:hover::before { left: 100%; }
+    .sidebar-link i { margin-right: 10px; width: 20px; }
+
+    /* Special Master Admin Link Styling */
+    .sidebar-link.master-admin-link {
+        border-left: 3px solid var(--master-admin-accent);
+        background: linear-gradient(90deg, var(--master-admin-glow), transparent);
+    }
+
+    .sidebar-link.master-admin-link:hover {
+        background: var(--master-admin-glow);
+        color: var(--master-admin-accent);
+        border-left-color: var(--master-admin-accent);
+        box-shadow: 0 4px 15px var(--master-admin-glow);
+        font-weight: 700;
+    }
+
+    .sidebar-link.master-admin-link i {
+        color: var(--master-admin-accent);
+    }
+    
+    /* Dark theme sidebar enhancements */
+    [data-theme="dark"] .sidebar-link:hover,
+    [data-theme="dark"] .sidebar-link.active {
+        background: linear-gradient(90deg, rgba(240, 185, 11, 0.15), rgba(255, 215, 0, 0.1));
+        color: var(--accent-light) !important;
+        border-left-color: var(--accent);
+        box-shadow: 
+            0 4px 15px rgba(240, 185, 11, 0.3),
+            inset 0 1px 0 rgba(240, 185, 11, 0.2),
+            0 0 20px rgba(240, 185, 11, 0.1);
+        text-shadow: 0 0 8px rgba(240, 185, 11, 0.4);
+    }
+
+    [data-theme="dark"] .sidebar-link.master-admin-link:hover {
+        background: var(--master-admin-glow);
+        color: var(--master-admin-accent) !important;
+        text-shadow: 0 0 8px var(--master-admin-glow);
+        box-shadow: 
+            0 4px 15px var(--master-admin-glow),
+            inset 0 1px 0 rgba(220, 53, 69, 0.2),
+            0 0 20px var(--master-admin-glow);
+    }
+
+    /* System Status Indicator */
+    .system-status {
+        background: var(--glass);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 15px;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+    .system-status h6 {
+        color: var(--text-muted);
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 8px;
+    }
+
+    .status-indicator {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        font-weight: 600;
+    }
+
+    .status-indicator.online {
+        color: var(--success);
+    }
+
+    .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--success);
+        animation: statusPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes statusPulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
+
+    /* Quick Actions */
+    .quick-actions {
+        background: var(--glass);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+
+    .quick-actions h6 {
+        color: var(--text-muted);
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 12px;
+    }
+
+    .quick-action-btn {
+        display: block;
+        width: 100%;
+        background: var(--glass-glow);
+        border: 1px solid var(--accent);
+        border-radius: 8px;
+        padding: 8px 12px;
+        color: var(--accent);
+        text-decoration: none;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-align: center;
+        margin-bottom: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .quick-action-btn:hover {
+        background: var(--accent);
+        color: #000;
+        text-decoration: none;
+        transform: translateY(-1px);
+    }
+
+    .quick-action-btn.emergency {
+        border-color: var(--danger);
+        color: var(--danger);
+    }
+
+    .quick-action-btn.emergency:hover {
+        background: var(--danger);
+        color: white;
+    }
+
+    .btn-logout {
+        width: 100%;
+        margin-top: 30px;
+        background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+        border: none;
+        padding: 12px;
+        border-radius: 8px;
+        color: white;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-logout:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+    }
+
+    /* Mobile Responsive Styles */
+    @media (max-width: 1024px) {
+        .master-admin-sidebar {
+            width: 280px;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .mobile-menu-btn {
+            display: block;
+        }
+        
+        .mobile-overlay {
+            display: block;
+        }
+        
+        .master-admin-sidebar {
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+            width: 90%;
+            max-width: 320px;
+            border-radius: 0 15px 15px 0;
+        }
+        
+        .master-admin-sidebar.active {
+            transform: translateX(0);
+        }
+        
+        .logo img {
+            max-width: 120px;
+        }
+        
+        .sidebar-heading {
+            font-size: 0.75rem;
+            margin: 15px 0 8px 0;
+        }
+        
+        .sidebar-link {
+            padding: 14px 15px;
+            font-size: 0.9rem;
+        }
+        
+        .sidebar-link i {
+            margin-right: 12px;
+            width: 22px;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .master-admin-sidebar {
+            width: 85%;
+            padding: 15px;
+        }
+        
+        .logo {
+            margin-bottom: 20px;
+        }
+        
+        .logo img {
+            max-width: 100px;
+        }
+        
+        .sidebar-link {
+            padding: 12px 12px;
+            margin-bottom: 3px;
+        }
+        
+        .btn-logout {
+            margin-top: 20px;
+            padding: 10px;
+        }
+    }
+    
+    @media (max-width: 320px) {
+        .master-admin-sidebar {
+            width: 95%;
+            padding: 12px;
+        }
+        
+        .sidebar-link {
+            padding: 10px;
+            font-size: 0.85rem;
+        }
+    }
+
+    /* Navigation in progress styling */
+    .sidebar-link.navigating {
+        opacity: 0.6 !important;
+        pointer-events: none !important;
+        position: relative;
+    }
+
+    .sidebar-link.navigating::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        right: 10px;
+        width: 16px;
+        height: 16px;
+        border: 2px solid var(--accent);
+        border-top: 2px solid transparent;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+        transform: translateY(-50%);
+    }
+
+    @keyframes spin {
+        0% { transform: translateY(-50%) rotate(0deg); }
+        100% { transform: translateY(-50%) rotate(360deg); }
+    }
+</style>
+
+<!-- Mobile Menu Button -->
+<button class="mobile-menu-btn" id="mobileMenuBtn" onclick="toggleMobileMenu()">
+    <i class="bi bi-list"></i>
+</button>
+
+<!-- Mobile Overlay -->
+<div class="mobile-overlay" id="mobileOverlay" onclick="closeMobileMenu()"></div>
+
+<nav class="master-admin-sidebar" id="sidebar">
+    <div class="logo">
+        <img src="https://iili.io/F7bM6Jt.md.png" alt="VBMS">
+    </div>
+    
+    <!-- Master Admin Badge -->
+    <div class="master-admin-badge">
+        <i class="bi bi-crown-fill"></i> MASTER ADMIN
+    </div>
+
+    <!-- System Status -->
+    <div class="system-status">
+        <h6>System Status</h6>
+        <div class="status-indicator online">
+            <div class="status-dot"></div>
+            <span>All Systems Online</span>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+        <h6>Quick Actions</h6>
+        <a href="admin-create-admin.html" class="quick-action-btn">
+            <i class="bi bi-person-plus"></i> Create Admin
+        </a>
+        <a href="master-admin-analytics.html" class="quick-action-btn">
+            <i class="bi bi-graph-up-arrow"></i> View Analytics
+        </a>
+        <a href="#" class="quick-action-btn emergency" onclick="systemMaintenance()">
+            <i class="bi bi-tools"></i> System Maintenance
+        </a>
+    </div>
+    
+    <!-- MASTER ADMIN CONTROLS -->
+    <p class="sidebar-heading master-admin-section">MASTER ADMIN CONTROLS</p>
+    <a class="sidebar-link master-admin-link" href="admin-main-dashboard.html"><i class="bi bi-crown"></i> Master Dashboard</a>
+    <a class="sidebar-link master-admin-link" href="admin-create-admin.html"><i class="bi bi-person-plus"></i> Create Admin</a>
+    <a class="sidebar-link master-admin-link" href="master-admin-settings.html"><i class="bi bi-gear-wide-connected"></i> System Settings</a>
+    <a class="sidebar-link master-admin-link" href="admin-pricing.html"><i class="bi bi-tags"></i> Pricing Plans</a>
+
+    <!-- FOUNDER TOOLS -->
+    <p class="sidebar-heading master-admin-section">FOUNDER TOOLS</p>
+    <a class="sidebar-link master-admin-link" href="master-admin-analytics.html"><i class="bi bi-graph-up-arrow"></i> Advanced Analytics</a>
+    <a class="sidebar-link master-admin-link" href="admin-ai-agent.html"><i class="bi bi-robot"></i> AI Code Agent</a>
+    <a class="sidebar-link master-admin-link" href="master-admin-settings.html"><i class="bi bi-shield-check"></i> System Health</a>
+    <a class="sidebar-link master-admin-link" href="master-admin-customers.html"><i class="bi bi-people-fill"></i> User Management</a>
+    <a class="sidebar-link master-admin-link" href="master-admin-reports.html"><i class="bi bi-journal-text"></i> Audit Logs</a>
+
+    <!-- CORE -->
+    <p class="sidebar-heading">CORE</p>
+    <a class="sidebar-link" href="dashboard.html"><i class="bi bi-speedometer2"></i> Admin Dashboard</a>
+    <a class="sidebar-link" href="master-admin-reports.html"><i class="bi bi-bar-chart-line"></i> Enhanced Reports</a>
+
+    <!-- CUSTOMER MANAGEMENT -->
+    <p class="sidebar-heading">CUSTOMER MANAGEMENT</p>
+    <a class="sidebar-link" href="master-admin-customers.html"><i class="bi bi-people"></i> All Customers</a>
+    <a class="sidebar-link" href="admin-customer-analytics.html"><i class="bi bi-graph-up"></i> Customer Analytics</a>
+
+    <!-- SALES & MARKETING -->
+    <p class="sidebar-heading">SALES &amp; MARKETING</p>
+    <a class="sidebar-link" href="admin-affiliates.html"><i class="bi bi-share"></i> Affiliate Program</a>
+    <a class="sidebar-link" href="leads.html"><i class="bi bi-person-lines-fill"></i> Leads</a>
+    <a class="sidebar-link" href="admin-ai-phone.html"><i class="bi bi-telephone-plus"></i> AI Phone (Leads)</a>
+
+    <!-- OPERATIONS -->
+    <p class="sidebar-heading">OPERATIONS</p>
+    <a class="sidebar-link" href="admin-orders.html"><i class="bi bi-box"></i> Order Management</a>
+    <a class="sidebar-link" href="inventory.html"><i class="bi bi-stack"></i> Inventory</a>
+    <a class="sidebar-link" href="monitoring.html"><i class="bi bi-camera-video"></i> System Monitoring</a>
+    <a class="sidebar-link" href="admin-calendar.html"><i class="bi bi-calendar3"></i> Calendar Management</a>
+
+    <!-- PEOPLE & STAFF -->
+    <p class="sidebar-heading">PEOPLE & STAFF</p>
+    <a class="sidebar-link" href="team.html"><i class="bi bi-people"></i> Team Management</a>
+    <a class="sidebar-link" href="admin-training.html"><i class="bi bi-mortarboard"></i> Training Center</a>
+
+    <!-- COMMUNICATION -->
+    <p class="sidebar-heading">COMMUNICATION</p>
+    <a class="sidebar-link" href="admin-email-manager.html"><i class="bi bi-envelope-fill"></i> Email Management</a>
+            <a class="sidebar-link" href="admin-messaging.html"><i class="bi bi-chat-dots"></i> Messaging</a>
+    <a class="sidebar-link" href="admin-taskboard.html"><i class="bi bi-kanban"></i> Task Board</a>
+
+    <!-- FINANCIAL -->
+    <p class="sidebar-heading">FINANCIAL</p>
+    <a class="sidebar-link" href="billing.html"><i class="bi bi-credit-card-2-front"></i> Billing & Payments</a>
+
+    <!-- SYSTEM -->
+    <p class="sidebar-heading">SYSTEM</p>
+    <a class="sidebar-link" href="settings.html"><i class="bi bi-gear"></i> System Settings</a>
+    <a class="sidebar-link" href="help.html"><i class="bi bi-question-circle"></i> Help & Support</a>
+    <a class="sidebar-link" href="support.html"><i class="bi bi-headset"></i> Contact Support</a>
+
+    <button class="btn btn-logout" onclick="logout()"><i class="bi bi-box-arrow-left"></i> Logout</button>
+</nav>
+
+<script src="auth.js"></script>
+<script>
+// Mobile Menu Functions
+function toggleMobileMenu() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('mobileOverlay');
+    const menuBtn = document.getElementById('mobileMenuBtn');
+    const icon = menuBtn.querySelector('i');
+    
+    sidebar.classList.toggle('active');
+    overlay.classList.toggle('active');
+    
+    // Toggle icon
+    if (sidebar.classList.contains('active')) {
+        icon.classList.remove('bi-list');
+        icon.classList.add('bi-x');
+    } else {
+        icon.classList.remove('bi-x');
+        icon.classList.add('bi-list');
+    }
+}
+
+function closeMobileMenu() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('mobileOverlay');
+    const menuBtn = document.getElementById('mobileMenuBtn');
+    const icon = menuBtn.querySelector('i');
+    
+    sidebar.classList.remove('active');
+    overlay.classList.remove('active');
+    icon.classList.remove('bi-x');
+    icon.classList.add('bi-list');
+}
+
+// System Maintenance Function
+function systemMaintenance() {
+    console.log('🔧 System Maintenance button clicked');
+    if (confirm('This will put the system into maintenance mode. All customer access will be temporarily disabled. Continue?')) {
+        if (window.activityTracker) {
+            activityTracker.trackCustomActivity('system_maintenance_activated', 'Main Admin activated system maintenance mode', {
+                priority: 'critical',
+                module: 'System Administration'
+            });
+        }
+        
+        // Show maintenance activation progress
+        const maintenanceBtn = document.querySelector('.emergency');
+        if (maintenanceBtn) {
+            const originalText = maintenanceBtn.innerHTML;
+            maintenanceBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Activating...';
+            maintenanceBtn.style.pointerEvents = 'none';
+            
+            setTimeout(() => {
+                alert('🚨 SYSTEM MAINTENANCE MODE ACTIVATED\n\n✅ Customer access disabled\n✅ Admin access preserved\n✅ Maintenance page displayed\n\nNote: In production, this would:\n- Show maintenance page to customers\n- Send notifications to admins\n- Log the maintenance window');
+                maintenanceBtn.innerHTML = '<i class="bi bi-check-circle"></i> Maintenance Active';
+                maintenanceBtn.classList.remove('emergency');
+                maintenanceBtn.classList.add('success');
+                
+                // Reset after 3 seconds
+                setTimeout(() => {
+                    maintenanceBtn.innerHTML = originalText;
+                    maintenanceBtn.classList.remove('success');
+                    maintenanceBtn.classList.add('emergency');
+                    maintenanceBtn.style.pointerEvents = 'auto';
+                }, 3000);
+            }, 1500);
+        }
+    }
+}
+
+// Make sure the function is globally available
+window.systemMaintenance = systemMaintenance;
+
+// Close mobile menu when clicking on links and prevent double-clicks
+document.addEventListener('DOMContentLoaded', function() {
+    let navigationInProgress = false;
+    let lastClickTime = 0;
+    const sidebarLinks = document.querySelectorAll('.sidebar-link');
+    
+    sidebarLinks.forEach(link => {
+        // Remove any existing onclick handlers to prevent conflicts
+        link.removeAttribute('onclick');
+        
+        link.addEventListener('click', function(e) {
+            const currentTime = Date.now();
+            const timeSinceLastClick = currentTime - lastClickTime;
+            
+            // Prevent double-clicks within 300ms (standard double-click threshold)
+            if (timeSinceLastClick < 300) {
+                console.log('Double-click detected, preventing navigation');
+                e.preventDefault();
+                e.stopPropagation();
+                return false;
+            }
+            
+            // Prevent rapid navigation
+            if (navigationInProgress) {
+                console.log('Navigation already in progress, preventing duplicate navigation');
+                e.preventDefault();
+                e.stopPropagation();
+                return false;
+            }
+            
+            // Update last click time
+            lastClickTime = currentTime;
+            
+            // Set flag to prevent rapid clicks
+            navigationInProgress = true;
+            
+            // Add visual feedback with CSS class
+            this.classList.add('navigating');
+            
+            // Reset flag and visual state after navigation completes or times out
+            setTimeout(() => {
+                navigationInProgress = false;
+                this.classList.remove('navigating');
+            }, 1500); // 1.5 second cooldown to ensure auth checks complete
+            
+            // Close mobile menu on smaller screens
+            if (window.innerWidth <= 768) {
+                closeMobileMenu();
+            }
+        });
+        
+        // Also prevent double-click events from triggering at all
+        link.addEventListener('dblclick', function(e) {
+            console.log('Double-click event blocked on master admin navigation');
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
+        });
+    });
+});
+
+// Set active sidebar link based on current page
+document.addEventListener('DOMContentLoaded', function() {
+    setActiveSidebarLink();
+    
+    // Verify Master Admin access
+    if (window.vbmsAuth && vbmsAuth.isAuthenticated()) {
+        if (!vbmsAuth.isMainAdmin()) {
+            console.log('⚠️ Non-master admin attempting to access master admin sidebar');
+            alert('Access Denied: Master Admin access required');
+            
+            const userRole = vbmsAuth.getCurrentRole();
+            if (userRole === 'admin') {
+                window.location.href = 'dashboard.html';
+            } else if (userRole === 'customer' || userRole === 'client') {
+                window.location.href = 'customer-dashboard.html';
+            } else {
+                window.location.href = 'login.html';
+            }
+            return;
+        }
+        
+        console.log('✅ Master Admin sidebar loaded successfully');
+    }
+});
+
+function setActiveSidebarLink() {
+    // Get current page filename
+    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+    
+    // Remove active class from all sidebar links
+    const allLinks = document.querySelectorAll('.sidebar-link');
+    allLinks.forEach(link => {
+        link.classList.remove('active');
+    });
+    
+    // Find and activate the current page link
+    const currentLink = document.querySelector(`.sidebar-link[href="${currentPage}"]`);
+    if (currentLink) {
+        currentLink.classList.add('active');
+    } else {
+        // Fallback: if no exact match, try to match main dashboard for master admin pages
+        const mainDashboardLink = document.querySelector('.sidebar-link[href="admin-main-dashboard.html"]');
+        if (mainDashboardLink && (currentPage.includes('admin-main') || currentPage === 'admin-main-dashboard.html')) {
+            mainDashboardLink.classList.add('active');
+        }
+    }
+}
+
+// Update system status periodically
+setInterval(() => {
+    // In a real app, this would check actual system status
+    const statusIndicator = document.querySelector('.status-indicator');
+    const statusDot = document.querySelector('.status-dot');
+    
+    // Simulate occasional status changes for demonstration
+    const isOnline = Math.random() > 0.1; // 90% uptime simulation
+    
+    if (isOnline) {
+        statusIndicator.className = 'status-indicator online';
+        statusIndicator.innerHTML = '<div class="status-dot"></div><span>All Systems Online</span>';
+        statusDot.style.background = 'var(--success)';
+    } else {
+        statusIndicator.className = 'status-indicator offline';
+        statusIndicator.innerHTML = '<div class="status-dot" style="background: var(--warning)"></div><span>Minor Issues Detected</span>';
+    }
+}, 30000); // Check every 30 seconds
+</script>

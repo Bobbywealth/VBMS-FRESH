@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Enhanced Reports - Master Admin - VBMS</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+        :root {
+            --accent: #f0b90b;
+            --accent-light: #ffd700;
+            --accent-glow: rgba(240, 185, 11, 0.4);
+            --primary-dark: #d4a109;
+            --secondary: #2c3e50;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --purple: #a855f7;
+            --cyan: #06b6d4;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --glass: rgba(255,255,255,0.95);
+            --glass-glow: rgba(240, 185, 11, 0.15);
+            --border: #e9ecef;
+            --text: #212529;
+            --text-muted: #6c757d;
+            --card-bg: #ffffff;
+            --card-shadow: 0 8px 32px rgba(240, 185, 11, 0.1);
+            --bg: linear-gradient(135deg, #f8f9fa 0%, #f0f8ff 50%, #f8f4ff 100%);
+            --sidebar-bg: rgba(255,255,255,0.98);
+            --sidebar-link: #333;
+            --sidebar-link-active: #000;
+            --master-admin-glow: rgba(255, 0, 0, 0.2);
+            --master-admin-accent: #dc3545;
+        }
+
+        /* Dark theme - Modern Black/Gray with Energy */
+        [data-theme="dark"] {
+            --bg: linear-gradient(135deg, #000000 0%, #0a0a0a 25%, #1a1a1a 50%, #0f0f0f 100%);
+            --light: #ffffff;
+            --dark: #000000;
+            --text: #ffffff;
+            --text-muted: #a1a1aa;
+            --card-bg: rgba(20, 20, 20, 0.95);
+            --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.8), 0 0 20px rgba(240, 185, 11, 0.15);
+            --border: rgba(64, 64, 64, 0.4);
+            --glass: rgba(18, 18, 18, 0.95);
+            --glass-glow: rgba(240, 185, 11, 0.2);
+            --sidebar-bg: rgba(12, 12, 12, 0.98);
+            --sidebar-link: #d4d4d8;
+            --sidebar-link-active: #ffffff;
+            --accent: #f0b90b;
+            --accent-light: #ffd700;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --purple: #a855f7;
+            --cyan: #06b6d4;
+            --master-admin-glow: rgba(220, 53, 69, 0.3);
+            --master-admin-accent: #dc3545;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+            transition: all 0.3s ease;
+            position: relative;
+            min-height: 100vh;
+        }
+
+        /* Enhanced Background Animation */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(240, 185, 11, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(59, 130, 246, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.03) 0%, transparent 60%);
+            animation: enhancedGlow 25s ease-in-out infinite;
+        }
+
+        [data-theme="dark"] body::before {
+            background: 
+                radial-gradient(circle at 15% 25%, rgba(240, 185, 11, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 85% 75%, rgba(128, 128, 128, 0.06) 0%, transparent 60%),
+                radial-gradient(circle at 50% 50%, rgba(64, 64, 64, 0.05) 0%, transparent 70%);
+            animation: darkThemeGlow 25s ease-in-out infinite;
+        }
+
+        @keyframes enhancedGlow {
+            0%, 100% { opacity: 0.6; transform: rotate(0deg) scale(1); }
+            33% { opacity: 0.8; transform: rotate(120deg) scale(1.05); }
+            66% { opacity: 0.7; transform: rotate(240deg) scale(0.95); }
+        }
+
+        @keyframes darkThemeGlow {
+            0%, 100% { opacity: 0.8; transform: rotate(0deg) scale(1); }
+            25% { opacity: 1; transform: rotate(90deg) scale(1.1); }
+            50% { opacity: 0.9; transform: rotate(180deg) scale(1.05); }
+            75% { opacity: 1; transform: rotate(270deg) scale(1.08); }
+        }
+
+        .main-content {
+            margin-left: 320px;
+            padding: 30px;
+            min-height: 100vh;
+            background: transparent;
+            transition: all 0.3s ease;
+        }
+
+        /* Mobile content adjustments */
+        @media (max-width: 1024px) {
+            .main-content { margin-left: 280px; padding: 25px; }
+        }
+
+        @media (max-width: 768px) {
+            .main-content { margin-left: 0; padding: 80px 15px 15px 15px; }
+        }
+
+        /* Header Styling */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 30px;
+            padding: 20px 0;
+        }
+
+        .header-left h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text);
+            margin: 0 0 10px 0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .header-left h1 i {
+            color: var(--master-admin-accent);
+            font-size: 2rem;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        /* Theme Toggle */
+        .btn-outline-warning {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px;
+            color: var(--accent);
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-warning:hover {
+            background: var(--glass-glow);
+            border-color: var(--accent);
+            color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        /* Master Admin Badge */
+        .master-admin-badge {
+            background: linear-gradient(135deg, var(--master-admin-accent), var(--danger));
+            color: white;
+            padding: 8px 15px;
+            border-radius: 25px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 15px var(--master-admin-glow);
+        }
+
+        /* Enhanced Report Cards */
+        .report-card {
+            background: var(--glass);
+            backdrop-filter: blur(15px);
+            padding: 25px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            box-shadow: var(--card-shadow);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 25px;
+        }
+
+        .report-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent), var(--accent-light));
+            opacity: 0.8;
+        }
+
+        .report-card.master-admin-card::before {
+            background: linear-gradient(90deg, var(--master-admin-accent), var(--danger));
+        }
+
+        .report-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(240, 185, 11, 0.2);
+            border-color: var(--accent);
+        }
+
+        .report-card.master-admin-card:hover {
+            box-shadow: 0 15px 40px var(--master-admin-glow);
+            border-color: var(--master-admin-accent);
+        }
+
+        .report-card h3 {
+            color: var(--accent);
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .report-card.master-admin-card h3 {
+            color: var(--master-admin-accent);
+        }
+
+        /* Report Grid */
+        .reports-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        /* Filter Section */
+        .filter-section {
+            background: var(--glass);
+            backdrop-filter: blur(15px);
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid var(--border);
+            margin-bottom: 25px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-section select,
+        .filter-section input {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: var(--text);
+            min-width: 150px;
+        }
+
+        .filter-section select:focus,
+        .filter-section input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(240, 185, 11, 0.1);
+        }
+
+        /* Enhanced Charts */
+        .chart-container {
+            background: var(--glass);
+            border-radius: 15px;
+            padding: 20px;
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border);
+            position: relative;
+        }
+
+        .chart-placeholder {
+            color: var(--text-muted);
+            text-align: center;
+        }
+
+        /* Advanced Metrics */
+        .metric-card {
+            background: var(--glass);
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid var(--accent);
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .metric-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 20px rgba(240, 185, 11, 0.2);
+        }
+
+        .metric-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 5px;
+        }
+
+        .metric-label {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .metric-trend {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        .trend-up { color: var(--success); }
+        .trend-down { color: var(--danger); }
+        .trend-stable { color: var(--info); }
+
+        /* Export Options */
+        .export-section {
+            background: var(--glass);
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid var(--border);
+            margin-bottom: 25px;
+        }
+
+        .export-btn {
+            background: var(--accent);
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            margin-right: 10px;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .export-btn:hover {
+            background: var(--accent-light);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(240, 185, 11, 0.3);
+        }
+
+        .export-btn.master-admin {
+            background: var(--master-admin-accent);
+            color: white;
+        }
+
+        .export-btn.master-admin:hover {
+            background: var(--danger);
+            box-shadow: 0 4px 15px var(--master-admin-glow);
+        }
+
+        /* Data Table */
+        .data-table {
+            background: var(--glass);
+            border-radius: 15px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            margin-bottom: 25px;
+        }
+
+        .data-table table {
+            margin: 0;
+            width: 100%;
+        }
+
+        .data-table th {
+            background: var(--accent);
+            color: #000;
+            font-weight: 700;
+            padding: 15px;
+            border: none;
+        }
+
+        .data-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text);
+        }
+
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .data-table tr:hover {
+            background: var(--glass-glow);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .reports-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .filter-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .filter-section select,
+            .filter-section input {
+                min-width: auto;
+            }
+            
+            .header-left h1 {
+                font-size: 2rem;
+            }
+        }
+
+        /* Dark theme enhancements */
+        [data-theme="dark"] .report-card,
+        [data-theme="dark"] .filter-section,
+        [data-theme="dark"] .export-section,
+        [data-theme="dark"] .data-table {
+            border: 1px solid rgba(64, 64, 64, 0.4);
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.8),
+                0 0 20px rgba(240, 185, 11, 0.1);
+        }
+
+        [data-theme="dark"] .report-card:hover {
+            box-shadow: 
+                0 12px 40px rgba(0, 0, 0, 0.9),
+                0 0 30px rgba(240, 185, 11, 0.2);
+        }
+  </style>
+</head>
+<body>
+<!-- Master Admin Sidebar Container -->
+<div id="master-admin-sidebar-container"></div>
+
+<!-- MAIN -->
+<main class="main-content">
+  <!-- Header -->
+  <div class="header">
+    <div class="header-left">
+      <div class="master-admin-badge">
+        <i class="bi bi-crown-fill"></i> MASTER ADMIN REPORTS
+      </div>
+      <h1><i class="bi bi-graph-up-arrow"></i> Enhanced Reports & Analytics</h1>
+    </div>
+    <div class="header-right">
+      <button class="btn btn-outline-warning btn-sm" onclick="toggleTheme()" title="Toggle light/dark theme">
+        <i id="themeIcon" class="bi bi-moon-fill"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Advanced Filters -->
+  <div class="filter-section">
+    <select id="reportType">
+      <option value="all">All Reports</option>
+      <option value="revenue">Revenue Reports</option>
+      <option value="customers">Customer Reports</option>
+      <option value="system">System Reports</option>
+      <option value="admin">Admin Activity</option>
+    </select>
+    <select id="timeRange">
+      <option value="7d">Last 7 Days</option>
+      <option value="30d">Last 30 Days</option>
+      <option value="90d">Last 90 Days</option>
+      <option value="1y">Last Year</option>
+      <option value="custom">Custom Range</option>
+    </select>
+    <input type="date" id="startDate" style="display: none;">
+    <input type="date" id="endDate" style="display: none;">
+    <button class="export-btn master-admin" onclick="generateAdvancedReport()">
+      <i class="bi bi-graph-up"></i> Generate Advanced Report
+    </button>
+  </div>
+
+  <!-- Export Options -->
+  <div class="export-section">
+    <h5><i class="bi bi-download"></i> Export Options</h5>
+    <button class="export-btn" onclick="exportPDF()">
+      <i class="bi bi-file-pdf"></i> Export PDF
+    </button>
+    <button class="export-btn" onclick="exportExcel()">
+      <i class="bi bi-file-excel"></i> Export Excel
+    </button>
+    <button class="export-btn" onclick="exportCSV()">
+      <i class="bi bi-file-csv"></i> Export CSV
+    </button>
+    <button class="export-btn master-admin" onclick="exportFullSystemReport()">
+      <i class="bi bi-shield-lock"></i> Full System Export (Master Admin)
+    </button>
+  </div>
+
+  <!-- Reports Grid -->
+  <div class="reports-grid">
+    <!-- Revenue Analytics -->
+    <div class="report-card master-admin-card">
+      <h3><i class="bi bi-cash-stack"></i> Advanced Revenue Analytics</h3>
+      <div class="metric-card">
+        <div class="metric-value">$127,450</div>
+        <div class="metric-label">Total Revenue (30 days)</div>
+        <div class="metric-trend trend-up">
+          <i class="bi bi-arrow-up"></i>
+          <span>+24.8% vs last month</span>
+        </div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value">$4,248</div>
+        <div class="metric-label">Average Daily Revenue</div>
+        <div class="metric-trend trend-up">
+          <i class="bi bi-arrow-up"></i>
+          <span>+18.2% vs average</span>
+        </div>
+      </div>
+      <div class="chart-container">
+        <div class="chart-placeholder">
+          <i class="bi bi-bar-chart-line" style="font-size: 3rem; color: var(--accent);"></i>
+          <p>Advanced Revenue Chart</p>
+          <small>Real-time revenue tracking with predictive analytics</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Customer Analytics -->
+    <div class="report-card">
+      <h3><i class="bi bi-people"></i> Customer Analytics</h3>
+      <div class="metric-card">
+        <div class="metric-value">2,847</div>
+        <div class="metric-label">Total Customers</div>
+        <div class="metric-trend trend-up">
+          <i class="bi bi-arrow-up"></i>
+          <span>+156 new this month</span>
+        </div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value">78.5%</div>
+        <div class="metric-label">Customer Retention Rate</div>
+        <div class="metric-trend trend-up">
+          <i class="bi bi-arrow-up"></i>
+          <span>+3.2% improvement</span>
+        </div>
+      </div>
+      <div class="chart-container">
+        <div class="chart-placeholder">
+          <i class="bi bi-graph-up" style="font-size: 3rem; color: var(--info);"></i>
+          <p>Customer Growth Chart</p>
+          <small>Customer acquisition and retention trends</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- System Performance -->
+    <div class="report-card master-admin-card">
+      <h3><i class="bi bi-cpu"></i> System Performance (Master Admin)</h3>
+      <div class="metric-card">
+        <div class="metric-value">99.97%</div>
+        <div class="metric-label">System Uptime</div>
+        <div class="metric-trend trend-stable">
+          <i class="bi bi-dash"></i>
+          <span>Excellent performance</span>
+        </div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value">1.2ms</div>
+        <div class="metric-label">Average Response Time</div>
+        <div class="metric-trend trend-up">
+          <i class="bi bi-arrow-up"></i>
+          <span>15% faster than target</span>
+        </div>
+      </div>
+      <div class="chart-container">
+        <div class="chart-placeholder">
+          <i class="bi bi-speedometer2" style="font-size: 3rem; color: var(--success);"></i>
+          <p>Performance Metrics</p>
+          <small>Real-time system monitoring and alerts</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Admin Activity -->
+    <div class="report-card master-admin-card">
+      <h3><i class="bi bi-shield-check"></i> Admin Activity Monitoring</h3>
+      <div class="metric-card">
+        <div class="metric-value">12</div>
+        <div class="metric-label">Active Admins</div>
+        <div class="metric-trend trend-stable">
+          <i class="bi bi-dash"></i>
+          <span>No change</span>
+        </div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value">347</div>
+        <div class="metric-label">Admin Actions (24h)</div>
+        <div class="metric-trend trend-up">
+          <i class="bi bi-arrow-up"></i>
+          <span>+12% activity</span>
+        </div>
+      </div>
+      <div class="chart-container">
+        <div class="chart-placeholder">
+          <i class="bi bi-activity" style="font-size: 3rem; color: var(--warning);"></i>
+          <p>Admin Activity Timeline</p>
+          <small>Comprehensive admin action tracking</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detailed Data Table -->
+  <div class="report-card">
+    <h3><i class="bi bi-table"></i> Recent Transactions</h3>
+    <div class="data-table">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th>Transaction ID</th>
+            <th>Customer</th>
+            <th>Amount</th>
+            <th>Status</th>
+            <th>Date</th>
+            <th>Admin</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>TXN-2024-001</code></td>
+            <td>John Smith</td>
+            <td>$1,299.00</td>
+            <td><span class="badge bg-success">Completed</span></td>
+            <td>2024-08-03 14:30</td>
+            <td>System Admin</td>
+          </tr>
+          <tr>
+            <td><code>TXN-2024-002</code></td>
+            <td>Sarah Johnson</td>
+            <td>$850.00</td>
+            <td><span class="badge bg-warning">Pending</span></td>
+            <td>2024-08-03 13:45</td>
+            <td>Billing Admin</td>
+          </tr>
+          <tr>
+            <td><code>TXN-2024-003</code></td>
+            <td>Mike Davis</td>
+            <td>$2,150.00</td>
+            <td><span class="badge bg-success">Completed</span></td>
+            <td>2024-08-03 12:20</td>
+            <td>Main Founder</td>
+          </tr>
+          <tr>
+            <td><code>TXN-2024-004</code></td>
+            <td>Emily Wilson</td>
+            <td>$675.00</td>
+            <td><span class="badge bg-danger">Failed</span></td>
+            <td>2024-08-03 11:15</td>
+            <td>Customer Manager</td>
+          </tr>
+          <tr>
+            <td><code>TXN-2024-005</code></td>
+            <td>Robert Brown</td>
+            <td>$3,200.00</td>
+            <td><span class="badge bg-success">Completed</span></td>
+            <td>2024-08-03 10:30</td>
+            <td>Technical Admin</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="auth.js"></script>
+<script src="theme-manager.js"></script>
+<script src="notifications-manager.js"></script>
+<script src="activity-tracker.js"></script>
+
+<!-- Master Admin Sidebar Loader -->
+<script>
+// Load Master Admin Sidebar
+document.addEventListener('DOMContentLoaded', function() {
+    if (window.vbmsAuth && vbmsAuth.isAuthenticated() && vbmsAuth.isMainAdmin()) {
+        fetch('master-admin-sidebar.html')
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('master-admin-sidebar-container').innerHTML = html;
+                console.log('✅ Master Admin sidebar loaded successfully');
+            })
+            .catch(error => {
+                console.error('❌ Error loading master admin sidebar:', error);
+                window.location.href = 'dashboard.html';
+            });
+    } else {
+        console.log('⚠️ Master Admin access required');
+        alert('Access Denied: Master Admin access required');
+        window.location.href = 'dashboard.html';
+    }
+});
+</script>
+
+<script>
+// Authentication check - Master Admin Only
+function checkAuthWithRetry(maxRetries = 3, delay = 100) {
+  let retries = 0;
+  
+  function attemptAuth() {
+    console.log('🔍 Master Admin Reports Auth Check');
+    
+    if (!vbmsAuth.isAuthenticated()) {
+      console.log('❌ Auth failed - redirecting to login');
+      window.location.href = 'login.html';
+      return;
+    }
+
+    const userRole = vbmsAuth.getCurrentRole();
+    
+    if ((!userRole || userRole === '') && retries < maxRetries) {
+      retries++;
+      setTimeout(attemptAuth, delay);
+      return;
+    }
+    
+    if (!userRole || userRole === '') {
+      console.log('Auth check failed - no role found after retries');
+      window.location.href = 'login.html';
+      return;
+    }
+    
+    if (!vbmsAuth.isMainAdmin()) {
+      console.log('Master admin access check failed for user role:', userRole);
+      alert('Access Denied: Master Admin access required for enhanced reports');
+      
+      setTimeout(() => {
+        const verifiedRole = vbmsAuth.getCurrentRole();
+        if (verifiedRole === 'admin' && !vbmsAuth.isMainAdmin()) {
+          window.location.href = 'reports.html';
+        } else if ((verifiedRole === 'customer' || verifiedRole === 'client') && !vbmsAuth.isMainAdmin()) {
+          window.location.href = 'customer-dashboard.html';
+        } else {
+          window.location.href = 'login.html';
+        }
+      }, 150);
+      return;
+    }
+    
+    initializeMasterAdminReports();
+  }
+  
+  attemptAuth();
+}
+
+function initializeMasterAdminReports() {
+  // Initialize date filters
+  initializeFilters();
+  
+  // Load report data
+  loadReportData();
+  
+  // Track page access
+  if (window.activityTracker) {
+    activityTracker.trackPageView('Master Admin Reports');
+  }
+}
+
+function initializeFilters() {
+  const timeRange = document.getElementById('timeRange');
+  const startDate = document.getElementById('startDate');
+  const endDate = document.getElementById('endDate');
+  
+  timeRange.addEventListener('change', function() {
+    if (this.value === 'custom') {
+      startDate.style.display = 'block';
+      endDate.style.display = 'block';
+    } else {
+      startDate.style.display = 'none';
+      endDate.style.display = 'none';
+    }
+  });
+}
+
+function loadReportData() {
+  // Simulate loading enhanced report data
+  console.log('📊 Loading master admin report data...');
+  
+  // In a real app, this would fetch data from APIs with advanced permissions
+  setTimeout(() => {
+    console.log('✅ Master admin report data loaded');
+  }, 1000);
+}
+
+function generateAdvancedReport() {
+  if (window.activityTracker) {
+    activityTracker.trackCustomActivity('advanced_report_generation', 'Master Admin generated advanced report', {
+      priority: 'high',
+      module: 'Reports'
+    });
+  }
+  
+  alert('Advanced report generation initiated. This would compile comprehensive system data with master admin privileges.');
+}
+
+function exportPDF() {
+  alert('Exporting enhanced report as PDF...');
+}
+
+function exportExcel() {
+  alert('Exporting enhanced report as Excel...');
+}
+
+function exportCSV() {
+  alert('Exporting enhanced report as CSV...');
+}
+
+function exportFullSystemReport() {
+  if (window.activityTracker) {
+    activityTracker.trackCustomActivity('full_system_export', 'Master Admin exported full system report', {
+      priority: 'critical',
+      module: 'Reports'
+    });
+  }
+  
+  if (confirm('Export full system report? This includes sensitive data and requires master admin authorization.')) {
+    alert('Full system export initiated. This would include all system data, admin activities, and sensitive information.');
+  }
+}
+
+// Start authentication check
+checkAuthWithRetry();
+</script>
+
+</body>
+</html>

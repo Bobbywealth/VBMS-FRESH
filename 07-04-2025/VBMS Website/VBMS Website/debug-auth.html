@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authentication Debug - VBMS</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .debug-panel {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 10px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .debug-title {
+            color: #f0b90b;
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        .debug-item {
+            margin: 5px 0;
+            padding: 5px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+        .status-good { color: #22c55e; }
+        .status-bad { color: #ef4444; }
+        .status-warning { color: #f59e0b; }
+        button {
+            background: #f0b90b;
+            color: black;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #d4a109;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 VBMS Authentication Debugger</h1>
+    
+    <div class="debug-panel">
+        <div class="debug-title">📊 Current Authentication Status</div>
+        <div id="authStatus"></div>
+        <button onclick="refreshStatus()">🔄 Refresh Status</button>
+        <button onclick="clearStorage()">🧹 Clear Storage</button>
+        <button onclick="testTaskBoard()">🎯 Test Task Board</button>
+    </div>
+
+    <div class="debug-panel">
+        <div class="debug-title">🗄️ Storage Contents</div>
+        <div id="storageContents"></div>
+    </div>
+
+    <div class="debug-panel">
+        <div class="debug-title">⚙️ Actions</div>
+        <button onclick="simulateMainAdmin()">👑 Simulate Main Admin</button>
+        <button onclick="simulateAdmin()">🛡️ Simulate Admin</button>
+        <button onclick="simulateCustomer()">👤 Simulate Customer</button>
+    </div>
+
+    <script src="auth.js"></script>
+    <script>
+        function refreshStatus() {
+            const authStatusDiv = document.getElementById('authStatus');
+            const storageDiv = document.getElementById('storageContents');
+            
+            // Check auth status
+            let statusHtml = '';
+            
+            if (typeof vbmsAuth !== 'undefined') {
+                statusHtml += '<div class="debug-item status-good">✅ vbmsAuth loaded successfully</div>';
+                statusHtml += `<div class="debug-item">🔐 isAuthenticated(): ${vbmsAuth.isAuthenticated()}</div>`;
+                statusHtml += `<div class="debug-item">👤 getCurrentRole(): "${vbmsAuth.getCurrentRole()}"</div>`;
+                statusHtml += `<div class="debug-item">🛡️ isAdmin(): ${vbmsAuth.isAdmin()}</div>`;
+                statusHtml += `<div class="debug-item">👑 isMainAdmin(): ${vbmsAuth.isMainAdmin()}</div>`;
+            } else {
+                statusHtml += '<div class="debug-item status-bad">❌ vbmsAuth not loaded</div>';
+            }
+            
+            authStatusDiv.innerHTML = statusHtml;
+            
+            // Show storage contents
+            let storageHtml = '<h4>localStorage:</h4>';
+            ['vbmsLoggedIn', 'vbmsRole', 'vbmsToken', 'vbmsUser'].forEach(key => {
+                const value = localStorage.getItem(key);
+                const status = value ? 'status-good' : 'status-bad';
+                storageHtml += `<div class="debug-item ${status}">${key}: ${value || 'null'}</div>`;
+            });
+            
+            storageHtml += '<h4>sessionStorage:</h4>';
+            ['vbmsLoggedIn', 'vbmsRole', 'vbmsToken', 'vbmsUser'].forEach(key => {
+                const value = sessionStorage.getItem(key);
+                const status = value ? 'status-good' : 'status-bad';
+                storageHtml += `<div class="debug-item ${status}">${key}: ${value || 'null'}</div>`;
+            });
+            
+            storageDiv.innerHTML = storageHtml;
+        }
+        
+        function clearStorage() {
+            if (confirm('This will log you out. Continue?')) {
+                localStorage.clear();
+                sessionStorage.clear();
+                refreshStatus();
+                alert('Storage cleared. You are now logged out.');
+            }
+        }
+        
+        function simulateMainAdmin() {
+            localStorage.setItem('vbmsLoggedIn', 'true');
+            localStorage.setItem('vbmsRole', 'main_admin');
+            localStorage.setItem('vbmsToken', 'debug_token_123');
+            localStorage.setItem('vbmsUser', JSON.stringify({
+                id: 'debug_user',
+                email: 'debug@test.com',
+                role: 'main_admin',
+                name: 'Debug Main Admin'
+            }));
+            
+            sessionStorage.setItem('vbmsLoggedIn', 'true');
+            sessionStorage.setItem('vbmsRole', 'main_admin');
+            sessionStorage.setItem('vbmsToken', 'debug_token_123');
+            
+            refreshStatus();
+            alert('Simulated main_admin role. Try accessing task board now.');
+        }
+        
+        function simulateAdmin() {
+            localStorage.setItem('vbmsLoggedIn', 'true');
+            localStorage.setItem('vbmsRole', 'admin');
+            localStorage.setItem('vbmsToken', 'debug_token_123');
+            localStorage.setItem('vbmsUser', JSON.stringify({
+                id: 'debug_user',
+                email: 'debug@test.com',
+                role: 'admin',
+                name: 'Debug Admin'
+            }));
+            
+            sessionStorage.setItem('vbmsLoggedIn', 'true');
+            sessionStorage.setItem('vbmsRole', 'admin');
+            sessionStorage.setItem('vbmsToken', 'debug_token_123');
+            
+            refreshStatus();
+            alert('Simulated admin role. Try accessing task board now.');
+        }
+        
+        function simulateCustomer() {
+            localStorage.setItem('vbmsLoggedIn', 'true');
+            localStorage.setItem('vbmsRole', 'customer');
+            localStorage.setItem('vbmsToken', 'debug_token_123');
+            localStorage.setItem('vbmsUser', JSON.stringify({
+                id: 'debug_user',
+                email: 'debug@test.com',
+                role: 'customer',
+                name: 'Debug Customer'
+            }));
+            
+            sessionStorage.setItem('vbmsLoggedIn', 'true');
+            sessionStorage.setItem('vbmsRole', 'customer');
+            sessionStorage.setItem('vbmsToken', 'debug_token_123');
+            
+            refreshStatus();
+            alert('Simulated customer role. This should redirect to customer dashboard.');
+        }
+        
+        function testTaskBoard() {
+            window.open('task-board.html', '_blank');
+        }
+        
+        // Auto-refresh on load
+        document.addEventListener('DOMContentLoaded', refreshStatus);
+        
+        // Auto-refresh every 2 seconds
+        setInterval(refreshStatus, 2000);
+    </script>
+</body>
+</html>

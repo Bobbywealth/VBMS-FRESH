@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>VBMS — Affiliates & Payouts</title>
+  <meta name="description" content="Track, manage, and maximize your affiliate commissions and payouts with VBMS. Detailed reporting, easy export, and mobile-first dashboard.">
+
+  <!-- Bootstrap & Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet"/>
+
+  <!-- Chart.js (if you plan to add charts here later) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    /* === Global background gradient and base font === */
+    body {
+      background: linear-gradient(135deg, #f6f9fc 0%, #eef4fb 100%);
+      color: #232323;
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      min-height: 100vh;
+    }
+    * { box-sizing: border-box; }
+    header {
+      height: 80px;
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+    }
+    header .brand { display: flex; align-items: center; }
+    header .brand img { height: 40px; margin-right: .75rem; }
+    header .brand h5 { margin: 0; color: #007bff; }
+    header .metrics {
+      display: flex;
+      gap: 2rem;
+      align-items: baseline;
+    }
+    header .metrics .stat {
+      text-align: center;
+    }
+    header .metrics .stat h3 { margin: 0; color: #007bff; }
+    header .metrics .stat small { color: #bbb; }
+
+    .container-fluid { padding: 0; }
+    .row.no-gutters { margin: 0; }
+
+    /* === Sidebar restyle (light) === */
+    .sidebar {
+      background: #fff;
+      height: 100vh;
+      padding: 2rem 1rem 1rem 1.25rem;
+      border-right: 1px solid #e7e7e7;
+      box-shadow: 2px 0 14px #eef4fb44;
+    }
+    .sidebar .nav-link {
+      color: #444;
+      background: none;
+      border-radius: 8px;
+      margin-bottom: .6rem;
+      font-weight: 500;
+      transition: background .2s, color .2s;
+    }
+    .sidebar .nav-link.active, .sidebar .nav-link:hover {
+      background: #eef4fb;
+      color: #007bff;
+    }
+    .sidebar .mt-auto .btn {
+      background: #eef4fb;
+      color: #007bff;
+      border: none;
+      font-weight: 600;
+    }
+    .sidebar .mt-auto .btn:hover {
+      background: #f6f9fc;
+    }
+
+    /* === Card restyle === */
+    .card-light {
+      background: #fff;
+      border: none;
+      border-radius: 14px;
+      box-shadow: 0 2px 24px 0 #eef4fb88;
+      max-width: 900px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .card-light .card-header {
+      background: none;
+      border-bottom: none;
+      color: #007bff;
+      font-weight: 700;
+      font-size: 1.08em;
+    }
+    /* Off-canvas sidebar for mobile */
+    @media (max-width: 991px) {
+      .sidebar {
+        position: fixed;
+        left: 0; top: 80px;
+        width: 240px;
+        height: calc(100vh - 80px);
+        z-index: 1001;
+        background: #111;
+        transform: translateX(-100%);
+        transition: transform 0.33s cubic-bezier(.77,0,.18,1);
+        display: block !important;
+      }
+      .sidebar.open {
+        transform: translateX(0);
+      }
+      .sidebar-backdrop {
+        display: none;
+        position: fixed; inset: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 1000;
+      }
+      .sidebar.open + .sidebar-backdrop {
+        display: block;
+      }
+    }
+    @media (max-width: 991px) {
+      .row.mb-4 > div {
+        margin-bottom: 1.3rem !important;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .table th:nth-child(6), .table td:nth-child(6) { display: none; }
+      .content { padding: 1em 0.4em; }
+      header .metrics { flex-wrap: wrap; gap: 1rem; }
+    }
+    /* === Table restyle === */
+    .card-light .table th, .card-light .table td {
+      border-color: #eef4fb;
+      color: #444;
+    }
+    .card-light .table th {
+      color: #007bff;
+      background: #f6f9fc;
+    }
+
+    /* Tabs */
+    .nav-tabs .nav-link {
+      color: #bbb;
+      border: 1px solid var(--border);
+      margin-right: .25rem;
+      border-bottom: none;
+    }
+    .nav-tabs .nav-link.active {
+      background: var(--bg-card);
+      color: var(--accent-light);
+      font-weight: 500;
+      border-color: var(--border);
+      border-bottom: 1px solid var(--bg-card);
+    }
+
+    /* .content {
+      height: calc(100vh - 80px);
+      overflow-y: auto;
+      padding: 1.5rem 2rem;
+    } */
+    .row.g-0 {
+      display: flex;
+      min-height: 100vh;
+      align-items: flex-start !important;
+    }
+    .main-content {
+      background: none;
+      box-shadow: none;
+      padding: 0 0 1.5rem 0;
+    }
+
+    @media (min-width: 768px) {
+      .main-content {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+      }
+    }
+
+    .table-responsive {
+      -webkit-overflow-scrolling: touch;
+      position: relative;
+    }
+    .table-responsive::after {
+      content: "↔";
+      position: absolute;
+      right: 0.4rem; top: 0.1rem;
+      color: #aaa;
+      font-size: 1.2em;
+      opacity: 0.7;
+      pointer-events: none;
+      display: none;
+    }
+    @media (max-width: 600px) {
+      .table-responsive::after {
+        display: block;
+      }
+    }
+
+    .btn:focus, .btn:active {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+    .btn-clipboard.copied:after {
+      content: "Copied!";
+      position: absolute;
+      left: 110%;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--accent);
+      background: #fff;
+      border-radius: 4px;
+      padding: 2px 7px;
+      font-size: 0.95em;
+      box-shadow: 0 2px 6px #0001;
+    }
+    .btn-clipboard { position: relative; }
+
+    /* === Main content area restyle === */
+    .main-content {
+      background: none;
+      box-shadow: none;
+      padding: 0 0 1.5rem 0;
+    }
+    .main-content img.rounded-circle {
+      border: 3px solid #007bff;
+      box-shadow: 0 2px 8px #007bff33;
+      width: 94px;
+      height: 94px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header -->
+  <header>
+    <div class="brand">
+      <img src="https://iili.io/FRaYff9.png" alt="VBMS">
+      <h5>VBMS Affiliates</h5>
+    </div>
+    <button id="toggleSidebar" class="btn btn-outline-light d-md-none ms-2" style="font-size:1.8rem;">
+      <i class="bi bi-list"></i>
+    </button>
+    <div class="metrics">
+      <div class="stat">
+        <h3>$5,689.66</h3>
+        <small>35.94% of Total Revenue</small>
+      </div>
+      <div class="stat">
+        <h6 class="text-muted">Affiliates</h6>
+        <p>23</p>
+      </div>
+      <div class="stat">
+        <h6 class="text-muted">Visitors</h6>
+        <p>30,456</p>
+      </div>
+      <div class="stat">
+        <h6 class="text-muted">Customers</h6>
+        <p>3,998</p>
+      </div>
+      <div class="stat">
+        <h6 class="text-muted">Conversion Rate</h6>
+        <p>9.86%</p>
+      </div>
+    </div>
+    <button id="themeToggle" class="btn btn-outline-light ms-2" title="Toggle Light/Dark Mode">
+      <i class="bi bi-brightness-high"></i>
+    </button>
+  </header>
+
+  <div class="container-fluid">
+    <div class="row g-0">
+      <!-- Sidebar -->
+      <nav class="col-12 col-md-2 d-none d-md-block sidebar" role="navigation">
+        <a href="dashboard.html"      class="nav-link" aria-label="Dashboard"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a>
+        <a href="orders.html"         class="nav-link" aria-label="Orders"><i class="bi bi-box-seam me-2"></i>Orders</a>
+        <a href="monitoring.html"     class="nav-link" aria-label="Monitoring"><i class="bi bi-camera-video me-2"></i>Monitoring</a>
+        <a href="reports.html"        class="nav-link" aria-label="Reports"><i class="bi bi-bar-chart-line me-2"></i>Reports</a>
+        <a href="team.html"           class="nav-link" aria-label="Team"><i class="bi bi-people me-2"></i>Team</a>
+        <a href="clients.html"        class="nav-link" aria-label="Clients"><i class="bi bi-person-badge me-2"></i>Clients</a>
+        <a href="affiliates.html"     class="nav-link active" aria-label="Affiliates"><i class="bi bi-wallet2 me-2"></i>Affiliates</a>
+        <div class="mt-auto text-center">
+          <button class="btn btn-sm btn-warning w-100" onclick="logout()">
+            <i class="bi bi-box-arrow-left me-1"></i>Logout
+          </button>
+        </div>
+      </nav>
+      <div id="sidebarBackdrop" class="sidebar-backdrop"></div>
+      <!-- Main Content -->
+      <main role="main" class="main-content col-12 col-md-10 py-4">
+        <!-- Stats cards row -->
+        <div class="row g-3 mb-4">
+          <div class="col-6 col-md-3">
+            <div class="card card-light text-center py-3 px-1">
+              <div style="font-size:1.6em; font-weight:600;">0</div>
+              <div style="font-size:.93em; color:#888;">Products sold</div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="card card-light text-center py-3 px-1">
+              <div style="font-size:1.6em; font-weight:600;">0.00 €</div>
+              <div style="font-size:.93em; color:#888;">Commission</div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="card card-light text-center py-3 px-1">
+              <div style="font-size:1.6em; font-weight:600;">0</div>
+              <div style="font-size:.93em; color:#888;">Products sold<br><small>Current Month</small></div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="card card-light text-center py-3 px-1">
+              <div style="font-size:1.6em; font-weight:600;">0.00 €</div>
+              <div style="font-size:.93em; color:#888;">Commission<br><small>Current Month</small></div>
+            </div>
+          </div>
+        </div>
+        <!-- Welcome/alert card -->
+        <div class="card card-light mb-3" style="background:#007bff; color:#fff; border:none;">
+          <div class="card-body py-3" style="font-weight:600; font-size:1.15em;">
+            Hey John!<br>Welcome to the Affiliate Hub 🪴
+          </div>
+        </div>
+        <!-- Metrics/Summary Row -->
+        <div class="row mb-4">
+          <!-- Pending Payouts -->
+          <div class="col-12 col-lg-3 mb-4">
+            <div class="card card-light h-100">
+              <div class="card-header d-flex justify-content-between align-items-center">
+                Pending Payouts
+                <div class="dropdown">
+                  <button class="btn btn-sm btn-outline-light dropdown-toggle"
+                          data-bs-toggle="dropdown" title="Export Data">Export</button>
+                  <ul class="dropdown-menu dropdown-menu-dark">
+                    <li><a class="dropdown-item" href="#">Export CSV</a></li>
+                    <li><a class="dropdown-item" href="#">Export PDF</a></li>
+                  </ul>
+                </div>
+              </div>
+              <ul class="list-group list-group-flush">
+                <li class="list-group-item active d-flex justify-content-between">
+                  John Smith <span>$1,601.28</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between">
+                  Lori Soper <span>$1,208.09</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between">
+                  Victor Garcia <span>$759.21</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between">
+                  Tom Cook <span>$300.25</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between">
+                  Natalie McRoy <span>$129.00</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <!-- Affiliate Detail -->
+          <div class="col-12 col-lg-9 mb-4">
+            <div class="card card-light">
+              <div class="card-body d-flex align-items-center">
+                <img src="https://i.pravatar.cc/80" class="rounded-circle me-3" width="80" height="80" alt="John">
+                <div class="flex-grow-1">
+                  <h5 class="mb-1">
+                    John Smith
+                    <small style="color:#007bff;" class="ms-3">Net Unpaid Commission: $405.47</small>
+                  </h5>
+                  <div class="input-group input-group-sm w-75 mb-3">
+                    <input type="text"
+                           class="form-control"
+                           style="background:#f6f9fc; color:#232323;"
+                           value="https://demo.storeapps.org/?ref=2"
+                           readonly>
+                    <button class="btn btn-outline-light btn-clipboard" title="Copy to clipboard"><i class="bi bi-clipboard"></i></button>
+                  </div>
+                  <div class="row text-center g-0">
+                    <div class="col">
+                      <i class="bi bi-people-fill fs-4" style="color:#007bff;"></i>
+                      <p class="mb-0">20,456 Vis.</p>
+                    </div>
+                    <div class="col">
+                      <i class="bi bi-person-check-fill fs-4" style="color:#007bff;"></i>
+                      <p class="mb-0">2,998 Cust.</p>
+                    </div>
+                    <div class="col">
+                      <i class="bi bi-graph-up-arrow fs-4" style="color:#007bff;"></i>
+                      <p class="mb-0">12.28% Conv.</p>
+                    </div>
+                    <div class="col">
+                      <i class="bi bi-currency-dollar fs-4" style="color:#007bff;"></i>
+                      <p class="mb-0">$2,855.75 Rev.</p>
+                    </div>
+                    <div class="col">
+                      <i class="bi bi-cash-stack fs-4" style="color:#007bff;"></i>
+                      <p class="mb-0">$1,601.28 Gross</p>
+                    </div>
+                    <div class="col">
+                      <i class="bi bi-wallet2 fs-4" style="color:#007bff;"></i>
+                      <p class="mb-0">$626.28 Net</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="ms-3">
+                  <button class="btn btn-outline-light me-1" title="Email"><i class="bi bi-envelope"></i></button>
+                  <button class="btn btn-outline-light" title="Settings"><i class="bi bi-gear"></i></button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Tabs & Table Row -->
+        <div class="row">
+          <div class="col-12">
+            <div class="card card-light w-100">
+              <div class="card-body">
+                <ul class="nav nav-tabs mb-3" role="tablist">
+                  <li class="nav-item"><a class="nav-link active" href="#" role="tab" aria-selected="true">Orders</a></li>
+                  <li class="nav-item"><a class="nav-link" href="#" role="tab">Payouts</a></li>
+                  <li class="nav-item"><a class="nav-link" href="#" role="tab">Top Products</a></li>
+                  <li class="nav-item"><a class="nav-link" href="#" role="tab">Profile</a></li>
+                  <li class="nav-item"><a class="nav-link" href="#" role="tab">Multi-Tier</a></li>
+                </ul>
+                <div class="table-responsive">
+                  <table class="table table-striped align-middle mb-0">
+                    <thead>
+                      <tr>
+                        <th>Date</th>
+                        <th>Order</th>
+                        <th>Commission</th>
+                        <th>Status</th>
+                        <th>Customer</th>
+                        <th>Medium</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>27-Oct-2022</td>
+                        <td><a href="#" style="color:#007bff;">#2782</a></td>
+                        <td>$90.00</td>
+                        <td><span class="badge" style="background:#eef4fb; color:#007bff;">Completed</span></td>
+                        <td>Jason Calcanis</td>
+                        <td><a href="#" style="color:#007bff;">LINK</a></td>
+                      </tr>
+                      <tr>
+                        <td>26-Oct-2022</td>
+                        <td><a href="#" style="color:#007bff;">#2763</a></td>
+                        <td>$10.10</td>
+                        <td><span class="badge" style="background:#eef4fb; color:#007bff;">Refunded</span></td>
+                        <td>Dina S.</td>
+                        <td><span class="badge" style="background:#f6f9fc; color:#007bff;">COUPON</span></td>
+                      </tr>
+                      <tr>
+                        <td>20-Oct-2022</td>
+                        <td><a href="#" style="color:#007bff;">#2753</a></td>
+                        <td>$174.05</td>
+                        <td><span class="badge" style="background:#eef4fb; color:#007bff;">Completed</span></td>
+                        <td>Jason Calcanis</td>
+                        <td><a href="#" style="color:#007bff;">LINK</a></td>
+                      </tr>
+                      <tr>
+                        <td colspan="6" class="text-center text-muted">No orders found for this affiliate yet.</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+  function logout() {
+    localStorage.removeItem('vbmsLoggedIn');
+    window.location.href = 'login.html';
+  }
+  document.querySelectorAll('.btn-clipboard').forEach(btn => {
+    btn.onclick = function() {
+      const input = btn.closest('.input-group').querySelector('input');
+      input.select();
+      document.execCommand('copy');
+      btn.classList.add('copied');
+      btn.innerHTML = '<i class="bi bi-check2"></i>';
+      setTimeout(() => {
+        btn.classList.remove('copied');
+        btn.innerHTML = '<i class="bi bi-clipboard"></i>';
+      }, 1200);
+    };
+  });
+  // Sidebar mobile toggle
+  const toggleBtn = document.getElementById('toggleSidebar');
+  const sidebar = document.querySelector('.sidebar');
+  const backdrop = document.getElementById('sidebarBackdrop');
+  if (toggleBtn) {
+    toggleBtn.onclick = () => {
+      sidebar.classList.toggle('open');
+      backdrop.classList.toggle('open');
+    };
+    backdrop.onclick = () => {
+      sidebar.classList.remove('open');
+      backdrop.classList.remove('open');
+    };
+  }
+  // Theme toggle
+  document.getElementById('themeToggle').onclick = function() {
+    const root = document.documentElement;
+    if (root.getAttribute('data-theme') === 'light') {
+      root.removeAttribute('data-theme');
+    } else {
+      root.setAttribute('data-theme', 'light');
+    }
+  };
+  </script>
+</body>
+</html>

@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VBMS - Training Center</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="config.js"></script>
+  <script src="navigation-enforcement.js"></script>
+  <style>
+    :root {
+      --bg: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 50%, #0f0f0f 100%);
+      --glass: rgba(255, 255, 255, 0.05);
+      --light: #fff;
+      --accent: #f0b90b;
+      --card-bg: rgba(255, 255, 255, 0.08);
+      --border: rgba(240, 185, 11, 0.2);
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--light);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+    }
+
+    .navbar {
+      background: #18181b !important;
+      border-bottom: 1px solid #333;
+      padding: 1rem 0;
+    }
+    .navbar-brand {
+      color: #f0b90b !important;
+      font-weight: 800;
+      font-size: 1.5rem;
+    }
+    .main-content {
+      padding: 2rem 0;
+    }
+    .training-header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+    .training-card {
+      background: #27272a;
+      border-radius: 15px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      border: 1px solid #333;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      transition: transform 0.3s ease;
+    }
+    .training-card:hover {
+      transform: translateY(-5px);
+    }
+    .video-container {
+      position: relative;
+      width: 100%;
+      height: 300px;
+      background: #18181b;
+      border-radius: 10px;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid #f0b90b;
+    }
+    .play-btn {
+      width: 80px;
+      height: 80px;
+      background: #f0b90b;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .play-btn:hover {
+      transform: scale(1.1);
+      background: #e0a800;
+    }
+    .training-category {
+      background: #f0b90b;
+      color: #000;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: inline-block;
+      margin-bottom: 1rem;
+    }
+    .progress-indicator {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+    .progress-bar {
+      flex: 1;
+      height: 8px;
+      background: #333;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: #f0b90b;
+      border-radius: 4px;
+      transition: width 0.3s ease;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar Container -->
+  <div id="sidebar-container"></div>
+
+  <div class="container main-content" style="margin-left: 280px; padding: 30px; min-height: 100vh;">
+    <!-- Header -->
+    <div class="training-header">
+      <h1 style="color: #f0b90b; font-size: 2.5rem; font-weight: 800;">
+        <i class="bi bi-play-circle"></i> Training Center
+      </h1>
+      <p style="color: #a1a1aa; font-size: 1.1rem;">Learn how to maximize your VBMS experience</p>
+    </div>
+
+    <!-- Training Categories -->
+    <div class="row">
+      <!-- Getting Started -->
+      <div class="col-lg-6 col-md-12">
+        <div class="training-card">
+          <div class="training-category">Getting Started</div>
+          <h3 style="color: #f0b90b; margin-bottom: 1rem;">VBMS Overview & Setup</h3>
+          <div class="video-container" onclick="playVideo('intro')">
+            <div class="play-btn">
+              <i class="bi bi-play-fill" style="font-size: 2rem; color: #000; margin-left: 5px;"></i>
+            </div>
+          </div>
+          <p style="color: #e4e4e7;">Learn the basics of your VBMS dashboard, navigation, and initial setup. Perfect for new users getting started.</p>
+          <div class="progress-indicator">
+            <span style="font-size: 0.9rem; color: #a1a1aa;">Progress:</span>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 0%;"></div>
+            </div>
+            <span style="font-size: 0.9rem; color: #a1a1aa;">0%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Order Management -->
+      <div class="col-lg-6 col-md-12">
+        <div class="training-card">
+          <div class="training-category">Order Management</div>
+          <h3 style="color: #f0b90b; margin-bottom: 1rem;">Managing Orders & Customers</h3>
+          <div class="video-container" onclick="playVideo('orders')">
+            <div class="play-btn">
+              <i class="bi bi-play-fill" style="font-size: 2rem; color: #000; margin-left: 5px;"></i>
+            </div>
+          </div>
+          <p style="color: #e4e4e7;">Master order processing, customer management, and status tracking to streamline your operations.</p>
+          <div class="progress-indicator">
+            <span style="font-size: 0.9rem; color: #a1a1aa;">Progress:</span>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 0%;"></div>
+            </div>
+            <span style="font-size: 0.9rem; color: #a1a1aa;">0%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Inventory -->
+      <div class="col-lg-6 col-md-12">
+        <div class="training-card">
+          <div class="training-category">Inventory</div>
+          <h3 style="color: #f0b90b; margin-bottom: 1rem;">Inventory Management</h3>
+          <div class="video-container" onclick="playVideo('inventory')">
+            <div class="play-btn">
+              <i class="bi bi-play-fill" style="font-size: 2rem; color: #000; margin-left: 5px;"></i>
+            </div>
+          </div>
+          <p style="color: #e4e4e7;">Learn to track stock levels, set low-stock alerts, and manage your inventory efficiently.</p>
+          <div class="progress-indicator">
+            <span style="font-size: 0.9rem; color: #a1a1aa;">Progress:</span>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 0%;"></div>
+            </div>
+            <span style="font-size: 0.9rem; color: #a1a1aa;">0%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Analytics -->
+      <div class="col-lg-6 col-md-12">
+        <div class="training-card">
+          <div class="training-category">Analytics</div>
+          <h3 style="color: #f0b90b; margin-bottom: 1rem;">Reports & Analytics</h3>
+          <div class="video-container" onclick="playVideo('analytics')">
+            <div class="play-btn">
+              <i class="bi bi-play-fill" style="font-size: 2rem; color: #000; margin-left: 5px;"></i>
+            </div>
+          </div>
+          <p style="color: #e4e4e7;">Understand your business metrics, generate reports, and make data-driven decisions.</p>
+          <div class="progress-indicator">
+            <span style="font-size: 0.9rem; color: #a1a1aa;">Progress:</span>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 0%;"></div>
+            </div>
+            <span style="font-size: 0.9rem; color: #a1a1aa;">0%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Advanced Features -->
+      <div class="col-lg-6 col-md-12">
+        <div class="training-card">
+          <div class="training-category">Advanced</div>
+          <h3 style="color: #f0b90b; margin-bottom: 1rem;">Advanced Features</h3>
+          <div class="video-container" onclick="playVideo('advanced')">
+            <div class="play-btn">
+              <i class="bi bi-play-fill" style="font-size: 2rem; color: #000; margin-left: 5px;"></i>
+            </div>
+          </div>
+          <p style="color: #e4e4e7;">Explore integrations, automations, and advanced customization options for power users.</p>
+          <div class="progress-indicator">
+            <span style="font-size: 0.9rem; color: #a1a1aa;">Progress:</span>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 0%;"></div>
+            </div>
+            <span style="font-size: 0.9rem; color: #a1a1aa;">0%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Support -->
+      <div class="col-lg-6 col-md-12">
+        <div class="training-card">
+          <div class="training-category">Support</div>
+          <h3 style="color: #f0b90b; margin-bottom: 1rem;">Getting Help & Support</h3>
+          <div class="video-container" onclick="playVideo('support')">
+            <div class="play-btn">
+              <i class="bi bi-play-fill" style="font-size: 2rem; color: #000; margin-left: 5px;"></i>
+            </div>
+          </div>
+          <p style="color: #e4e4e7;">Learn how to access support resources, submit tickets, and get the help you need.</p>
+          <div class="progress-indicator">
+            <span style="font-size: 0.9rem; color: #a1a1aa;">Progress:</span>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 0%;"></div>
+            </div>
+            <span style="font-size: 0.9rem; color: #a1a1aa;">0%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="auth.js"></script>
+  <script src="theme-manager.js"></script>
+  <script src="load-sidebar.js"></script>
+  <script>
+    // Authentication check
+    document.addEventListener('DOMContentLoaded', function() {
+      const user = vbmsAuth.getCurrentUser();
+      if (!user || !vbmsAuth.getToken()) {
+        window.location.href = 'customer-login.html';
+        return;
+      }
+
+      // Role-based access control
+      const userRole = vbmsAuth.getCurrentRole();
+      if (userRole !== 'customer' && userRole !== 'client') {
+        alert('Access Denied: Customer access required');
+        window.location.href = vbmsAuth.getRoleRedirectUrl();
+        return;
+      }
+
+      console.log('Training center loaded for:', user.name);
+      loadProgress();
+    });
+
+    // Video progress tracking
+    const videoProgress = JSON.parse(localStorage.getItem('vbms-training-progress')) || {};
+
+    function playVideo(videoId) {
+      // Simulate video playing
+      alert(`Playing ${videoId} training video...\n\nNote: In production, this would open a video player with the actual training content.`);
+
+      // Update progress
+      videoProgress[videoId] = (videoProgress[videoId] || 0) + 25;
+      if (videoProgress[videoId] > 100) videoProgress[videoId] = 100;
+
+      localStorage.setItem('vbms-training-progress', JSON.stringify(videoProgress));
+      updateProgressDisplay(videoId);
+    }
+
+    function updateProgressDisplay(videoId) {
+      const videos = document.querySelectorAll('.training-card');
+      const videoIds = ['intro', 'orders', 'inventory', 'analytics', 'advanced', 'support'];
+
+      videoIds.forEach((id, index) => {
+        const progress = videoProgress[id] || 0;
+        const card = videos[index];
+        if (card) {
+          const progressFill = card.querySelector('.progress-fill');
+          const progressText = card.querySelector('.progress-indicator span:last-child');
+
+          if (progressFill) progressFill.style.width = progress + '%';
+          if (progressText) progressText.textContent = progress + '%';
+        }
+      });
+    }
+
+    function loadProgress() {
+      const videoIds = ['intro', 'orders', 'inventory', 'analytics', 'advanced', 'support'];
+      videoIds.forEach(id => updateProgressDisplay(id));
+    }
+
+    function logout() {
+      vbmsAuth.logout();
+    }
+  </script>
+</body>
+</html>

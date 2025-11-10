@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>AI Code Agent - Master Admin - VBMS</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <script>
+    // IMMEDIATE URL FIX - Check current URL and redirect if needed
+    (function() {
+      const path = window.location.pathname;
+      const page = path.split('/').pop();
+      if (page === 'admin-ai-agent' && !page.endsWith('.html')) {
+        console.log('⚡ IMMEDIATE HEAD REDIRECT: admin-ai-agent → admin-ai-agent.html');
+        window.location.replace(path + '.html');
+      }
+    })();
+  </script>
+  <style>
+        :root {
+            --accent: #f0b90b;
+            --accent-light: #ffd700;
+            --accent-glow: rgba(240, 185, 11, 0.4);
+            --primary-dark: #d4a109;
+            --secondary: #2c3e50;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --purple: #a855f7;
+            --cyan: #06b6d4;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --glass: rgba(255,255,255,0.95);
+            --glass-glow: rgba(240, 185, 11, 0.15);
+            --border: #e9ecef;
+            --text: #212529;
+            --text-muted: #6c757d;
+            --card-bg: #ffffff;
+            --card-shadow: 0 8px 32px rgba(240, 185, 11, 0.1);
+            --bg: linear-gradient(135deg, #f8f9fa 0%, #f0f8ff 50%, #f8f4ff 100%);
+            --sidebar-bg: rgba(255,255,255,0.98);
+            --sidebar-link: #333;
+            --sidebar-link-active: #000;
+            --master-admin-glow: rgba(255, 0, 0, 0.2);
+            --master-admin-accent: #dc3545;
+            --ai-primary: #10b981;
+            --ai-secondary: #3b82f6;
+            --ai-glow: rgba(16, 185, 129, 0.2);
+        }
+
+        /* Dark theme - Modern Black/Gray with Energy */
+        [data-theme="dark"] {
+            --bg: linear-gradient(135deg, #000000 0%, #0a0a0a 25%, #1a1a1a 50%, #0f0f0f 100%);
+            --light: #ffffff;
+            --dark: #000000;
+            --text: #ffffff;
+            --text-muted: #a1a1aa;
+            --card-bg: rgba(20, 20, 20, 0.95);
+            --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.8), 0 0 20px rgba(240, 185, 11, 0.15);
+            --border: rgba(64, 64, 64, 0.4);
+            --glass: rgba(18, 18, 18, 0.95);
+            --glass-glow: rgba(240, 185, 11, 0.2);
+            --sidebar-bg: rgba(12, 12, 12, 0.98);
+            --sidebar-link: #d4d4d8;
+            --sidebar-link-active: #ffffff;
+            --accent: #f0b90b;
+            --accent-light: #ffd700;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --purple: #a855f7;
+            --cyan: #06b6d4;
+            --master-admin-accent: #dc3545;
+            --ai-primary: #10b981;
+            --ai-secondary: #3b82f6;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+            transition: all 0.3s ease;
+            position: relative;
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -2;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(240, 185, 11, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(59, 130, 246, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.03) 0%, transparent 60%);
+            animation: enhancedGlow 25s ease-in-out infinite;
+        }
+
+        [data-theme="dark"] body::before {
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(240, 185, 11, 0.12) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.06) 0%, transparent 60%);
+        }
+
+        @keyframes enhancedGlow {
+            0%, 100% { opacity: 0.6; transform: rotate(0deg) scale(1); }
+            33% { opacity: 0.8; transform: rotate(120deg) scale(1.05); }
+            66% { opacity: 0.7; transform: rotate(240deg) scale(0.95); }
+        }
+
+        .main-content {
+            margin-left: 320px;
+            padding: 30px;
+            min-height: 100vh;
+            background: transparent;
+            transition: all 0.3s ease;
+        }
+
+        @media (max-width: 1024px) { .main-content { margin-left: 280px; padding: 25px; } }
+        @media (max-width: 768px) { .main-content { margin-left: 0; padding: 80px 15px 15px 15px; } }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 30px;
+            padding: 20px 0;
+        }
+
+        .header-left h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text);
+            margin: 0 0 10px 0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .header-left h1 i {
+            color: var(--ai-primary);
+            font-size: 2rem;
+        }
+
+        .breadcrumb-nav {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-top: 8px;
+        }
+
+        .breadcrumb-nav a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .btn-ai-primary {
+            background: linear-gradient(135deg, var(--ai-primary), #059669);
+            border: none;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-ai-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px var(--ai-glow);
+            color: white;
+        }
+
+        /* Chat Interface */
+        .ai-chat-container {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 25px;
+            height: calc(100vh - 200px);
+        }
+
+        .chat-main {
+            background: var(--glass);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, var(--ai-primary), var(--ai-secondary));
+            color: white;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .ai-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .ai-status {
+            flex: 1;
+        }
+
+        .ai-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .ai-description {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: var(--card-bg);
+        }
+
+        .message {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 12px;
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .message.ai .message-avatar {
+            background: linear-gradient(135deg, var(--ai-primary), var(--ai-secondary));
+            color: white;
+        }
+
+        .message.user .message-avatar {
+            background: linear-gradient(135deg, var(--master-admin-accent), #dc2626);
+            color: white;
+        }
+
+        .message-content {
+            background: var(--glass);
+            padding: 15px;
+            border-radius: 15px;
+            border: 1px solid var(--border);
+            flex: 1;
+            position: relative;
+        }
+
+        .message.ai .message-content {
+            border-left: 3px solid var(--ai-primary);
+        }
+
+        .message.user .message-content {
+            border-right: 3px solid var(--master-admin-accent);
+            background: rgba(220, 53, 69, 0.05);
+        }
+
+        .message-time {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 5px;
+        }
+
+        .chat-input-container {
+            padding: 20px;
+            background: var(--glass);
+            border-top: 1px solid var(--border);
+        }
+
+        .chat-input-group {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        .chat-input {
+            flex: 1;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px 15px;
+            color: var(--text);
+            resize: none;
+            min-height: 50px;
+            max-height: 120px;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: var(--ai-primary);
+            box-shadow: 0 0 0 3px var(--ai-glow);
+        }
+
+        .chat-send-btn {
+            background: var(--ai-primary);
+            border: none;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .chat-send-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px var(--ai-glow);
+        }
+
+        .chat-send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Quick Actions Panel */
+        .quick-actions {
+            background: var(--glass);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            box-shadow: var(--card-shadow);
+            padding: 20px;
+            height: fit-content;
+        }
+
+        .quick-actions h3 {
+            color: var(--ai-primary);
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .action-category {
+            margin-bottom: 25px;
+        }
+
+        .category-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .quick-action-btn {
+            display: block;
+            width: 100%;
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 15px;
+            color: var(--text);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .quick-action-btn:hover {
+            background: var(--ai-glow);
+            border-color: var(--ai-primary);
+            color: var(--text);
+            text-decoration: none;
+            transform: translateX(5px);
+        }
+
+        .quick-action-btn i {
+            margin-right: 8px;
+            color: var(--ai-primary);
+        }
+
+        /* Code Block Styling */
+        .code-block {
+            background: rgba(0,0,0,0.05);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            position: relative;
+        }
+
+        [data-theme="dark"] .code-block {
+            background: rgba(255,255,255,0.05);
+        }
+
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .code-language {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .copy-code-btn {
+            background: var(--ai-primary);
+            border: none;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            cursor: pointer;
+        }
+
+        /* Typing Indicator */
+        .typing-indicator {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-muted);
+            font-style: italic;
+            padding: 10px 0;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .typing-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--ai-primary);
+            animation: typingBounce 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typingBounce {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-10px); }
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .ai-chat-container {
+                grid-template-columns: 1fr;
+                grid-template-rows: 1fr auto;
+            }
+            
+            .quick-actions {
+                order: 2;
+                height: auto;
+                max-height: 200px;
+                overflow-y: auto;
+            }
+        }
+  </style>
+</head>
+<body>
+
+<!-- Master Admin Sidebar Container -->
+<div id="sidebar-container"></div>
+
+<!-- MAIN CONTENT -->
+<main class="main-content">
+  <!-- Header -->
+  <div class="header">
+    <div class="header-left">
+      <h1><i class="bi bi-robot"></i> AI Code Agent</h1>
+      <div class="breadcrumb-nav">
+        <a href="admin-main-dashboard.html">Master Dashboard</a> / AI Code Agent
+      </div>
+    </div>
+    <div class="action-buttons">
+      <button class="btn btn-ai-primary" onclick="clearChat()">
+        <i class="bi bi-trash"></i> Clear Chat
+      </button>
+      <button class="btn btn-outline-warning btn-sm" onclick="toggleTheme()" title="Toggle light/dark theme">
+        <i id="themeIcon" class="bi bi-moon-fill"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- AI Chat Interface -->
+  <div class="ai-chat-container">
+    <!-- Main Chat Area -->
+    <div class="chat-main">
+      <!-- Chat Header -->
+      <div class="chat-header">
+        <div class="ai-avatar">🤖</div>
+        <div class="ai-status">
+          <div class="ai-name">VBMS Code Agent</div>
+          <div class="ai-description">AI Assistant for Code Management & System Changes</div>
+        </div>
+        <div class="status-indicator">
+          <span id="connectionStatus" class="badge bg-success">Connected</span>
+        </div>
+      </div>
+
+      <!-- Chat Messages -->
+      <div class="chat-messages" id="chatMessages">
+        <div class="message ai">
+          <div class="message-avatar">🤖</div>
+          <div class="message-content">
+            <div>👋 Hello! I'm your VBMS Code Agent. I can help you:</div>
+            <ul style="margin: 10px 0; padding-left: 20px;">
+              <li>🔧 Make changes to your codebase</li>
+              <li>🔍 Analyze and debug code issues</li>
+              <li>📝 Create new features and components</li>
+              <li>🎨 Update styling and layouts</li>
+              <li>🔗 Integrate new APIs and services</li>
+              <li>📊 Generate reports and analytics</li>
+            </ul>
+            <div>Just tell me what you'd like to do with your VBMS system!</div>
+            <div class="message-time">Just now</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Typing Indicator -->
+      <div class="typing-indicator" id="typingIndicator">
+        <div class="message-avatar">🤖</div>
+        <div>AI Agent is thinking</div>
+        <div class="typing-dots">
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+        </div>
+      </div>
+
+      <!-- Chat Input -->
+      <div class="chat-input-container">
+        <div class="chat-input-group">
+          <textarea 
+            id="chatInput" 
+            class="chat-input" 
+            placeholder="Ask me to make changes to your VBMS system..."
+            rows="1"
+          ></textarea>
+          <button id="sendBtn" class="chat-send-btn" onclick="sendMessage()">
+            <i class="bi bi-send"></i>
+            Send
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions Panel -->
+    <div class="quick-actions">
+      <h3><i class="bi bi-lightning"></i> Quick Actions</h3>
+      
+      <div class="action-category">
+        <div class="category-title">System Management</div>
+        <a href="#" class="quick-action-btn" onclick="quickAction('Fix navigation issues')">
+          <i class="bi bi-compass"></i> Fix Navigation Issues
+        </a>
+        <a href="#" class="quick-action-btn" onclick="quickAction('Update all styling to match theme')">
+          <i class="bi bi-palette"></i> Fix Styling Issues
+        </a>
+        <a href="#" class="quick-action-btn" onclick="quickAction('Connect all pages to database')">
+          <i class="bi bi-database"></i> Connect to Database
+        </a>
+      </div>
+
+      <div class="action-category">
+        <div class="category-title">Feature Development</div>
+        <a href="#" class="quick-action-btn" onclick="quickAction('Create a new admin page')">
+          <i class="bi bi-plus-square"></i> Create New Page
+        </a>
+        <a href="#" class="quick-action-btn" onclick="quickAction('Add new API endpoint')">
+          <i class="bi bi-cloud-plus"></i> Add API Endpoint
+        </a>
+        <a href="#" class="quick-action-btn" onclick="quickAction('Integrate new service')">
+          <i class="bi bi-plug"></i> Add Integration
+        </a>
+      </div>
+
+      <div class="action-category">
+        <div class="category-title">Code Analysis</div>
+        <a href="#" class="quick-action-btn" onclick="quickAction('Analyze code quality')">
+          <i class="bi bi-search"></i> Analyze Code Quality
+        </a>
+        <a href="#" class="quick-action-btn" onclick="quickAction('Find and fix bugs')">
+          <i class="bi bi-bug"></i> Debug Issues
+        </a>
+        <a href="#" class="quick-action-btn" onclick="quickAction('Optimize performance')">
+          <i class="bi bi-speedometer2"></i> Optimize Performance
+        </a>
+      </div>
+
+      <div class="action-category">
+        <div class="category-title">Documentation</div>
+        <a href="#" class="quick-action-btn" onclick="quickAction('Generate code documentation')">
+          <i class="bi bi-book"></i> Generate Docs
+        </a>
+        <a href="#" class="quick-action-btn" onclick="quickAction('Create API documentation')">
+          <i class="bi bi-file-text"></i> API Documentation
+        </a>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="auth.js"></script>
+<script src="navigation-enforcement.js"></script>
+<script src="load-sidebar.js"></script>
+<script src="theme-manager.js"></script>
+<script src="notifications-manager.js"></script>
+<script src="activity-tracker.js"></script>
+
+<script>
+// Initialize the page
+document.addEventListener('DOMContentLoaded', function() {
+  checkMasterAdminAuth();
+  initializeAIAgent();
+});
+
+function checkMasterAdminAuth() {
+  if (!vbmsAuth.isAuthenticated()) {
+    window.location.href = 'login.html';
+    return;
+  }
+
+  if (!vbmsAuth.isMainAdmin()) {
+    alert('Access Denied: Master Admin access required');
+    window.location.href = 'admin-main-dashboard.html';
+    return;
+  }
+}
+
+function initializeAIAgent() {
+  console.log('🤖 Initializing AI Code Agent...');
+  
+  // Track page view
+  if (window.activityTracker) {
+    activityTracker.trackPageView('AI Code Agent');
+  }
+  
+  // Test AI connection
+  testAIConnection();
+  
+  // Set up chat input auto-resize
+  const chatInput = document.getElementById('chatInput');
+  chatInput.addEventListener('input', autoResizeTextarea);
+  chatInput.addEventListener('keydown', handleChatKeydown);
+  
+  // Load chat history if available
+  loadChatHistory();
+}
+
+function autoResizeTextarea() {
+  const textarea = document.getElementById('chatInput');
+  textarea.style.height = 'auto';
+  textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
+}
+
+function handleChatKeydown(event) {
+  if (event.key === 'Enter' && !event.shiftKey) {
+    event.preventDefault();
+    sendMessage();
+  }
+}
+
+function sendMessage() {
+  const input = document.getElementById('chatInput');
+  const message = input.value.trim();
+  
+  if (!message) return;
+  
+  // Add user message to chat
+  addMessageToChat('user', message);
+  
+  // Clear input
+  input.value = '';
+  autoResizeTextarea();
+  
+  // Show typing indicator
+  showTypingIndicator();
+  
+  // Disable send button
+  const sendBtn = document.getElementById('sendBtn');
+  sendBtn.disabled = true;
+  
+  // Process the message
+  processAIRequest(message);
+}
+
+function addMessageToChat(sender, content, isCode = false) {
+  const chatMessages = document.getElementById('chatMessages');
+  const messageDiv = document.createElement('div');
+  messageDiv.className = `message ${sender}`;
+  
+  const avatar = sender === 'ai' ? '🤖' : '👤';
+  const currentTime = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+  
+  let messageContent = content;
+  if (isCode) {
+    messageContent = formatCodeMessage(content);
+  }
+  
+  messageDiv.innerHTML = `
+    <div class="message-avatar">${avatar}</div>
+    <div class="message-content">
+      ${messageContent}
+      <div class="message-time">${currentTime}</div>
+    </div>
+  `;
+  
+  chatMessages.appendChild(messageDiv);
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+  
+  // Save to chat history
+  saveChatHistory();
+}
+
+function formatCodeMessage(content) {
+  // Check if content contains code blocks
+  if (content.includes('```')) {
+    return content.replace(/```(\w+)?\n([\s\S]*?)```/g, (match, language, code) => {
+      const lang = language || 'code';
+      return `
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-language">${lang}</span>
+            <button class="copy-code-btn" onclick="copyCode(this)">Copy</button>
+          </div>
+          <pre><code>${code.trim()}</code></pre>
+        </div>
+      `;
+    });
+  }
+  return content;
+}
+
+function copyCode(button) {
+  const codeBlock = button.closest('.code-block').querySelector('code');
+  const text = codeBlock.textContent;
+  
+  navigator.clipboard.writeText(text).then(() => {
+    button.textContent = 'Copied!';
+    setTimeout(() => {
+      button.textContent = 'Copy';
+    }, 2000);
+  });
+}
+
+function showTypingIndicator() {
+  document.getElementById('typingIndicator').style.display = 'flex';
+  const chatMessages = document.getElementById('chatMessages');
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+function hideTypingIndicator() {
+  document.getElementById('typingIndicator').style.display = 'none';
+}
+
+async function processAIRequest(message) {
+  try {
+    console.log('🤖 Processing AI request with backend API...');
+    
+    const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+      ? 'http://localhost:5050'
+      : '';
+
+    const token = localStorage.getItem('vbms_token') || sessionStorage.getItem('vbms_token');
+    
+    // Send request to AI Agent API
+    const response = await fetch(`${API_BASE}/api/ai-agent/process`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        message: message,
+        context: {
+          page: 'ai-agent-chat',
+          userRole: vbmsAuth.getCurrentRole(),
+          timestamp: new Date().toISOString()
+        }
+      })
+    });
+    
+    // Hide typing indicator
+    hideTypingIndicator();
+    
+    if (!response.ok) {
+      throw new Error(`API Error: ${response.status} ${response.statusText}`);
+    }
+    
+    const data = await response.json();
+    
+    // Add AI response to chat
+    let responseMessage = data.response;
+    
+    // Add mode indicator
+    if (data.mode === 'openai') {
+      responseMessage += `\n\n*Powered by OpenAI GPT-4 • ${data.tokensUsed} tokens • ${data.processingTime}ms*`;
+    } else if (data.mode === 'fallback') {
+      responseMessage += `\n\n*Using fallback mode - configure OpenAI API key for enhanced capabilities*`;
+    }
+    
+    addMessageToChat('ai', responseMessage, responseMessage.includes('```'));
+    
+    // Update connection status
+    updateConnectionStatus('Connected', 'success');
+    
+    // Track AI interaction
+    if (window.activityTracker) {
+      activityTracker.trackCustomActivity('ai_agent_interaction', 'User interacted with AI Code Agent', {
+        priority: 'medium',
+        module: 'AI Code Agent',
+        query: message.substring(0, 100),
+        mode: data.mode,
+        confidence: data.confidence,
+        processingTime: data.processingTime
+      });
+    }
+    
+  } catch (error) {
+    console.error('AI Agent Error:', error);
+    hideTypingIndicator();
+    
+    // Update connection status
+    updateConnectionStatus('Error', 'danger');
+    
+    // Fallback to local response
+    const fallbackResponse = generateAIResponse(message);
+    addMessageToChat('ai', '⚠️ **Connection Error - Using Offline Mode**\n\n' + fallbackResponse + '\n\n*Note: Backend API unavailable. Some features may be limited.*');
+    
+  } finally {
+    // Re-enable send button
+    document.getElementById('sendBtn').disabled = false;
+  }
+}
+
+function generateAIResponse(message) {
+  const lowerMessage = message.toLowerCase();
+  
+  // Navigation issues
+  if (lowerMessage.includes('navigation') || lowerMessage.includes('sidebar') || lowerMessage.includes('routing')) {
+    return `🔧 **Navigation Analysis Complete**
+
+I've analyzed your VBMS navigation system. Here are the key issues and solutions:
+
+**Current Status:**
+✅ URL enforcement scripts are active
+✅ Master admin sidebar is configured
+✅ Navigation enforcement is implemented
+
+**Recommended Actions:**
+1. Clear browser cache and test navigation
+2. Verify all pages are in the correct arrays in \`load-sidebar.js\`
+3. Check that all .html extensions are consistent
+
+Would you like me to implement any specific navigation fixes?`;
+  }
+  
+  // Styling and theme issues
+  if (lowerMessage.includes('styling') || lowerMessage.includes('theme') || lowerMessage.includes('css') || lowerMessage.includes('design')) {
+    return `🎨 **Styling System Analysis**
+
+Your VBMS styling system is well-structured with:
+
+**Current Features:**
+✅ Dynamic theme switching (light/dark)
+✅ Master admin accent colors (red: #dc3545)
+✅ CSS custom properties for consistency
+✅ Responsive design patterns
+
+**CSS Variables in Use:**
+\`\`\`css
+:root {
+  --master-admin-accent: #dc3545;
+  --accent: #f0b90b;
+  --ai-primary: #10b981;
+  --glass: rgba(255,255,255,0.95);
+}
+\`\`\`
+
+Would you like me to update specific styling or fix theme inconsistencies?`;
+  }
+  
+  // Database and backend issues
+  if (lowerMessage.includes('database') || lowerMessage.includes('api') || lowerMessage.includes('backend')) {
+    return `🗄️ **Database & API System Status**
+
+Your VBMS backend infrastructure:
+
+**Active Components:**
+✅ MongoDB database connection
+✅ Express.js API server
+✅ JWT authentication system
+✅ Stripe payment integration
+✅ Email service with Nodemailer
+
+**API Endpoints Available:**
+- \`/api/auth/*\` - Authentication
+- \`/api/users/*\` - User management  
+- \`/api/pricing/*\` - Pricing plans
+- \`/api/stripe/*\` - Payment processing
+
+**Database Collections:**
+- Users, Orders, Inventory, Payments, Settings
+
+What specific database operations would you like me to help with?`;
+  }
+  
+  // Creating new features
+  if (lowerMessage.includes('create') || lowerMessage.includes('new') || lowerMessage.includes('add') || lowerMessage.includes('build')) {
+    return `🚀 **Feature Development Assistant**
+
+I can help you create new features for your VBMS system:
+
+**Available Templates:**
+- 📄 Admin pages with master admin styling
+- 🎛️ API endpoints with authentication
+- 📊 Dashboard components with real-time data
+- 🔗 Service integrations (Stripe, email, etc.)
+- 📱 Responsive UI components
+
+**Quick Creation Options:**
+1. **Admin Page:** Full master admin layout with sidebar
+2. **API Endpoint:** Express route with validation
+3. **Database Model:** Mongoose schema with relationships
+4. **UI Component:** Bootstrap component with themes
+
+What would you like me to create for you? Just describe the feature you need!`;
+  }
+  
+  // Code analysis and debugging
+  if (lowerMessage.includes('analyze') || lowerMessage.includes('debug') || lowerMessage.includes('fix') || lowerMessage.includes('bug')) {
+    return `🔍 **Code Analysis Report**
+
+I've scanned your VBMS codebase:
+
+**Code Quality Metrics:**
+✅ Consistent file structure
+✅ Modular architecture
+✅ Security best practices
+✅ Error handling implemented
+
+**Potential Issues Found:**
+⚠️ Some hardcoded sample data (can be connected to real APIs)
+⚠️ A few pages may need cache clearing for updates
+⚠️ Email templates could use more customization
+
+**Performance Optimizations:**
+- Frontend: Lazy loading for large components
+- Backend: Database query optimization
+- Assets: Image compression and CDN usage
+
+Would you like me to dive deeper into any specific area or fix particular issues?`;
+  }
+  
+  // Default helpful response
+  return `🤖 **I'm here to help with your VBMS system!**
+
+I understand you want to: "${message}"
+
+**I can assist with:**
+- 🔧 Code modifications and fixes
+- 🎨 Styling and theme updates  
+- 🗄️ Database and API integration
+- 📄 Creating new pages and features
+- 🐛 Debugging and optimization
+- 📚 Documentation generation
+
+**To get started, you can ask me things like:**
+- "Fix the navigation on all admin pages"
+- "Create a new customer management page"
+- "Connect the affiliate program to the database"
+- "Update the styling to match the brand colors"
+- "Add a new API endpoint for inventory"
+
+What specific task would you like me to help you with?`;
+}
+
+function quickAction(action) {
+  const chatInput = document.getElementById('chatInput');
+  chatInput.value = action;
+  autoResizeTextarea();
+  sendMessage();
+}
+
+function clearChat() {
+  if (confirm('Are you sure you want to clear the chat history?')) {
+    document.getElementById('chatMessages').innerHTML = `
+      <div class="message ai">
+        <div class="message-avatar">🤖</div>
+        <div class="message-content">
+          <div>Chat cleared! How can I help you with your VBMS system today?</div>
+          <div class="message-time">Just now</div>
+        </div>
+      </div>
+    `;
+    
+    // Clear saved history
+    localStorage.removeItem('vbms_ai_chat_history');
+    
+    if (window.activityTracker) {
+      activityTracker.trackCustomActivity('ai_chat_cleared', 'User cleared AI chat history', {
+        priority: 'low',
+        module: 'AI Code Agent'
+      });
+    }
+  }
+}
+
+function saveChatHistory() {
+  try {
+    const chatMessages = document.getElementById('chatMessages');
+    const messages = Array.from(chatMessages.children).map(msg => ({
+      sender: msg.classList.contains('ai') ? 'ai' : 'user',
+      content: msg.querySelector('.message-content').innerHTML,
+      timestamp: Date.now()
+    }));
+    
+    // Keep only last 50 messages
+    const recentMessages = messages.slice(-50);
+    localStorage.setItem('vbms_ai_chat_history', JSON.stringify(recentMessages));
+  } catch (error) {
+    console.warn('Could not save chat history:', error);
+  }
+}
+
+function loadChatHistory() {
+  try {
+    const history = localStorage.getItem('vbms_ai_chat_history');
+    if (history) {
+      const messages = JSON.parse(history);
+      const chatMessages = document.getElementById('chatMessages');
+      
+      // Clear default message if we have history
+      if (messages.length > 1) {
+        chatMessages.innerHTML = '';
+        
+        messages.forEach(msg => {
+          const messageDiv = document.createElement('div');
+          messageDiv.className = `message ${msg.sender}`;
+          messageDiv.innerHTML = `
+            <div class="message-avatar">${msg.sender === 'ai' ? '🤖' : '👤'}</div>
+            <div class="message-content">${msg.content}</div>
+          `;
+          chatMessages.appendChild(messageDiv);
+        });
+        
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+    }
+  } catch (error) {
+    console.warn('Could not load chat history:', error);
+  }
+}
+
+function updateConnectionStatus(status, type) {
+  const statusElement = document.getElementById('connectionStatus');
+  if (statusElement) {
+    statusElement.textContent = status;
+    statusElement.className = `badge bg-${type}`;
+  }
+}
+
+// Test AI Agent connection on load
+async function testAIConnection() {
+  try {
+    const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+      ? 'http://localhost:5050'
+      : '';
+
+    const token = localStorage.getItem('vbms_token') || sessionStorage.getItem('vbms_token');
+    
+    const response = await fetch(`${API_BASE}/api/ai-agent/status`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    if (response.ok) {
+      const data = await response.json();
+      updateConnectionStatus('Connected', 'success');
+      console.log('✅ AI Agent connected:', data.model);
+    } else {
+      updateConnectionStatus('Limited', 'warning');
+      console.log('⚠️ AI Agent API unavailable, using fallback mode');
+    }
+    
+  } catch (error) {
+    updateConnectionStatus('Offline', 'danger');
+    console.log('❌ AI Agent connection failed:', error.message);
+  }
+}
+
+// Logout function
+function logout() {
+  vbmsAuth.logout();
+}
+</script>
+
+</body>
+</html>

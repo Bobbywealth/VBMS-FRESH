@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>VBMS AI Agent</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --accent: #f0b90b;
+      --bot-bg: #232323;
+      --user-bg: #f0b90b;
+      --chat-bg: #171717;
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #0a0a0a;
+      color: #fff;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+    }
+    /* Sidebar Styles - from dashboard.html */
+    nav.sidebar {
+      background: #111;
+      width: 265px;
+      min-width: 265px;
+      max-width: 265px;
+      min-height: 100vh;
+      padding: 0 0 36px 0;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      z-index: 1050;
+      transition: width 0.2s cubic-bezier(.4,0,.2,1);
+      border-right: 1px solid #232323;
+    }
+    nav.sidebar .logo {
+      text-align: center;
+      padding: 34px 0 16px 0;
+      margin-bottom: 7px;
+    }
+    nav.sidebar .logo img {
+      max-width: 128px;
+      height: auto;
+      filter: drop-shadow(0 2px 20px #f0b90b22);
+    }
+    .sidebar-heading {
+      color: #ffe066;
+      font-size: 0.97rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      margin: 24px 0 7px 24px;
+      opacity: 0.87;
+      text-transform: uppercase;
+    }
+    .sidebar-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #cfcfcf;
+      padding: 10px 22px 10px 24px;
+      border-radius: 9px;
+      margin: 3px 13px 2px 10px;
+      text-decoration: none;
+      font-size: 1.08rem;
+      font-weight: 500;
+      transition: background 0.19s, color 0.19s;
+      position: relative;
+    }
+    .sidebar-link i {
+      font-size: 1.26em;
+      min-width: 20px;
+      text-align: center;
+      color: #ffe066;
+      opacity: 0.92;
+      transition: color 0.18s;
+    }
+    .sidebar-link span {
+      flex: 1;
+      min-width: 0;
+      transition: opacity 0.2s;
+    }
+    .sidebar-link:hover, .sidebar-link.active {
+      background: var(--accent);
+      color: #181818 !important;
+      font-weight: 700;
+    }
+    .sidebar-link:hover i, .sidebar-link.active i {
+      color: #181818;
+    }
+    .btn-logout {
+      margin: 38px 18px 0 18px;
+      padding: 10px 0;
+      border-radius: 8px;
+      font-size: 1.09rem;
+      font-weight: 700;
+      box-shadow: 0 2px 12px #0002;
+      width: calc(100% - 36px);
+    }
+    /* Sidebar collapse styles */
+    nav.sidebar.collapsed {
+      width: 68px;
+      min-width: 68px;
+      max-width: 68px;
+      transition: width 0.2s cubic-bezier(.4,0,.2,1);
+    }
+    nav.sidebar.collapsed .logo img {
+      max-width: 40px;
+      transition: max-width 0.2s;
+    }
+    nav.sidebar.collapsed .sidebar-heading,
+    nav.sidebar.collapsed .sidebar-link span,
+    nav.sidebar.collapsed .btn-logout {
+      opacity: 0;
+      pointer-events: none;
+      width: 0;
+      padding: 0;
+      margin: 0;
+      height: 0;
+      overflow: hidden;
+      transition: opacity 0.2s, width 0.2s;
+    }
+    nav.sidebar.collapsed .sidebar-link {
+      justify-content: center;
+      padding-left: 0;
+      padding-right: 0;
+    }
+    nav.sidebar.collapsed .sidebar-link i {
+      margin-right: 0;
+    }
+    /* Responsive Sidebar */
+    @media (max-width: 900px) {
+      nav.sidebar {
+        position: fixed;
+        left: -265px;
+        top: 0;
+        height: 100vh;
+        z-index: 2000;
+        box-shadow: 0 6px 48px #0008;
+        transition: left 0.22s cubic-bezier(.4,0,.2,1);
+      }
+      nav.sidebar.open {
+        left: 0;
+      }
+      body.sidebar-open {
+        overflow: hidden;
+      }
+    }
+    @media (max-width: 700px) {
+      nav.sidebar {
+        width: 100vw;
+        min-width: 0;
+        max-width: none;
+        border-right: none;
+        padding: 0 0 28px 0;
+      }
+      nav.sidebar .logo {
+        padding: 16px 0 12px 0;
+      }
+    }
+
+    .chat-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 2.1rem 2vw 0 2vw;
+      background: var(--chat-bg);
+      min-height: 100vh;
+    }
+    .chat-header h2 {
+      font-weight: bold;
+      margin-bottom: 0;
+    }
+    .chat-header p {
+      color: #cfcfcf;
+      margin-top: 0.4rem;
+      margin-bottom: 1.2rem;
+      font-size: 1.04rem;
+    }
+    .prompt-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 1.1rem;
+      flex-wrap: wrap;
+    }
+    .prompt-btn {
+      background: #232323;
+      color: var(--accent);
+      border: none;
+      border-radius: 7px;
+      font-weight: 500;
+      padding: 7px 17px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: 0.18s;
+      outline: none;
+    }
+    .prompt-btn:hover {
+      background: var(--accent);
+      color: #1a1a1a;
+    }
+    .chat-box {
+      flex: 1;
+      background: #181818;
+      border-radius: 11px;
+      padding: 1.1rem 1.6rem 1.1rem 1.6rem;
+      overflow-y: auto;
+      margin-bottom: 1rem;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 6px 40px rgba(0,0,0,0.24);
+      border: 1px solid #232323;
+      scroll-behavior: smooth;
+    }
+    .msg-row {
+      display: flex;
+      align-items: flex-end;
+      margin-bottom: 0.5rem;
+    }
+    .msg-row.bot {
+      flex-direction: row;
+    }
+    .msg-row.user {
+      flex-direction: row-reverse;
+    }
+    .msg-avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: #222;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.65rem;
+      margin: 0 0.75rem;
+      box-shadow: 0 2px 6px #0002;
+    }
+    .msg-avatar.user {
+      background: var(--user-bg);
+      color: #222;
+    }
+    .msg-avatar.bot {
+      background: #181b1f;
+      color: var(--accent);
+    }
+    .msg-bubble {
+      max-width: 70vw;
+      padding: 13px 18px;
+      border-radius: 16px;
+      font-size: 1.1rem;
+      background: var(--bot-bg);
+      color: #fff;
+      position: relative;
+      margin-bottom: 2px;
+      box-shadow: 0 2px 18px #0003;
+      white-space: pre-line;
+      word-break: break-word;
+      transition: background 0.2s;
+    }
+    .msg-row.user .msg-bubble {
+      background: var(--user-bg);
+      color: #111;
+      text-align: right;
+    }
+    .msg-row.bot .msg-bubble code {
+      font-family: "Fira Mono", monospace;
+      font-size: 1em;
+      background: #222;
+      color: #ffe066;
+      padding: 2px 7px;
+      border-radius: 5px;
+    }
+    .msg-img {
+      display: block;
+      max-width: 190px;
+      max-height: 140px;
+      border-radius: 8px;
+      margin-top: 7px;
+      box-shadow: 0 1px 9px #0003;
+      border: 1px solid #444;
+    }
+    .msg-file {
+      display: inline-block;
+      background: #222;
+      color: #ffe066;
+      font-size: 0.97em;
+      padding: 4px 10px;
+      border-radius: 6px;
+      margin-top: 6px;
+    }
+    .chat-input-row {
+      display: flex;
+      gap: 0.8rem;
+      align-items: center;
+      background: #222;
+      border-radius: 9px;
+      padding: 9px 14px;
+    }
+    .chat-input-row input[type="text"] {
+      flex: 1;
+      background: transparent;
+      color: #fff;
+      border: none;
+      outline: none;
+      padding: 11px;
+      font-size: 1.09rem;
+    }
+    .chat-input-row input[type="file"] {
+      display: none;
+    }
+    .chat-attach-btn {
+      background: none;
+      border: none;
+      color: var(--accent);
+      font-size: 1.2rem;
+      cursor: pointer;
+      margin-right: 5px;
+    }
+    .chat-send-btn {
+      background: var(--accent);
+      color: #1a1a1a;
+      border: none;
+      padding: 8px 24px;
+      border-radius: 7px;
+      font-weight: bold;
+      font-size: 1.07rem;
+      transition: 0.18s;
+    }
+    .chat-send-btn:hover {
+      background: #ffe066;
+    }
+    .thinking {
+      display: inline-block;
+      font-style: italic;
+      letter-spacing: 1px;
+    }
+    .thinking:after {
+      content: '';
+      display: inline-block;
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      background: repeating-linear-gradient(90deg,var(--accent) 0 33%,#333 0 66%,var(--accent) 0 100%);
+      margin-left: 8px;
+      animation: dots 1.2s linear infinite;
+      vertical-align: middle;
+    }
+    @keyframes dots {
+      0% { opacity: .5; }
+      50% { opacity: 1; }
+      100% { opacity: .5; }
+    }
+    /* Toasts */
+    .custom-toast {
+      position: fixed;
+      top: 20px; right: 28px;
+      background: #222;
+      color: #ffe066;
+      border-radius: 7px;
+      padding: 10px 18px;
+      z-index: 20000;
+      font-size: 1.07rem;
+      box-shadow: 0 2px 18px #0005;
+      animation: fadeInUp .32s;
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px);}
+      to { opacity: 1; transform: translateY(0);}
+    }
+    @media (max-width: 700px) {
+      .sidebar { display: none; }
+      .chat-container { padding: 0.5rem; }
+      .chat-header h2 { font-size: 1.2rem;}
+      .msg-bubble { font-size: 1.01rem;}
+    }
+  </style>
+</head>
+<body>
+
+<!-- SIDEBAR (from dashboard.html) -->
+<nav class="sidebar" id="sidebar" tabindex="0">
+  <div class="logo">
+    <img src="https://iili.io/F7bM6Jt.md.png" alt="VBMS" />
+  </div>
+  <p class="sidebar-heading">CORE</p>
+  <a class="sidebar-link" href="dashboard.html"><i class="bi bi-speedometer2"></i><span>Dashboard</span></a>
+  <a class="sidebar-link" href="reports.html"><i class="bi bi-bar-chart-line"></i><span>Reports</span></a>
+
+  <p class="sidebar-heading">OPERATIONS</p>
+  <a class="sidebar-link" href="orders.html"><i class="bi bi-box"></i><span>Orders</span></a>
+  <a class="sidebar-link" href="monitoring.html"><i class="bi bi-camera-video"></i><span>Monitoring</span></a>
+  <a class="sidebar-link" href="inventory.html"><i class="bi bi-stack"></i><span>Inventory</span></a>
+  <a class="sidebar-link" href="calendar.html"><i class="bi bi-calendar-event"></i><span>Calendar</span></a>
+
+  <p class="sidebar-heading">PEOPLE & CLIENTS</p>
+  <a class="sidebar-link" href="team.html"><i class="bi bi-people"></i><span>Team</span></a>
+  <a class="sidebar-link" href="clients.html"><i class="bi bi-person-badge"></i><span>Clients</span></a>
+  <a class="sidebar-link" href="leads.html"><i class="bi bi-person-lines-fill"></i><span>Leads</span></a>
+
+  <p class="sidebar-heading">TASKS & COMMUNICATION</p>
+  <a class="sidebar-link" href="task-board.html"><i class="bi bi-kanban"></i><span>Task Manager</span></a>
+  <a class="sidebar-link" href="messaging.html"><i class="bi bi-chat-dots"></i><span>Messaging</span></a>
+
+  <p class="sidebar-heading">AI TOOLS</p>
+  <a class="sidebar-link" href="Aiphone.html"><i class="bi bi-telephone"></i><span>AI Phone</span></a>
+  <a class="sidebar-link active" href="Aiassistant.html"><i class="bi bi-robot"></i><span>AI Assistant</span></a>
+
+  <p class="sidebar-heading">BUSINESS TOOLS</p>
+  <a class="sidebar-link" href="billing.html"><i class="bi bi-credit-card-2-front"></i><span>Billing</span></a>
+  <a class="sidebar-link" href="settings.html"><i class="bi bi-gear"></i><span>Settings</span></a>
+  <a class="sidebar-link" href="training.html"><i class="bi bi-mortarboard"></i><span>Training</span></a>
+
+  <p class="sidebar-heading">DEV/UTILITY</p>
+  <a class="sidebar-link" href="wizard.html"><i class="bi bi-tools"></i><span>Wizard (Dev)</span></a>
+  <a class="sidebar-link" href="wizard-step2.html"><i class="bi bi-tools"></i><span>Wizard Step 2</span></a>
+  <a class="sidebar-link" href="wizard-step3.html"><i class="bi bi-tools"></i><span>Wizard Step 3</span></a>
+
+  <button class="btn btn-warning btn-logout" onclick="logout()"><i class="bi bi-box-arrow-left"></i> Logout</button>
+</nav>
+
+<!-- Main Chat Interface -->
+<div class="chat-container">
+  <div class="chat-header">
+    <h2>AI Virtual Agent</h2>
+    <p>Ask the agent for help, tasks, insights, or guidance across the admin platform.</p>
+  </div>
+
+  <!-- Quick Prompts -->
+  <div class="prompt-row">
+    <button class="prompt-btn" onclick="insertPrompt('Summarize today’s orders')">Summarize today’s orders</button>
+    <button class="prompt-btn" onclick="insertPrompt('Show current inventory summary')">Current inventory</button>
+    <button class="prompt-btn" onclick="insertPrompt('How many open tickets?')">Open tickets</button>
+    <button class="prompt-btn" onclick="insertPrompt('Send an alert to the team')">Send alert to team</button>
+    <button class="prompt-btn" onclick="insertPrompt('Help with billing issues')">Billing help</button>
+  </div>
+
+  <!-- Chat History -->
+  <div class="chat-box" id="chatBox">
+    <!-- Chat history will be appended here -->
+  </div>
+
+  <!-- Chat Input Row -->
+  <form class="chat-input-row" id="chatForm" autocomplete="off">
+    <button class="chat-attach-btn" type="button" title="Attach Image" onclick="fileInput.click()">
+      <i class="bi bi-paperclip"></i>
+    </button>
+    <input type="file" id="fileInput" accept="image/*,.txt" style="display:none"/>
+    <input type="text" id="userInput" placeholder="Type your question..." autocomplete="off"/>
+    <button class="chat-send-btn" type="submit">Send</button>
+  </form>
+</div>
+
+<!-- Toast notifications -->
+<div id="toastContainer"></div>
+
+<script>
+let vbmsData = {};
+let chatHistory = [
+  {role: "bot", content: "👋 Hello! How can I assist you today?"}
+];
+
+// ========== LOAD VBMS DATA (OPTIONAL) ==========
+async function loadVBMSData() {
+  try {
+    const res = await fetch("data.json");
+    vbmsData = await res.json();
+    console.log("Loaded VBMS data:", vbmsData);
+  } catch (e) {
+    vbmsData = {};
+  }
+}
+loadVBMSData();
+
+const chatBox = document.getElementById("chatBox");
+const userInput = document.getElementById("userInput");
+const chatForm = document.getElementById("chatForm");
+const fileInput = document.getElementById("fileInput");
+const toastContainer = document.getElementById("toastContainer");
+
+// ========== RENDER CHAT ==========
+function renderChat() {
+  chatBox.innerHTML = "";
+  for (const msg of chatHistory) {
+    let isUser = msg.role === "user";
+    let row = document.createElement("div");
+    row.className = "msg-row " + (isUser ? "user" : "bot");
+
+    // Avatar
+    let avatar = document.createElement("div");
+    avatar.className = "msg-avatar " + (isUser ? "user" : "bot");
+    avatar.innerHTML = isUser ? '<i class="bi bi-person"></i>' : '<i class="bi bi-robot"></i>';
+
+    // Bubble
+    let bubble = document.createElement("div");
+    bubble.className = "msg-bubble";
+    if (msg.image) {
+      bubble.innerHTML = `<img src="${msg.image}" class="msg-img" alt="attachment"/>`;
+    } else if (msg.file) {
+      bubble.innerHTML = `<span class="msg-file"><i class="bi bi-file-earmark"></i> ${msg.file}</span>`;
+    } else {
+      bubble.innerHTML = msg.content;
+    }
+    row.appendChild(avatar);
+    row.appendChild(bubble);
+    chatBox.appendChild(row);
+  }
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+// ========== INSERT PROMPT ==========
+function insertPrompt(text) {
+  userInput.value = text;
+  userInput.focus();
+}
+
+// ========== HANDLE MESSAGE SEND ==========
+chatForm.onsubmit = async function(e) {
+  e.preventDefault();
+  let text = userInput.value.trim();
+  if (!text) return;
+  chatHistory.push({role:"user", content:text});
+  renderChat();
+  userInput.value = "";
+  // Bot "thinking"
+  chatHistory.push({role:"bot", content:'<span class="thinking">Thinking</span>'});
+  renderChat();
+  let botReply = await fetchAI(text);
+  chatHistory[chatHistory.length-1].content = botReply;
+  renderChat();
+}
+
+// ========== FILE ATTACHMENT ==========
+fileInput.onchange = function() {
+  const file = fileInput.files[0];
+  if (!file) return;
+  if (file.type.startsWith("image/")) {
+    const reader = new FileReader();
+    reader.onload = function() {
+      chatHistory.push({role:"user", content:"[Image attached]", image: reader.result});
+      renderChat();
+      showToast("Image attached (not sent to AI)", "bi-image");
+    }
+    reader.readAsDataURL(file);
+  } else if (file.type === "text/plain") {
+    chatHistory.push({role:"user", content: "[File attached: "+file.name+"]", file: file.name});
+    renderChat();
+    showToast("Text file attached (not sent to AI)", "bi-file-earmark-text");
+  } else {
+    showToast("Only images or .txt files allowed.", "bi-exclamation-triangle-fill");
+  }
+  fileInput.value = "";
+}
+
+// ========== AI API CALL ==========
+async function fetchAI(userPrompt) {
+  try {
+    const response = await fetch('/api/chat', {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        messages: [
+          { role: "system", content: `You are VBMS AI. Here is our internal data:\n${JSON.stringify(vbmsData)}\nUse this to answer any user queries.` },
+          ...chatHistory.filter(m=>m.role!=="bot"||!m.image).slice(-10).map(m=>{
+            // Don’t send image/file bubbles to API
+            if(m.role==="user" && (m.image||m.file)) return null;
+            return {role:m.role, content:m.content.replace(/<.*?>/g,'')};
+          }).filter(Boolean),
+          { role: "user", content: userPrompt }
+        ]
+      })
+    });
+    const data = await response.json();
+    return data.choices?.[0]?.message?.content || "⚠️ No response.";
+  } catch (e) {
+    return "⚠️ Could not connect to the AI.";
+  }
+}
+
+// ========== TOASTS ==========
+function showToast(msg, icon="bi-info-circle") {
+  const t = document.createElement("div");
+  t.className = "custom-toast";
+  t.innerHTML = `<i class="bi ${icon} me-2"></i>${msg}`;
+  toastContainer.appendChild(t);
+  setTimeout(()=>t.remove(),1700);
+}
+
+// ========== INIT ==========
+renderChat();
+userInput.focus();
+</script>
+</body>
+</html>

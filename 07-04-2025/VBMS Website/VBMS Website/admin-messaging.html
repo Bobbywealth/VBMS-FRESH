@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VBMS Admin Messaging System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+    <style>
+        :root {
+            --accent: #f0b90b;
+            --accent-light: #ffd700;
+            --accent-glow: rgba(240, 185, 11, 0.4);
+            --primary-dark: #d4a109;
+            --secondary: #2c3e50;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --purple: #a855f7;
+            --cyan: #06b6d4;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --glass: rgba(255,255,255,0.95);
+            --glass-glow: rgba(240, 185, 11, 0.15);
+            --border: #e9ecef;
+            --text: #212529;
+            --text-muted: #6c757d;
+            --card-bg: #ffffff;
+            --card-shadow: 0 8px 32px rgba(240, 185, 11, 0.1);
+            --bg: linear-gradient(135deg, #f8f9fa 0%, #f0f8ff 50%, #f8f4ff 100%);
+            --sidebar-bg: rgba(255,255,255,0.98);
+            --sidebar-link: #333;
+            --sidebar-link-active: #000;
+            --master-admin-glow: rgba(255, 0, 0, 0.2);
+            --master-admin-accent: #dc3545;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg);
+            margin: 0;
+            padding: 0;
+        }
+
+        .master-admin-sidebar {
+            width: 320px;
+            background: var(--sidebar-bg);
+            backdrop-filter: blur(20px);
+            border-right: 2px solid var(--master-admin-accent);
+            padding: 20px;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            box-shadow: 
+                2px 0 30px rgba(240, 185, 11, 0.15),
+                inset 1px 0 0 rgba(255, 255, 255, 0.1),
+                0 0 50px var(--master-admin-glow);
+            z-index: 1000;
+            transition: all 0.35s ease;
+            font-family: 'Segoe UI', sans-serif;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            top: 0;
+            left: 0;
+        }
+        
+        .master-admin-sidebar::-webkit-scrollbar { display: none; }
+        
+        .master-admin-sidebar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, var(--master-admin-accent), var(--danger), var(--accent));
+            animation: masterAdminGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes masterAdminGlow {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 1; }
+        }
+
+        .logo { 
+            text-align: center; 
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        .logo img { 
+            max-width: 150px; 
+            height: auto; 
+        }
+
+        .master-admin-badge {
+            background: linear-gradient(135deg, var(--master-admin-accent), var(--danger));
+            color: white;
+            padding: 8px 15px;
+            border-radius: 25px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-align: center;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px var(--master-admin-glow);
+            animation: masterAdminBadgePulse 2s ease-in-out infinite;
+        }
+
+        @keyframes masterAdminBadgePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        .sidebar-heading {
+            color: var(--accent);
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 20px 0 10px 0;
+            opacity: 0.8;
+            position: relative;
+        }
+
+        .sidebar-heading.master-admin-section {
+            color: var(--master-admin-accent);
+            font-weight: 700;
+            opacity: 1;
+        }
+
+        .sidebar-heading.master-admin-section::before {
+            content: '⚡';
+            margin-right: 5px;
+            animation: masterAdminIcon 2s ease-in-out infinite;
+        }
+
+        @keyframes masterAdminIcon {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .sidebar-link {
+            display: block;
+            padding: 12px 15px;
+            color: var(--text);
+            text-decoration: none;
+            border-radius: 8px;
+            margin-bottom: 5px;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+            position: relative;
+            overflow: hidden;
+            font-size: 0.95rem;
+            white-space: nowrap;
+        }
+
+        .sidebar-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(240, 185, 11, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .sidebar-link:hover, .sidebar-link.active {
+            background: var(--glass-glow);
+            color: var(--accent);
+            border-left-color: var(--accent);
+            transform: translateX(8px);
+            box-shadow: 0 4px 15px rgba(240, 185, 11, 0.3);
+            font-weight: 600;
+        }
+
+        .sidebar-link:hover::before { left: 100%; }
+        .sidebar-link i { margin-right: 10px; width: 20px; }
+
+        .sidebar-link.master-admin-link {
+            border-left: 3px solid var(--master-admin-accent);
+            background: linear-gradient(90deg, var(--master-admin-glow), transparent);
+        }
+
+        .sidebar-link.master-admin-link:hover {
+            background: var(--master-admin-glow);
+            color: var(--master-admin-accent);
+            border-left-color: var(--master-admin-accent);
+            box-shadow: 0 4px 15px var(--master-admin-glow);
+            font-weight: 700;
+        }
+
+        .sidebar-link.master-admin-link i {
+            color: var(--master-admin-accent);
+        }
+
+        .system-status {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .system-status h6 {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-weight: 600;
+        }
+
+        .status-indicator.online {
+            color: var(--success);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success);
+            animation: statusPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes statusPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .quick-actions {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .quick-actions h6 {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+        }
+
+        .quick-action-btn {
+            display: block;
+            width: 100%;
+            background: var(--glass-glow);
+            border: 1px solid var(--accent);
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .quick-action-btn:hover {
+            background: var(--accent);
+            color: #000;
+            text-decoration: none;
+            transform: translateY(-1px);
+        }
+
+        .quick-action-btn.emergency {
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+
+        .quick-action-btn.emergency:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-logout {
+            width: 100%;
+            margin-top: 30px;
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-logout:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 320px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .messaging-header {
+            background: var(--card-bg);
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            box-shadow: var(--card-shadow);
+        }
+
+        .messaging-container {
+            flex: 1;
+            display: flex;
+            background: var(--card-bg);
+            margin: 20px;
+            border-radius: 15px;
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+            min-height: 600px;
+        }
+
+        .conversations-sidebar {
+            width: 350px;
+            background: var(--card-bg);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .conversations-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            background: var(--light);
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 25px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .conversations-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .conversation-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+
+        .conversation-item:hover {
+            background: var(--light);
+            border-color: var(--border);
+        }
+
+        .conversation-item.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .conversation-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: var(--info);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+            font-size: 18px;
+        }
+
+        .conversation-info {
+            flex: 1;
+        }
+
+        .conversation-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .conversation-preview {
+            color: var(--text-muted);
+            font-size: 14px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .conversation-item.active .conversation-preview {
+            color: rgba(255,255,255,0.8);
+        }
+
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--light);
+        }
+
+        .chat-header {
+            background: var(--card-bg);
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .chat-user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .chat-user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--info);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .chat-user-details h5 {
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .chat-user-details p {
+            margin: 0;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .messages-area {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: var(--light);
+            min-height: 300px;
+        }
+
+        .message {
+            display: flex;
+            margin-bottom: 20px;
+            align-items: flex-start;
+        }
+
+        .message.sent {
+            justify-content: flex-end;
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 15px 20px;
+            border-radius: 20px;
+            position: relative;
+            word-wrap: break-word;
+        }
+
+        .message.received .message-content {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+
+        .message.sent .message-content {
+            background: var(--master-admin-accent);
+            color: white;
+        }
+
+        .message-time {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 8px;
+            text-align: right;
+        }
+
+        .message.sent .message-time {
+            color: rgba(255,255,255,0.8);
+        }
+
+        .input-area {
+            background: var(--card-bg);
+            padding: 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        .input-container {
+            display: flex;
+            gap: 15px;
+            align-items: flex-end;
+        }
+
+        .message-input {
+            flex: 1;
+            padding: 15px 20px;
+            border: 1px solid var(--border);
+            border-radius: 25px;
+            font-size: 14px;
+            resize: none;
+            outline: none;
+            min-height: 50px;
+            max-height: 120px;
+        }
+
+        .send-button {
+            padding: 15px 25px;
+            background: var(--master-admin-accent);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            min-width: 100px;
+        }
+
+        .send-button:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <nav class="master-admin-sidebar" id="sidebar">
+        <div class="logo">
+            <img src="https://iili.io/F7bM6Jt.md.png" alt="VBMS">
+        </div>
+        
+        <div class="master-admin-badge">
+            <i class="bi bi-crown-fill"></i> MASTER ADMIN
+        </div>
+
+        <div class="system-status">
+            <h6>System Status</h6>
+            <div class="status-indicator online">
+                <div class="status-dot"></div>
+                <span>All Systems Online</span>
+            </div>
+        </div>
+
+        <div class="quick-actions">
+            <h6>Quick Actions</h6>
+            <a href="admin-create-admin.html" class="quick-action-btn">
+                <i class="bi bi-person-plus"></i> Create Admin
+            </a>
+            <a href="master-admin-analytics.html" class="quick-action-btn">
+                <i class="bi bi-graph-up-arrow"></i> View Analytics
+            </a>
+            <a href="#" class="quick-action-btn emergency" onclick="systemMaintenance()">
+                <i class="bi bi-tools"></i> System Maintenance
+            </a>
+        </div>
+        
+        <p class="sidebar-heading master-admin-section">MASTER ADMIN CONTROLS</p>
+        <a class="sidebar-link master-admin-link" href="admin-main-dashboard.html"><i class="bi bi-crown"></i> Master Dashboard</a>
+        <a class="sidebar-link master-admin-link" href="admin-create-admin.html"><i class="bi bi-person-plus"></i> Create Admin</a>
+        <a class="sidebar-link master-admin-link" href="master-admin-settings.html"><i class="bi bi-gear-wide-connected"></i> System Settings</a>
+        <a class="sidebar-link master-admin-link" href="admin-pricing.html"><i class="bi bi-tags"></i> Pricing Plans</a>
+
+        <p class="sidebar-heading master-admin-section">FOUNDER TOOLS</p>
+        <a class="sidebar-link master-admin-link" href="master-admin-analytics.html"><i class="bi bi-graph-up-arrow"></i> Advanced Analytics</a>
+        <a class="sidebar-link master-admin-link" href="admin-ai-agent.html"><i class="bi bi-robot"></i> AI Code Agent</a>
+        <a class="sidebar-link master-admin-link" href="master-admin-settings.html"><i class="bi bi-shield-check"></i> System Health</a>
+        <a class="sidebar-link master-admin-link" href="master-admin-customers.html"><i class="bi bi-people-fill"></i> User Management</a>
+        <a class="sidebar-link master-admin-link" href="master-admin-reports.html"><i class="bi bi-journal-text"></i> Audit Logs</a>
+
+        <p class="sidebar-heading">CORE</p>
+        <a class="sidebar-link" href="dashboard.html"><i class="bi bi-speedometer2"></i> Admin Dashboard</a>
+        <a class="sidebar-link" href="master-admin-reports.html"><i class="bi bi-bar-chart-line"></i> Enhanced Reports</a>
+
+        <p class="sidebar-heading">CUSTOMER MANAGEMENT</p>
+        <a class="sidebar-link" href="master-admin-customers.html"><i class="bi bi-people"></i> All Customers</a>
+        <a class="sidebar-link" href="admin-customer-analytics.html"><i class="bi bi-graph-up"></i> Customer Analytics</a>
+
+        <p class="sidebar-heading">SALES & MARKETING</p>
+        <a class="sidebar-link" href="admin-affiliates.html"><i class="bi bi-share"></i> Affiliate Program</a>
+        <a class="sidebar-link" href="leads.html"><i class="bi bi-person-lines-fill"></i> Leads</a>
+        <a class="sidebar-link" href="admin-ai-phone.html"><i class="bi bi-telephone-plus"></i> AI Phone (Leads)</a>
+
+        <p class="sidebar-heading">OPERATIONS</p>
+        <a class="sidebar-link" href="admin-orders.html"><i class="bi bi-box"></i> Order Management</a>
+        <a class="sidebar-link" href="inventory.html"><i class="bi bi-stack"></i> Inventory</a>
+        <a class="sidebar-link" href="monitoring.html"><i class="bi bi-camera-video"></i> System Monitoring</a>
+        <a class="sidebar-link" href="admin-calendar.html"><i class="bi bi-calendar3"></i> Calendar Management</a>
+
+        <p class="sidebar-heading">PEOPLE & STAFF</p>
+        <a class="sidebar-link" href="team.html"><i class="bi bi-people"></i> Team Management</a>
+        <a class="sidebar-link" href="admin-training.html"><i class="bi bi-mortarboard"></i> Training Center</a>
+
+        <p class="sidebar-heading">COMMUNICATION</p>
+        <a class="sidebar-link" href="admin-email-manager.html"><i class="bi bi-envelope-fill"></i> Email Management</a>
+        <a class="sidebar-link active" href="admin-messaging.html"><i class="bi bi-chat-dots"></i> Messaging</a>
+        <a class="sidebar-link" href="admin-taskboard.html"><i class="bi bi-kanban"></i> Task Board</a>
+
+        <p class="sidebar-heading">FINANCIAL</p>
+        <a class="sidebar-link" href="billing.html"><i class="bi bi-credit-card-2-front"></i> Billing & Payments</a>
+
+        <p class="sidebar-heading">SYSTEM</p>
+        <a class="sidebar-link" href="settings.html"><i class="bi bi-gear"></i> System Settings</a>
+        <a class="sidebar-link" href="help.html"><i class="bi bi-question-circle"></i> Help & Support</a>
+        <a class="sidebar-link" href="support.html"><i class="bi bi-headset"></i> Contact Support</a>
+
+        <button class="btn btn-logout" onclick="logout()"><i class="bi bi-box-arrow-left"></i> Logout</button>
+    </nav>
+
+    <div class="main-content">
+        <div class="messaging-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="mb-1"><i class="bi bi-chat-dots text-primary"></i> Admin Messaging System</h2>
+                    <p class="text-muted mb-0">Communicate with customers and team members in real-time</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-primary" onclick="refreshConversations()">
+                        <i class="bi bi-arrow-clockwise"></i> Refresh
+                    </button>
+                    <button class="btn btn-primary" onclick="newConversation()">
+                        <i class="bi bi-plus-lg"></i> New Chat
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="messaging-container">
+            <div class="conversations-sidebar">
+                <div class="conversations-header">
+                    <input type="text" class="search-box" placeholder="Search conversations..." id="searchConversations">
+                </div>
+                <div class="conversations-list" id="conversationsList">
+                    <div class="conversation-item active" onclick="selectConversation(1)">
+                        <div class="conversation-avatar">SJ</div>
+                        <div class="conversation-info">
+                            <div class="conversation-name">Sarah Johnson</div>
+                            <div class="conversation-preview">Hi, I have a question about my order</div>
+                        </div>
+                    </div>
+                    
+                    <div class="conversation-item" onclick="selectConversation(2)">
+                        <div class="conversation-avatar">MC</div>
+                        <div class="conversation-info">
+                            <div class="conversation-name">Mike Chen</div>
+                            <div class="conversation-preview">Thanks for the quick response</div>
+                        </div>
+                    </div>
+                    
+                    <div class="conversation-item" onclick="selectConversation(3)">
+                        <div class="conversation-avatar">ER</div>
+                        <div class="conversation-info">
+                            <div class="conversation-name">Emily Rodriguez</div>
+                            <div class="conversation-preview">Is there a way to upgrade my plan?</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chat-area">
+                <div class="chat-header">
+                    <div class="chat-user-info">
+                        <div class="chat-user-avatar">SJ</div>
+                        <div class="chat-user-details">
+                            <h5>Sarah Johnson</h5>
+                            <p>Online</p>
+                        </div>
+                    </div>
+                    <div class="chat-actions">
+                        <button class="btn btn-outline-primary btn-sm" onclick="viewCustomerProfile()">
+                            <i class="bi bi-person"></i> Profile
+                        </button>
+                        <button class="btn btn-danger btn-sm" onclick="resolveConversation()">
+                            <i class="bi bi-check-circle"></i> Resolve
+                        </button>
+                    </div>
+                </div>
+
+                <div class="messages-area" id="messagesArea">
+                    <div class="message received">
+                        <div class="message-content">
+                            <div>Hi, I have a question about my order</div>
+                            <div class="message-time">10:30 AM</div>
+                        </div>
+                    </div>
+                    
+                    <div class="message sent">
+                        <div class="message-content">
+                            <div>Hello Sarah! I'd be happy to help. What's your order number?</div>
+                            <div class="message-time">10:32 AM</div>
+                        </div>
+                    </div>
+                    
+                    <div class="message received">
+                        <div class="message-content">
+                            <div>It's #VBMS-2024-001</div>
+                            <div class="message-time">10:35 AM</div>
+                        </div>
+                    </div>
+                    
+                    <div class="message sent">
+                        <div class="message-content">
+                            <div>Perfect! I can see your order. It's scheduled for delivery tomorrow.</div>
+                            <div class="message-time">10:37 AM</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-area">
+                    <div class="input-container">
+                        <textarea 
+                            class="message-input" 
+                            id="messageInput" 
+                            placeholder="Type your message here..."
+                            rows="1"
+                        ></textarea>
+                        <button class="send-button" onclick="sendMessage()">
+                            <i class="bi bi-send"></i> Send
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function selectConversation(id) {
+            document.querySelectorAll('.conversation-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.target.closest('.conversation-item').classList.add('active');
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const messageText = input.value.trim();
+            
+            if (!messageText) return;
+            
+            const messagesArea = document.getElementById('messagesArea');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message sent';
+            messageDiv.innerHTML = `
+                <div class="message-content">
+                    <div>${messageText}</div>
+                    <div class="message-time">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+                </div>
+            `;
+            
+            messagesArea.appendChild(messageDiv);
+            messagesArea.scrollTop = messagesArea.scrollHeight;
+            input.value = '';
+            
+            setTimeout(() => {
+                const responses = ["Thanks for the help!", "That sounds good", "Perfect, thank you!"];
+                const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+                
+                const customerDiv = document.createElement('div');
+                customerDiv.className = 'message received';
+                customerDiv.innerHTML = `
+                    <div class="message-content">
+                        <div>${randomResponse}</div>
+                        <div class="message-time">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+                    </div>
+                `;
+                
+                messagesArea.appendChild(customerDiv);
+                messagesArea.scrollTop = messagesArea.scrollHeight;
+            }, 2000);
+        }
+
+        document.getElementById('messageInput').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        function refreshConversations() {
+            location.reload();
+        }
+
+        function newConversation() {
+            alert('New conversation feature coming soon!');
+        }
+
+        function viewCustomerProfile() {
+            alert('Customer profile feature coming soon!');
+        }
+
+        function resolveConversation() {
+            if (confirm('Mark this conversation as resolved?')) {
+                alert('Conversation resolved!');
+            }
+        }
+
+        function systemMaintenance() {
+            if (confirm('This will put the system into maintenance mode. Continue?')) {
+                alert('🚨 SYSTEM MAINTENANCE MODE ACTIVATED');
+            }
+        }
+
+        function logout() {
+            window.location.href = 'login.html';
+        }
+
+        console.log('✅ Master Admin sidebar and messaging system loaded successfully');
+    </script>
+</body>
+</html>

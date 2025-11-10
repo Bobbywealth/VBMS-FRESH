@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>System Configuration - Master Admin - VBMS</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+        :root {
+            --accent: #f0b90b;
+            --accent-light: #ffd700;
+            --accent-glow: rgba(240, 185, 11, 0.4);
+            --primary-dark: #d4a109;
+            --secondary: #2c3e50;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --purple: #a855f7;
+            --cyan: #06b6d4;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --glass: rgba(255,255,255,0.95);
+            --glass-glow: rgba(240, 185, 11, 0.15);
+            --border: #e9ecef;
+            --text: #212529;
+            --text-muted: #6c757d;
+            --card-bg: #ffffff;
+            --card-shadow: 0 8px 32px rgba(240, 185, 11, 0.1);
+            --bg: linear-gradient(135deg, #f8f9fa 0%, #f0f8ff 50%, #f8f4ff 100%);
+            --sidebar-bg: rgba(255,255,255,0.98);
+            --sidebar-link: #333;
+            --sidebar-link-active: #000;
+            --master-admin-glow: rgba(255, 0, 0, 0.2);
+            --master-admin-accent: #dc3545;
+        }
+
+        /* Dark theme - Modern Black/Gray with Energy */
+        [data-theme="dark"] {
+            --bg: linear-gradient(135deg, #000000 0%, #0a0a0a 25%, #1a1a1a 50%, #0f0f0f 100%);
+            --light: #ffffff;
+            --dark: #000000;
+            --text: #ffffff;
+            --text-muted: #a1a1aa;
+            --card-bg: rgba(20, 20, 20, 0.95);
+            --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.8), 0 0 20px rgba(240, 185, 11, 0.15);
+            --border: rgba(64, 64, 64, 0.4);
+            --glass: rgba(18, 18, 18, 0.95);
+            --glass-glow: rgba(240, 185, 11, 0.2);
+            --sidebar-bg: rgba(12, 12, 12, 0.98);
+            --sidebar-link: #d4d4d8;
+            --sidebar-link-active: #ffffff;
+            --accent: #f0b90b;
+            --accent-light: #ffd700;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --purple: #a855f7;
+            --cyan: #06b6d4;
+            --master-admin-glow: rgba(220, 53, 69, 0.3);
+            --master-admin-accent: #dc3545;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+            transition: all 0.3s ease;
+            position: relative;
+            min-height: 100vh;
+        }
+
+        /* Enhanced Background Animation */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(240, 185, 11, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(59, 130, 246, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.03) 0%, transparent 60%);
+            animation: enhancedGlow 25s ease-in-out infinite;
+        }
+
+        [data-theme="dark"] body::before {
+            background: 
+                radial-gradient(circle at 15% 25%, rgba(240, 185, 11, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 85% 75%, rgba(128, 128, 128, 0.06) 0%, transparent 60%),
+                radial-gradient(circle at 50% 50%, rgba(64, 64, 64, 0.05) 0%, transparent 70%);
+            animation: darkThemeGlow 25s ease-in-out infinite;
+        }
+
+        @keyframes enhancedGlow {
+            0%, 100% { opacity: 0.6; transform: rotate(0deg) scale(1); }
+            33% { opacity: 0.8; transform: rotate(120deg) scale(1.05); }
+            66% { opacity: 0.7; transform: rotate(240deg) scale(0.95); }
+        }
+
+        @keyframes darkThemeGlow {
+            0%, 100% { opacity: 0.8; transform: rotate(0deg) scale(1); }
+            25% { opacity: 1; transform: rotate(90deg) scale(1.1); }
+            50% { opacity: 0.9; transform: rotate(180deg) scale(1.05); }
+            75% { opacity: 1; transform: rotate(270deg) scale(1.08); }
+        }
+
+        .main-content {
+            margin-left: 320px;
+            padding: 30px;
+            min-height: 100vh;
+            background: transparent;
+            transition: all 0.3s ease;
+        }
+
+        /* Mobile content adjustments */
+        @media (max-width: 1024px) {
+            .main-content { margin-left: 280px; padding: 25px; }
+        }
+
+        @media (max-width: 768px) {
+            .main-content { margin-left: 0; padding: 80px 15px 15px 15px; }
+        }
+
+        /* Header Styling */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 30px;
+            padding: 20px 0;
+        }
+
+        .header-left h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text);
+            margin: 0 0 10px 0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .header-left h1 i {
+            color: var(--master-admin-accent);
+            font-size: 2rem;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        /* Theme Toggle */
+        .btn-outline-warning {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px;
+            color: var(--accent);
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-warning:hover {
+            background: var(--glass-glow);
+            border-color: var(--accent);
+            color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        /* Master Admin Badge */
+        .master-admin-badge {
+            background: linear-gradient(135deg, var(--master-admin-accent), var(--danger));
+            color: white;
+            padding: 8px 15px;
+            border-radius: 25px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 15px var(--master-admin-glow);
+        }
+
+        /* Settings Grid */
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        /* Settings Card */
+        .settings-card {
+            background: var(--glass);
+            backdrop-filter: blur(15px);
+            padding: 25px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            box-shadow: var(--card-shadow);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .settings-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent), var(--accent-light));
+            opacity: 0.8;
+        }
+
+        .settings-card.master-admin-card::before {
+            background: linear-gradient(90deg, var(--master-admin-accent), var(--danger));
+        }
+
+        .settings-card.critical-card::before {
+            background: linear-gradient(90deg, var(--danger), #dc2626);
+        }
+
+        .settings-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(240, 185, 11, 0.2);
+            border-color: var(--accent);
+        }
+
+        .settings-card.master-admin-card:hover {
+            box-shadow: 0 15px 40px var(--master-admin-glow);
+            border-color: var(--master-admin-accent);
+        }
+
+        .settings-card h4 {
+            color: var(--accent);
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .settings-card.master-admin-card h4 {
+            color: var(--master-admin-accent);
+        }
+
+        .settings-card.critical-card h4 {
+            color: var(--danger);
+        }
+
+        /* Form Controls */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .form-control {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 15px;
+            color: var(--text);
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(240, 185, 11, 0.1);
+        }
+
+        .form-check {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .form-check-input {
+            accent-color: var(--accent);
+        }
+
+        .form-check-label {
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        /* Action Buttons */
+        .action-btn {
+            background: var(--accent);
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            margin-right: 10px;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .action-btn:hover {
+            background: var(--accent-light);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(240, 185, 11, 0.3);
+        }
+
+        .action-btn.master-admin {
+            background: var(--master-admin-accent);
+            color: white;
+        }
+
+        .action-btn.master-admin:hover {
+            background: var(--danger);
+            box-shadow: 0 4px 15px var(--master-admin-glow);
+        }
+
+        .action-btn.critical {
+            background: var(--danger);
+            color: white;
+        }
+
+        .action-btn.critical:hover {
+            background: #dc2626;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+        }
+
+        .action-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Status Indicators */
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .status-indicator.online {
+            background: rgba(34, 197, 94, 0.2);
+            color: var(--success);
+            border: 1px solid var(--success);
+        }
+
+        .status-indicator.maintenance {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+            border: 1px solid var(--warning);
+        }
+
+        .status-indicator.offline {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+            border: 1px solid var(--danger);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+            animation: statusPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes statusPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Critical Actions Warning */
+        .critical-warning {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.05));
+            border: 2px solid var(--danger);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .critical-warning h5 {
+            color: var(--danger);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .critical-warning p {
+            color: var(--text-muted);
+            margin-bottom: 0;
+        }
+
+        /* System Metrics */
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .metric-row:last-child {
+            border-bottom: none;
+        }
+
+        .metric-label {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .metric-value {
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .settings-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header-left h1 {
+                font-size: 2rem;
+            }
+        }
+
+        /* Dark theme enhancements */
+        [data-theme="dark"] .settings-card,
+        [data-theme="dark"] .critical-warning {
+            border: 1px solid rgba(64, 64, 64, 0.4);
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.8),
+                0 0 20px rgba(240, 185, 11, 0.1);
+        }
+
+        [data-theme="dark"] .settings-card:hover {
+            box-shadow: 
+                0 12px 40px rgba(0, 0, 0, 0.9),
+                0 0 30px rgba(240, 185, 11, 0.2);
+        }
+  </style>
+</head>
+<body>
+<!-- Master Admin Sidebar Container -->
+<div id="master-admin-sidebar-container"></div>
+
+<!-- MAIN -->
+<main class="main-content">
+  <!-- Header -->
+  <div class="header">
+    <div class="header-left">
+      <div class="master-admin-badge">
+        <i class="bi bi-crown-fill"></i> MASTER ADMIN SETTINGS
+      </div>
+      <h1><i class="bi bi-gear-wide-connected"></i> System Configuration</h1>
+    </div>
+    <div class="header-right">
+      <button class="btn btn-outline-warning btn-sm" onclick="toggleTheme()" title="Toggle light/dark theme">
+        <i id="themeIcon" class="bi bi-moon-fill"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Critical Actions Warning -->
+  <div class="critical-warning">
+    <h5><i class="bi bi-exclamation-triangle-fill"></i> Critical System Settings</h5>
+    <p>These settings affect the entire VBMS system. Changes require master admin authorization and may impact all users.</p>
+  </div>
+
+  <!-- Settings Grid -->
+  <div class="settings-grid">
+    <!-- System Status & Control -->
+    <div class="settings-card master-admin-card">
+      <h4><i class="bi bi-cpu-fill"></i> System Status & Control</h4>
+      
+      <div class="status-indicator online">
+        <div class="status-dot"></div>
+        <span>All Systems Operational</span>
+      </div>
+
+      <div class="metric-row">
+        <div class="metric-label">System Uptime</div>
+        <div class="metric-value">99.97%</div>
+      </div>
+      <div class="metric-row">
+        <div class="metric-label">Active Users</div>
+        <div class="metric-value">2,847</div>
+      </div>
+      <div class="metric-row">
+        <div class="metric-label">Server Load</div>
+        <div class="metric-value">23%</div>
+      </div>
+      <div class="metric-row">
+        <div class="metric-label">Database Size</div>
+        <div class="metric-value">45.2 GB</div>
+      </div>
+
+      <button class="action-btn master-admin" onclick="systemHealthCheck()">
+        <i class="bi bi-shield-check"></i> Health Check
+      </button>
+      <button class="action-btn critical" onclick="maintenanceMode()">
+        <i class="bi bi-tools"></i> Maintenance Mode
+      </button>
+    </div>
+
+    <!-- User Management Settings -->
+    <div class="settings-card master-admin-card">
+      <h4><i class="bi bi-people-fill"></i> User Management</h4>
+      
+      <div class="form-group">
+        <label>New User Registration</label>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="allowRegistration" checked>
+          <label class="form-check-label" for="allowRegistration">Allow new user registration</label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Default User Role</label>
+        <select class="form-control" id="defaultRole">
+          <option value="customer">Customer</option>
+          <option value="client">Client</option>
+          <option value="trial">Trial User</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Maximum Users per Account</label>
+        <input type="number" class="form-control" id="maxUsers" value="5">
+      </div>
+
+      <div class="form-group">
+        <label>Password Policy</label>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="requireSpecialChars" checked>
+          <label class="form-check-label" for="requireSpecialChars">Require special characters</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="require2FA" checked>
+          <label class="form-check-label" for="require2FA">Require 2FA for admins</label>
+        </div>
+      </div>
+
+      <button class="action-btn" onclick="saveUserSettings()">
+        <i class="bi bi-save"></i> Save Settings
+      </button>
+    </div>
+
+    <!-- Security Configuration -->
+    <div class="settings-card critical-card">
+      <h4><i class="bi bi-shield-lock-fill"></i> Security Configuration</h4>
+      
+      <div class="form-group">
+        <label>Session Timeout (minutes)</label>
+        <input type="number" class="form-control" id="sessionTimeout" value="60">
+      </div>
+
+      <div class="form-group">
+        <label>Failed Login Attempts</label>
+        <input type="number" class="form-control" id="maxLoginAttempts" value="5">
+      </div>
+
+      <div class="form-group">
+        <label>Security Features</label>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="enableFirewall" checked>
+          <label class="form-check-label" for="enableFirewall">Enable firewall protection</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="enableEncryption" checked>
+          <label class="form-check-label" for="enableEncryption">Database encryption</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="enableAuditLog" checked>
+          <label class="form-check-label" for="enableAuditLog">Comprehensive audit logging</label>
+        </div>
+      </div>
+
+      <button class="action-btn critical" onclick="saveSecuritySettings()">
+        <i class="bi bi-shield-check"></i> Update Security
+      </button>
+      <button class="action-btn master-admin" onclick="securityScan()">
+        <i class="bi bi-search"></i> Security Scan
+      </button>
+    </div>
+
+    <!-- Payment & Billing -->
+    <div class="settings-card">
+      <h4><i class="bi bi-credit-card-fill"></i> Payment & Billing</h4>
+      
+      <div class="form-group">
+        <label>Payment Gateway</label>
+        <select class="form-control" id="paymentGateway">
+          <option value="stripe">Stripe</option>
+          <option value="paypal">PayPal</option>
+          <option value="square">Square</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Default Currency</label>
+        <select class="form-control" id="defaultCurrency">
+          <option value="USD">USD - US Dollar</option>
+          <option value="EUR">EUR - Euro</option>
+          <option value="GBP">GBP - British Pound</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Trial Period (days)</label>
+        <input type="number" class="form-control" id="trialPeriod" value="14">
+      </div>
+
+      <div class="form-group">
+        <label>Billing Features</label>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="autoRenewal" checked>
+          <label class="form-check-label" for="autoRenewal">Enable auto-renewal</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="prorationEnabled" checked>
+          <label class="form-check-label" for="prorationEnabled">Enable proration</label>
+        </div>
+      </div>
+
+      <button class="action-btn" onclick="saveBillingSettings()">
+        <i class="bi bi-save"></i> Save Settings
+      </button>
+    </div>
+
+    <!-- Email & Notifications -->
+    <div class="settings-card">
+      <h4><i class="bi bi-envelope-fill"></i> Email & Notifications</h4>
+      
+      <div class="form-group">
+        <label>SMTP Server</label>
+        <input type="text" class="form-control" id="smtpServer" value="smtp.gmail.com">
+      </div>
+
+      <div class="form-group">
+        <label>From Email Address</label>
+        <input type="email" class="form-control" id="fromEmail" value="noreply@vbms.com">
+      </div>
+
+      <div class="form-group">
+        <label>Notification Settings</label>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="emailNotifications" checked>
+          <label class="form-check-label" for="emailNotifications">Send email notifications</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="smsNotifications">
+          <label class="form-check-label" for="smsNotifications">Send SMS notifications</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="pushNotifications" checked>
+          <label class="form-check-label" for="pushNotifications">Push notifications</label>
+        </div>
+      </div>
+
+      <button class="action-btn" onclick="testEmail()">
+        <i class="bi bi-send"></i> Test Email
+      </button>
+      <button class="action-btn" onclick="saveEmailSettings()">
+        <i class="bi bi-save"></i> Save Settings
+      </button>
+    </div>
+
+    <!-- API & Integrations -->
+    <div class="settings-card">
+      <h4><i class="bi bi-diagram-3-fill"></i> API & Integrations</h4>
+      
+      <div class="form-group">
+        <label>API Rate Limit (per minute)</label>
+        <input type="number" class="form-control" id="apiRateLimit" value="1000">
+      </div>
+
+      <div class="form-group">
+        <label>Webhook URL</label>
+        <input type="url" class="form-control" id="webhookUrl" placeholder="https://your-domain.com/webhook">
+      </div>
+
+      <div class="form-group">
+        <label>Integration Features</label>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="enableAPI" checked>
+          <label class="form-check-label" for="enableAPI">Enable REST API</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="enableWebhooks" checked>
+          <label class="form-check-label" for="enableWebhooks">Enable webhooks</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="enableThirdParty">
+          <label class="form-check-label" for="enableThirdParty">Third-party integrations</label>
+        </div>
+      </div>
+
+      <button class="action-btn" onclick="generateAPIKey()">
+        <i class="bi bi-key"></i> Generate API Key
+      </button>
+      <button class="action-btn" onclick="saveAPISettings()">
+        <i class="bi bi-save"></i> Save Settings
+      </button>
+    </div>
+
+    <!-- Database & Backup -->
+    <div class="settings-card critical-card">
+      <h4><i class="bi bi-server"></i> Database & Backup</h4>
+      
+      <div class="metric-row">
+        <div class="metric-label">Last Backup</div>
+        <div class="metric-value">2 hours ago</div>
+      </div>
+      <div class="metric-row">
+        <div class="metric-label">Backup Size</div>
+        <div class="metric-value">12.4 GB</div>
+      </div>
+      <div class="metric-row">
+        <div class="metric-label">Storage Used</div>
+        <div class="metric-value">65%</div>
+      </div>
+
+      <div class="form-group">
+        <label>Backup Frequency</label>
+        <select class="form-control" id="backupFrequency">
+          <option value="hourly">Every Hour</option>
+          <option value="daily" selected>Daily</option>
+          <option value="weekly">Weekly</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Retention Period (days)</label>
+        <input type="number" class="form-control" id="retentionPeriod" value="30">
+      </div>
+
+      <button class="action-btn critical" onclick="createBackup()">
+        <i class="bi bi-download"></i> Create Backup
+      </button>
+      <button class="action-btn master-admin" onclick="restoreBackup()">
+        <i class="bi bi-upload"></i> Restore Backup
+      </button>
+      <button class="action-btn" onclick="saveBackupSettings()">
+        <i class="bi bi-save"></i> Save Settings
+      </button>
+    </div>
+
+    <!-- System Logs -->
+    <div class="settings-card master-admin-card">
+      <h4><i class="bi bi-journal-text"></i> System Logs</h4>
+      
+      <div class="form-group">
+        <label>Log Level</label>
+        <select class="form-control" id="logLevel">
+          <option value="debug">Debug</option>
+          <option value="info" selected>Info</option>
+          <option value="warning">Warning</option>
+          <option value="error">Error</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Log Retention (days)</label>
+        <input type="number" class="form-control" id="logRetention" value="90">
+      </div>
+
+      <div class="form-group">
+        <label>Logging Features</label>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="logUserActions" checked>
+          <label class="form-check-label" for="logUserActions">Log user actions</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="logSystemEvents" checked>
+          <label class="form-check-label" for="logSystemEvents">Log system events</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="logErrors" checked>
+          <label class="form-check-label" for="logErrors">Log errors</label>
+        </div>
+      </div>
+
+      <button class="action-btn master-admin" onclick="viewLogs()">
+        <i class="bi bi-eye"></i> View Logs
+      </button>
+      <button class="action-btn" onclick="exportLogs()">
+        <i class="bi bi-download"></i> Export Logs
+      </button>
+      <button class="action-btn" onclick="saveLogSettings()">
+        <i class="bi bi-save"></i> Save Settings
+      </button>
+    </div>
+  </div>
+</main>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="auth.js"></script>
+<script src="theme-manager.js"></script>
+<script src="notifications-manager.js"></script>
+<script src="activity-tracker.js"></script>
+
+<!-- Master Admin Sidebar Loader -->
+<script>
+// Load Master Admin Sidebar
+document.addEventListener('DOMContentLoaded', function() {
+    if (window.vbmsAuth && vbmsAuth.isAuthenticated() && vbmsAuth.isMainAdmin()) {
+        fetch('master-admin-sidebar.html')
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('master-admin-sidebar-container').innerHTML = html;
+                console.log('✅ Master Admin sidebar loaded successfully');
+            })
+            .catch(error => {
+                console.error('❌ Error loading master admin sidebar:', error);
+                window.location.href = 'dashboard.html';
+            });
+    } else {
+        console.log('⚠️ Master Admin access required');
+        alert('Access Denied: Master Admin access required');
+        window.location.href = 'dashboard.html';
+    }
+});
+</script>
+
+<script>
+// Authentication check - Master Admin Only
+function checkAuthWithRetry(maxRetries = 3, delay = 100) {
+  let retries = 0;
+  
+  function attemptAuth() {
+    console.log('🔍 Master Admin Settings Auth Check');
+    
+    if (!vbmsAuth.isAuthenticated()) {
+      console.log('❌ Auth failed - redirecting to login');
+      window.location.href = 'login.html';
+      return;
+    }
+
+    const userRole = vbmsAuth.getCurrentRole();
+    
+    if ((!userRole || userRole === '') && retries < maxRetries) {
+      retries++;
+      setTimeout(attemptAuth, delay);
+      return;
+    }
+    
+    if (!userRole || userRole === '') {
+      console.log('Auth check failed - no role found after retries');
+      window.location.href = 'login.html';
+      return;
+    }
+    
+    if (!vbmsAuth.isMainAdmin()) {
+      console.log('Master admin access check failed for user role:', userRole);
+      alert('Access Denied: Master Admin access required for system configuration');
+      
+      setTimeout(() => {
+        const verifiedRole = vbmsAuth.getCurrentRole();
+        if (verifiedRole === 'admin' && !vbmsAuth.isMainAdmin()) {
+          window.location.href = 'settings.html';
+        } else if ((verifiedRole === 'customer' || verifiedRole === 'client') && !vbmsAuth.isMainAdmin()) {
+          window.location.href = 'customer-settings.html';
+        } else {
+          window.location.href = 'login.html';
+        }
+      }, 150);
+      return;
+    }
+    
+    initializeMasterAdminSettings();
+  }
+  
+  attemptAuth();
+}
+
+function initializeMasterAdminSettings() {
+  // Load current settings
+  loadSystemSettings();
+  
+  // Track page access
+  if (window.activityTracker) {
+    activityTracker.trackPageView('Master Admin Settings');
+  }
+}
+
+function loadSystemSettings() {
+  console.log('⚙️ Loading master admin system settings...');
+  // In a real app, this would load settings from the database
+}
+
+// System Control Functions
+function systemHealthCheck() {
+  if (window.activityTracker) {
+    activityTracker.trackCustomActivity('system_health_check', 'Master Admin performed system health check', {
+      priority: 'high',
+      module: 'System Administration'
+    });
+  }
+  
+  alert('System health check initiated. This would perform comprehensive system diagnostics.');
+}
+
+function maintenanceMode() {
+  if (window.activityTracker) {
+    activityTracker.trackCustomActivity('maintenance_mode', 'Master Admin toggled maintenance mode', {
+      priority: 'critical',
+      module: 'System Administration'
+    });
+  }
+  
+  if (confirm('Enable maintenance mode? This will temporarily disable customer access.')) {
+    alert('Maintenance mode activated. All customer access has been temporarily disabled.');
+  }
+}
+
+// Settings Save Functions
+function saveUserSettings() {
+  if (window.activityTracker) {
+    activityTracker.trackCustomActivity('user_settings_update', 'Master Admin updated user management settings', {
+      priority: 'medium',
+      module: 'User Management'
+    });
+  }
+  
+  alert('User management settings saved successfully.');
+}
+
+function saveSecuritySettings() {
+  if (window.activityTracker) {
+    activityTracker.trackCustomActivity('security_settings_update', 'Master Admin updated security configuration', {
+      priority: 'critical',
+      module: 'Security'
+    });
+  }
+  
+  if (confirm('Update security settings? This will affect all system security protocols.')) {
+    alert('Security settings updated successfully. New security policies are now in effect.');
+  }
+}
+
+function securityScan() {
+  if (window.activityTracker) {
+    activityTracker.trackCustomActivity('security_scan', 'Master Admin initiated security scan', {
+      priority: 'high',
+      module: 'Security'
+    });
+  }
+  
+  alert('Security scan initiated. This would perform comprehensive vulnerability assessment.');
+}
+
+function saveBillingSettings() {
+  alert('Billing settings saved successfully.');
+}
+
+function testEmail() {
+  alert('Test email sent to system administrators.');
+}
+
+function saveEmailSettings() {
+  alert('Email and notification settings saved successfully.');
+}
+
+function generateAPIKey() {
+  if (window.activityTracker) {
+    activityTracker.trackCustomActivity('api_key_generation', 'Master Admin generated new API key', {
+      priority: 'high',
+      module: 'API Management'
+    });
+  }
+  
+  const newKey = 'vbms_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
+  alert(`New API Key Generated:\n${newKey}\n\nStore this securely - it won't be shown again.`);
+}
+
+function saveAPISettings() {
+  alert('API and integration settings saved successfully.');
+}
+
+// Database Functions
+function createBackup() {
+  if (window.activityTracker) {
+    activityTracker.trackCustomActivity('database_backup', 'Master Admin created system backup', {
+      priority: 'critical',
+      module: 'Database Management'
+    });
+  }
+  
+  if (confirm('Create system backup? This may take several minutes and could impact system performance.')) {
+    alert('System backup initiated. You will be notified when the backup is complete.');
+  }
+}
+
+function restoreBackup() {
+  if (window.activityTracker) {
+    activityTracker.trackCustomActivity('database_restore', 'Master Admin initiated database restore', {
+      priority: 'critical',
+      module: 'Database Management'
+    });
+  }
+  
+  if (confirm('CRITICAL: Restore system from backup? This will overwrite all current data and cannot be undone.')) {
+    alert('Database restore initiated. System will be temporarily unavailable during the restore process.');
+  }
+}
+
+function saveBackupSettings() {
+  alert('Backup and database settings saved successfully.');
+}
+
+// Logging Functions
+function viewLogs() {
+  if (window.activityTracker) {
+    activityTracker.trackCustomActivity('view_system_logs', 'Master Admin accessed system logs', {
+      priority: 'medium',
+      module: 'System Monitoring'
+    });
+  }
+  
+  alert('Opening system logs viewer. This would display comprehensive system activity logs.');
+}
+
+function exportLogs() {
+  if (window.activityTracker) {
+    activityTracker.trackCustomActivity('export_system_logs', 'Master Admin exported system logs', {
+      priority: 'high',
+      module: 'System Monitoring'
+    });
+  }
+  
+  alert('System logs export initiated. Log files will be prepared for download.');
+}
+
+function saveLogSettings() {
+  alert('System logging settings saved successfully.');
+}
+
+// Start authentication check
+checkAuthWithRetry();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VBMS - Customer Settings</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="customer-theme.css" rel="stylesheet">
+  <style>
+    .navbar {
+      background: var(--sidebar-bg) !important;
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 0;
+      backdrop-filter: blur(20px);
+    }
+    .navbar-brand {
+      color: var(--accent) !important;
+      font-weight: 800;
+      font-size: 1.5rem;
+    }
+    .navbar-nav .nav-link {
+      color: var(--text) !important;
+      margin: 0 0.5rem;
+      border-radius: 8px;
+      padding: 0.5rem 1rem !important;
+      transition: all 0.3s;
+    }
+    .navbar-nav .nav-link:hover {
+      background: var(--accent);
+      color: var(--dark) !important;
+    }
+    .main-content {
+      padding: 2rem 0;
+    }
+    .settings-header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+    .settings-nav {
+      background: var(--card-bg);
+      border-radius: 15px;
+      padding: 1rem;
+      margin-bottom: 2rem;
+      border: 1px solid var(--border);
+      backdrop-filter: blur(20px);
+    }
+    .settings-nav .nav-pills .nav-link {
+      color: var(--text-muted);
+      border-radius: 10px;
+      padding: 0.75rem 1.5rem;
+      margin: 0 0.25rem;
+      transition: all 0.3s;
+    }
+    .settings-nav .nav-pills .nav-link.active {
+      background: var(--accent);
+      color: var(--dark);
+      font-weight: 600;
+    }
+    .settings-nav .nav-pills .nav-link:hover:not(.active) {
+      background: var(--glass-glow);
+      color: var(--accent);
+    }
+    .settings-card {
+      background: var(--card-bg);
+      border-radius: 15px;
+      padding: 2.5rem;
+      margin-bottom: 2rem;
+      border: 1px solid var(--border);
+      box-shadow: var(--card-shadow);
+      backdrop-filter: blur(20px);
+    }
+    .settings-card h3 {
+      color: var(--accent);
+      margin-bottom: 2rem;
+      font-size: 1.75rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .form-control, .form-select {
+      background: var(--glass);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 8px;
+      padding: 0.875rem;
+      margin-bottom: 1rem;
+      backdrop-filter: blur(10px);
+    }
+    .form-control:focus, .form-select:focus {
+      background: var(--glass);
+      border-color: var(--accent);
+      color: var(--text);
+      box-shadow: 0 0 0 0.2rem var(--accent-glow);
+    }
+    .form-label {
+      color: var(--text-muted);
+      font-weight: 500;
+      margin-bottom: 0.75rem;
+      font-size: 0.95rem;
+    }
+    .btn-primary {
+      background: var(--accent);
+      border: none;
+      color: var(--dark);
+      font-weight: 600;
+      padding: 0.875rem 2rem;
+      border-radius: 8px;
+      transition: all 0.3s;
+      margin-top: 1rem;
+    }
+    .btn-primary:hover {
+      background: var(--primary-dark);
+      color: var(--dark);
+      transform: translateY(-1px);
+    }
+    .btn-danger {
+      background: var(--danger);
+      border: none;
+      color: var(--light);
+      font-weight: 600;
+      padding: 0.875rem 2rem;
+      border-radius: 8px;
+      margin-top: 1rem;
+    }
+    .alert {
+      border-radius: 8px;
+      border: none;
+      margin-bottom: 2rem;
+    }
+    .alert-success {
+      background: rgba(34, 197, 94, 0.1);
+      border: 1px solid var(--success);
+      color: var(--success);
+    }
+    .alert-danger {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid var(--danger);
+      color: var(--danger);
+    }
+    .business-profile-section {
+      display: flex;
+      align-items: flex-start;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+    .business-profile-img {
+      width: 120px;
+      height: 120px;
+      border-radius: 15px;
+      object-fit: cover;
+      border: 3px solid var(--accent);
+    }
+    .file-upload-container {
+      margin-top: 1rem;
+    }
+    .file-upload-btn {
+      background: var(--accent);
+      color: var(--dark);
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s;
+      display: inline-block;
+    }
+    .file-upload-btn:hover {
+      background: var(--primary-dark);
+      transform: translateY(-1px);
+    }
+    #fileInput {
+      position: absolute;
+      left: -9999px;
+    }
+    .form-section {
+      margin-bottom: 2rem;
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    @media (max-width: 768px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+      .business-profile-section {
+        flex-direction: column;
+        text-align: center;
+      }
+      .settings-nav .nav-pills {
+        flex-direction: column;
+      }
+      .settings-nav .nav-pills .nav-link {
+        margin: 0.25rem 0;
+      }
+    }
+    .tab-content {
+      min-height: 400px;
+    }
+    .integration-item {
+      background: #18181b;
+      border: 1px solid #444;
+      border-radius: 10px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .integration-info h5 {
+      margin: 0;
+      color: #e4e4e7;
+    }
+    .integration-status {
+      margin-top: 0.5rem;
+    }
+    .danger-zone {
+      background: rgba(220, 38, 38, 0.1);
+      border: 1px solid #dc2626;
+      border-radius: 10px;
+      padding: 2rem;
+      margin-top: 2rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Customer Sidebar -->
+  <div id="sidebar-container"></div>
+
+  <div class="main-content">
+    <!-- Header -->
+    <div class="settings-header">
+      <h1 style="color: #f0b90b; font-size: 2.5rem; font-weight: 800;">Settings</h1>
+      <p style="color: #a1a1aa; font-size: 1.1rem;">Manage your account and business preferences</p>
+    </div>
+
+    <!-- Alert Messages -->
+    <div id="alertContainer"></div>
+
+    <!-- Settings Navigation -->
+    <div class="settings-nav">
+      <ul class="nav nav-pills justify-content-center" id="settingsTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active" id="business-tab" data-bs-toggle="pill" data-bs-target="#business" type="button" role="tab">
+            <i class="bi bi-building"></i> Business Profile
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="account-tab" data-bs-toggle="pill" data-bs-target="#account" type="button" role="tab">
+            <i class="bi bi-person-gear"></i> Account
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="notifications-tab" data-bs-toggle="pill" data-bs-target="#notifications" type="button" role="tab">
+            <i class="bi bi-bell"></i> Notifications
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="integrations-tab" data-bs-toggle="pill" data-bs-target="#integrations" type="button" role="tab">
+            <i class="bi bi-link-45deg"></i> Integrations
+          </button>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Settings Content -->
+    <div class="tab-content" id="settingsTabContent">
+      <!-- Business Profile Tab -->
+      <div class="tab-pane fade show active" id="business" role="tabpanel">
+        <div class="settings-card">
+          <h3><i class="bi bi-building"></i> Business Profile</h3>
+
+          <div class="business-profile-section">
+            <div>
+              <img id="businessLogo" src="https://via.placeholder.com/120x120/f0b90b/000?text=Logo" alt="Business Logo" class="business-profile-img">
+              <div class="file-upload-container">
+                <label for="fileInput" class="file-upload-btn">
+                  <i class="bi bi-upload"></i> Upload Logo (Optional)
+                </label>
+                <input type="file" id="fileInput" accept="image/*">
+                <small class="text-muted d-block mt-1">Logo is optional - you can save your business profile without uploading one</small>
+              </div>
+            </div>
+
+            <div style="flex: 1;">
+              <form id="businessProfileForm">
+                <div class="form-section">
+                  <div class="form-row">
+                    <div>
+                      <label for="businessName" class="form-label">Business Name</label>
+                      <input type="text" class="form-control" id="businessName" placeholder="Enter business name">
+                    </div>
+                    <div>
+                      <label for="businessEmail" class="form-label">Business Email</label>
+                      <input type="email" class="form-control" id="businessEmail" placeholder="Enter business email">
+                    </div>
+                  </div>
+
+                  <div class="form-row">
+                    <div>
+                      <label for="businessPhone" class="form-label">Business Phone</label>
+                      <input type="tel" class="form-control" id="businessPhone" placeholder="Enter business phone">
+                    </div>
+                    <div>
+                      <label for="businessAddress" class="form-label">Business Address</label>
+                      <input type="text" class="form-control" id="businessAddress" placeholder="Enter business address">
+                    </div>
+                  </div>
+
+                  <div>
+                    <label for="businessDescription" class="form-label">Business Description</label>
+                    <textarea class="form-control" id="businessDescription" rows="4" placeholder="Describe your business"></textarea>
+                  </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                  <i class="bi bi-save"></i> Save Business Profile
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Account Tab -->
+      <div class="tab-pane fade" id="account" role="tabpanel">
+        <div class="settings-card">
+          <h3><i class="bi bi-person-gear"></i> Account Settings</h3>
+          <form id="accountSettingsForm">
+            <div class="form-section">
+              <div class="form-row">
+                <div>
+                  <label for="fullName" class="form-label">Full Name</label>
+                  <input type="text" class="form-control" id="fullName" placeholder="Enter your full name">
+                </div>
+                <div>
+                  <label for="email" class="form-label">Email Address</label>
+                  <input type="email" class="form-control" id="email" placeholder="Enter your email">
+                </div>
+              </div>
+
+              <hr style="border-color: #444; margin: 2rem 0;">
+              <h5 style="color: #f0b90b; margin-bottom: 1.5rem;">Change Password</h5>
+
+              <div>
+                <label for="currentPassword" class="form-label">Current Password</label>
+                <input type="password" class="form-control" id="currentPassword" placeholder="Enter current password">
+              </div>
+
+              <div class="form-row">
+                <div>
+                  <label for="newPassword" class="form-label">New Password</label>
+                  <input type="password" class="form-control" id="newPassword" placeholder="Enter new password">
+                </div>
+                <div>
+                  <label for="confirmPassword" class="form-label">Confirm New Password</label>
+                  <input type="password" class="form-control" id="confirmPassword" placeholder="Confirm new password">
+                </div>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+              <i class="bi bi-save"></i> Update Account
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Notifications Tab -->
+      <div class="tab-pane fade" id="notifications" role="tabpanel">
+        <div class="settings-card">
+          <h3><i class="bi bi-bell"></i> Notification Preferences</h3>
+          <form id="notificationForm">
+            <div class="form-section">
+              <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" id="emailNotifications" checked>
+                <label class="form-check-label" for="emailNotifications" style="color: #e4e4e7;">
+                  <strong>Email Notifications</strong><br>
+                  <small class="text-muted">Receive important updates via email</small>
+                </label>
+              </div>
+
+              <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" id="smsNotifications">
+                <label class="form-check-label" for="smsNotifications" style="color: #e4e4e7;">
+                  <strong>SMS Notifications</strong><br>
+                  <small class="text-muted">Get text messages for urgent updates</small>
+                </label>
+              </div>
+
+              <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" id="orderNotifications" checked>
+                <label class="form-check-label" for="orderNotifications" style="color: #e4e4e7;">
+                  <strong>Order Updates</strong><br>
+                  <small class="text-muted">Stay informed about order status changes</small>
+                </label>
+              </div>
+
+              <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" id="marketingNotifications">
+                <label class="form-check-label" for="marketingNotifications" style="color: #e4e4e7;">
+                  <strong>Marketing Communications</strong><br>
+                  <small class="text-muted">Receive promotional offers and updates</small>
+                </label>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+              <i class="bi bi-save"></i> Save Preferences
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Integrations Tab -->
+      <div class="tab-pane fade" id="integrations" role="tabpanel">
+        <div class="settings-card">
+          <h3><i class="bi bi-link-45deg"></i> Integrations</h3>
+
+          <div class="integration-item">
+            <div class="integration-info">
+              <h5>Clover POS Integration</h5>
+              <div class="integration-status">
+                <span class="badge bg-danger" id="cloverStatus">Not Connected</span>
+              </div>
+            </div>
+            <button class="btn btn-primary" onclick="connectClover()">
+              <i class="bi bi-link"></i> Connect
+            </button>
+          </div>
+
+          <div class="integration-item">
+            <div class="integration-info">
+              <h5>UberEats Integration</h5>
+              <div class="integration-status">
+                <span class="badge bg-danger" id="uberEatsStatus">Not Connected</span>
+              </div>
+            </div>
+            <button class="btn btn-primary" onclick="connectUberEats()">
+              <i class="bi bi-link"></i> Connect
+            </button>
+          </div>
+
+          <div class="integration-item">
+            <div class="integration-info">
+              <h5>DoorDash Integration</h5>
+              <div class="integration-status">
+                <span class="badge bg-danger" id="doorDashStatus">Not Connected</span>
+              </div>
+            </div>
+            <button class="btn btn-primary" onclick="connectDoorDash()">
+              <i class="bi bi-link"></i> Connect
+            </button>
+          </div>
+
+          <div class="integration-item">
+            <div class="integration-info">
+              <h5>Grubhub Integration</h5>
+              <div class="integration-status">
+                <span class="badge bg-danger" id="grubhubStatus">Not Connected</span>
+              </div>
+            </div>
+            <button class="btn btn-primary" onclick="connectGrubhub()">
+              <i class="bi bi-link"></i> Connect
+            </button>
+          </div>
+
+          <div class="integration-item">
+            <div class="integration-info">
+              <h5>Stripe Payment Processing</h5>
+              <div class="integration-status">
+                <span class="badge bg-success">Connected</span>
+              </div>
+            </div>
+            <button class="btn btn-danger" onclick="disconnectStripe()">
+              <i class="bi bi-unlink"></i> Disconnect
+            </button>
+          </div>
+
+          <div class="danger-zone">
+            <h5 style="color: #dc2626; margin-bottom: 1rem;"><i class="bi bi-exclamation-triangle"></i> Danger Zone</h5>
+            <p style="color: #a1a1aa; margin-bottom: 1.5rem;">These actions cannot be undone. Please be careful.</p>
+            <div class="d-flex gap-3 flex-wrap">
+              <button class="btn btn-danger" onclick="resetData()">
+                <i class="bi bi-arrow-clockwise"></i> Reset All Data
+              </button>
+              <button class="btn btn-danger" onclick="deleteAccount()">
+                <i class="bi bi-trash"></i> Delete Account
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="navigation-enforcement.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="auth.js"></script>
+  <script src="load-sidebar.js"></script>
+  <script src="theme-manager.js"></script>
+  <script>
+    // Check authentication
+    document.addEventListener('DOMContentLoaded', function() {
+      const user = vbmsAuth.getCurrentUser();
+      const token = vbmsAuth.getToken();
+
+      if (!user || !token) {
+        console.log('Access denied - redirecting to login');
+        window.location.href = 'customer-login.html';
+        return;
+      }
+
+      // Role-based access control
+      const userRole = vbmsAuth.getCurrentRole();
+      if (userRole !== 'customer' && userRole !== 'client') {
+        alert('Access Denied: Customer access required');
+        window.location.href = vbmsAuth.getRoleRedirectUrl();
+        return;
+      }
+
+      console.log('Customer settings page loaded for:', user.name);
+
+      // Initialize page
+      loadUserData();
+      loadBusinessData();
+      loadNotificationSettings();
+    });
+
+    const API_BASE = window.location.hostname === 'localhost' 
+      ? 'http://localhost:5050' 
+      : 'https://vbms-fresh-offical-website-launch.onrender.com';
+
+    // Show alert messages
+    function showAlert(message, type = 'success') {
+      const alertContainer = document.getElementById('alertContainer');
+      const alert = document.createElement('div');
+      alert.className = `alert alert-${type} alert-dismissible fade show`;
+      alert.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      `;
+      alertContainer.appendChild(alert);
+
+      setTimeout(() => {
+        alert.remove();
+      }, 5000);
+    }
+
+    // Load user data
+    async function loadUserData() {
+      try {
+        const user = vbmsAuth.getCurrentUser();
+        if (user) {
+          document.getElementById('fullName').value = user.name || '';
+          document.getElementById('email').value = user.email || '';
+        }
+      } catch (error) {
+        console.error('Error loading user data:', error);
+      }
+    }
+
+    // Load business data
+    async function loadBusinessData() {
+      try {
+        const response = await fetch(`${API_BASE}/api/settings/business-profile`, {
+          headers: {
+            'Authorization': `Bearer ${vbmsAuth.getToken()}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          document.getElementById('businessName').value = data.businessName || '';
+          document.getElementById('businessEmail').value = data.businessEmail || '';
+          document.getElementById('businessPhone').value = data.businessPhone || '';
+          document.getElementById('businessAddress').value = data.businessAddress || '';
+          document.getElementById('businessDescription').value = data.businessDescription || '';
+
+          if (data.logoUrl) {
+            document.getElementById('businessLogo').src = `${API_BASE}${data.logoUrl}`;
+          }
+        } else {
+          console.error('Failed to load business data:', response.status);
+        }
+      } catch (error) {
+        console.error('Error loading business data:', error);
+      }
+    }
+
+    // Load notification settings
+    async function loadNotificationSettings() {
+      try {
+        const response = await fetch(`${API_BASE}/api/settings/notifications`, {
+          headers: {
+            'Authorization': `Bearer ${vbmsAuth.getToken()}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          document.getElementById('emailNotifications').checked = data.emailNotifications !== false;
+          document.getElementById('smsNotifications').checked = data.smsNotifications || false;
+          document.getElementById('orderNotifications').checked = data.orderNotifications !== false;
+          document.getElementById('marketingNotifications').checked = data.marketingNotifications || false;
+        } else {
+          console.error('Failed to load notification settings:', response.status);
+        }
+      } catch (error) {
+        console.error('Error loading notification settings:', error);
+      }
+    }
+
+    // Business Profile Form
+    document.getElementById('businessProfileForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      // Validate required fields
+      const businessName = document.getElementById('businessName').value.trim();
+      if (!businessName) {
+        showAlert('Business name is required', 'danger');
+        return;
+      }
+
+      const formData = {
+        businessName: businessName,
+        businessEmail: document.getElementById('businessEmail').value.trim(),
+        businessPhone: document.getElementById('businessPhone').value.trim(),
+        businessAddress: document.getElementById('businessAddress').value.trim(),
+        businessDescription: document.getElementById('businessDescription').value.trim()
+      };
+
+      // Show loading state
+      const submitBtn = e.target.querySelector('button[type="submit"]');
+      const originalText = submitBtn.innerHTML;
+      submitBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Saving...';
+      submitBtn.disabled = true;
+
+      try {
+        console.log('Sending business profile data:', formData);
+
+        const response = await fetch(`${API_BASE}/api/settings/business-profile`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${vbmsAuth.getToken()}`
+          },
+          body: JSON.stringify(formData)
+        });
+
+        console.log('Response status:', response.status);
+
+        if (response.ok) {
+          const result = await response.json();
+          console.log('Success response:', result);
+          showAlert('Business profile updated successfully!', 'success');
+
+          // Update local storage for dashboard sync
+          const wizardData = JSON.parse(localStorage.getItem('vbmsWizard') || '{}');
+          wizardData.bizName = formData.businessName;
+          localStorage.setItem('vbmsWizard', JSON.stringify(wizardData));
+
+          // Update user data
+          const user = vbmsAuth.getCurrentUser();
+          if (user) {
+            user.business = formData.businessName;
+            localStorage.setItem('vbmsUser', JSON.stringify(user));
+          }
+
+          // Signal dashboard to update
+          localStorage.setItem('vbms-settings-updated', Date.now().toString());
+          setTimeout(() => {
+            localStorage.removeItem('vbms-settings-updated');
+          }, 1000);
+        } else {
+          if (response.status === 401 || response.status === 403) {
+            showAlert('Session expired. Please log in again.', 'danger');
+            setTimeout(() => {
+              vbmsAuth.logout();
+              window.location.href = 'customer-login.html';
+            }, 2000);
+            return;
+          }
+
+          let errorMessage = 'Failed to update business profile';
+          try {
+            const error = await response.json();
+            errorMessage = error.message || errorMessage;
+          } catch (parseError) {
+            console.log('Could not parse error response');
+          }
+
+          console.error('Error response:', response.status, errorMessage);
+          showAlert(errorMessage, 'danger');
+        }
+      } catch (error) {
+        console.error('Network error updating business profile:', error);
+        showAlert('Network error. Please check your connection and try again.', 'danger');
+      } finally {
+        // Restore button state
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+      }
+    });
+
+    // Account Settings Form
+    document.getElementById('accountSettingsForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const newPassword = document.getElementById('newPassword').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+
+      if (newPassword && newPassword !== confirmPassword) {
+        showAlert('Passwords do not match', 'danger');
+        return;
+      }
+
+      const formData = {
+        name: document.getElementById('fullName').value,
+        email: document.getElementById('email').value,
+        currentPassword: document.getElementById('currentPassword').value,
+        newPassword: newPassword
+      };
+
+      try {
+        const response = await fetch(`${API_BASE}/api/settings/account`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${vbmsAuth.getToken()}`
+          },
+          body: JSON.stringify(formData)
+        });
+
+        if (response.ok) {
+          showAlert('Account updated successfully!', 'success');
+          // Clear password fields
+          document.getElementById('currentPassword').value = '';
+          document.getElementById('newPassword').value = '';
+          document.getElementById('confirmPassword').value = '';
+        } else {
+          const error = await response.json();
+          showAlert(error.message || 'Failed to update account', 'danger');
+        }
+      } catch (error) {
+        showAlert('Error updating account', 'danger');
+        console.error('Error:', error);
+      }
+    });
+
+    // Notification Form
+    document.getElementById('notificationForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const formData = {
+        emailNotifications: document.getElementById('emailNotifications').checked,
+        smsNotifications: document.getElementById('smsNotifications').checked,
+        orderNotifications: document.getElementById('orderNotifications').checked,
+        marketingNotifications: document.getElementById('marketingNotifications').checked
+      };
+
+      try {
+        const response = await fetch(`${API_BASE}/api/settings/notifications`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${vbmsAuth.getToken()}`
+          },
+          body: JSON.stringify(formData)
+        });
+
+        if (response.ok) {
+          showAlert('Notification preferences saved!', 'success');
+        } else {
+          const error = await response.json();
+          showAlert(error.message || 'Failed to save preferences', 'danger');
+        }
+      } catch (error) {
+        showAlert('Error saving preferences', 'danger');
+        console.error('Error:', error);
+      }
+    });
+
+    // File upload handler
+    document.getElementById('fileInput').addEventListener('change', async function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const formData = new FormData();
+      formData.append('logo', file);
+
+      try {
+        const response = await fetch(`${API_BASE}/api/settings/upload-logo`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${vbmsAuth.getToken()}`
+          },
+          body: formData
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          document.getElementById('businessLogo').src = `${API_BASE}${data.logoUrl}`;
+          showAlert('Logo uploaded successfully!', 'success');
+        } else {
+          const error = await response.text();
+          showAlert('Failed to upload logo: ' + error, 'danger');
+        }
+      } catch (error) {
+        showAlert('Error uploading logo', 'danger');
+        console.error('Error:', error);
+      }
+    });
+
+    // Integration functions
+    function connectClover() {
+      // Simulate connection
+      document.getElementById('cloverStatus').textContent = 'Connected';
+      document.getElementById('cloverStatus').className = 'badge bg-success';
+      showAlert('success', 'Clover POS connected successfully!');
+    }
+
+    async function connectUberEats() {
+      try {
+        // Test the connection first
+        const response = await fetch(`${API_BASE}/api/uber-eats/test-connection`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${vbmsAuth.getToken()}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+
+          // Update integration settings
+          await fetch(`${API_BASE}/api/settings/integrations`, {
+            method: 'PUT',
+            headers: {
+              'Authorization': `Bearer ${vbmsAuth.getToken()}`,
+              'Content-Type':```text
+application/json'
+            },
+            body: JSON.stringify({
+              platform: 'ubereats',
+              connected: true
+            })
+          });
+
+          document.getElementById('uberEatsStatus').textContent = 'Connected';
+          document.getElementById('uberEatsStatus').className = 'badge bg-success';
+          showAlert('UberEats integration connected successfully!', 'success');
+        } else {
+          throw new Error('Connection failed');
+        }
+      } catch (error) {
+        console.error('Error connecting to UberEats:', error);
+        showAlert('Failed to connect to UberEats. Please check your API credentials.', 'danger');
+      }
+    }
+
+    function connectDoorDash() {
+      // Simulate connection
+      document.getElementById('doorDashStatus').textContent = 'Connected';
+      document.getElementById('doorDashStatus').className = 'badge bg-success';
+      showAlert('success', 'DoorDash integration connected successfully!');
+    }
+
+    function connectGrubhub() {
+      // Simulate connection
+      document.getElementById('grubhubStatus').textContent = 'Connected';
+      document.getElementById('grubhubStatus').className = 'badge bg-success';
+      showAlert('success', 'Grubhub integration connected successfully!');
+    }
+
+    function disconnectStripe() {      // Simulate disconnection
+      showAlert('warning', 'Stripe Payment Processing disconnected');
+    }
+
+    // Danger zone functions
+    function deleteAccount() {
+      if (confirm('Are you absolutely sure you want to delete your account? This action cannot be undone and all your data will be permanently lost.')) {
+        if (confirm('This is your final warning. Type "DELETE" to confirm account deletion.')) {
+          // Implement account deletion
+          showAlert('Account deletion initiated. You will receive an email confirmation.', 'danger');
+        }
+      }
+    }
+
+    function resetData() {
+      if (confirm('Are you sure you want to reset all your data? This will remove all orders, customers, and settings but keep your account.')) {
+        // Implement data reset
+        showAlert('Data reset initiated', 'danger');
+      }
+    }
+  </script>
+  <script src="load-sidebar.js"></script>
+</body>
+</html>

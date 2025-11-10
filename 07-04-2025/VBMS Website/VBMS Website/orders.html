@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>VBMS Orders</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"/>
+  <style>
+    :root {
+      --accent: #f0b90b;
+      --bg-main: #171717;
+      --bg-dark: #131313;
+      --bg-gradient: linear-gradient(135deg, #191919 60%, #222 100%);
+      --text-main: #fff;
+      --text-muted: #aaa;
+      --sidebar-bg: #111112;
+      --sidebar-width: 260px;
+      --sidebar-logo: #f0b90b;
+      --card-bg: #222;
+      --border: #333;
+      --danger: #ff7675;
+      --warning: #f0b90b;
+      --success: #26de81;
+      --table-header: #222;
+    }
+    body {
+      background: var(--bg-gradient);
+      color: var(--text-main);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      transition: background 0.6s;
+      overflow-x: hidden;
+    }
+    body.light-mode {
+      --bg-main: #f7f7f7;
+      --bg-dark: #fff;
+      --bg-gradient: linear-gradient(135deg, #f8f8f9 60%, #ecebeb 100%);
+      --text-main: #222;
+      --text-muted: #333;
+      --sidebar-bg: #fff;
+      --card-bg: #fff;
+      --border: #ddd;
+      --table-header: #efefef;
+    }
+    /* Sidebar */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 280px;
+      height: 100vh;
+      background: #111 !important;
+      border-right: 1px solid rgba(240,185,11,.22);
+      padding: 2rem 1rem;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      transition: .3s;
+      scrollbar-width: thin;
+      scrollbar-color: transparent transparent;
+      z-index: 1000;
+    }
+
+    .logo {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 2rem;
+      margin-top: 1.5rem;
+    }
+
+    .logo img {
+      max-width: 180px;
+      transition: .3s;
+    }
+
+    .sidebar-heading {
+      font-size: .72rem;
+      color: #888;
+      margin: .8rem 0 .4rem .4rem;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .sidebar-link {
+      display: flex;
+      align-items: center;
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 6px;
+      color: #ccc;
+      text-decoration: none;
+      cursor: pointer;
+      transition: .2s;
+      font-weight: 500;
+    }
+
+    .sidebar-link i {
+      margin-right: 10px;
+      font-size: 1.15rem;
+      width: 20px;
+      text-align: center;
+    }
+
+    .sidebar-link:hover, .sidebar-link.active {
+      background: #f0b90b;
+      color: #000 !important;
+      font-weight: 700;
+    }
+
+    .btn-logout {
+      margin-top: auto;
+      width: 100%;
+      background: #FFD600;
+      border: none;
+      color: #000;
+    }
+    /* Main area */
+    .main-area {
+      margin-left: var(--sidebar-width);
+      padding: 2.2rem 2.2rem 1.5rem 2.2rem;
+      min-height: 100vh;
+      background: transparent;
+      transition: background 0.4s;
+    }
+    @media (max-width: 900px) {
+      .main-area { padding: 1.2rem 0.5rem 1.5rem 0.5rem;}
+      .sidebar { width: 60px; min-width:60px; padding: 0.8rem 0.2rem;}
+      .sidebar nav span { display:none;}
+      .main-area { margin-left: 60px; }
+      .sidebar-title, .sidebar-logo img {display:none;}
+    }
+    /* Header */
+    .orders-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+    }
+    .orders-header-left {
+      display: flex; align-items: center; gap: 0.7rem;
+    }
+    .orders-title {
+      font-size: 2.3rem;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: 0.02em;
+      text-shadow: 0 2px 18px rgba(240,185,11,0.10);
+      margin-bottom: 0;
+      display:flex;align-items:center;gap:.6rem;
+    }
+    .orders-header-toolbar {
+      display: flex; align-items: center; gap: 0.6rem;
+      flex-wrap: wrap;
+    }
+    .btn-theme {
+      background: transparent;
+      border: 1.3px solid var(--border);
+      color: var(--accent);
+      font-size: 1.18rem;
+      border-radius: 8px;
+      transition: 0.2s;
+    }
+    .btn-theme:hover { background: var(--accent); color: #222;}
+    .btn-activity { position:relative;background:transparent;border:none;}
+    .activity-badge {
+      position: absolute; top: -7px; right: -7px;
+      background: var(--danger); color: #fff;
+      border-radius: 50%; width: 22px; height: 22px;
+      font-size: 0.95rem; display: flex; align-items: center; justify-content: center;
+      border: 2.5px solid var(--bg-dark);
+      font-weight: 600;
+    }
+    /* Toolbar Filters */
+    .orders-toolbar input, .orders-toolbar select, .orders-toolbar button {
+      margin-right: 0.33rem;
+      border-radius: 7px;
+      border: 1.2px solid var(--border);
+      background: var(--card-bg);
+      color: var(--text-main);
+      padding: 4px 10px;
+      min-width: 110px;
+      font-size: 0.97rem;
+    }
+    .orders-toolbar button {
+      color: var(--accent);
+      border: 1.4px solid var(--accent);
+      background: transparent;
+      font-weight: 600;
+    }
+    .orders-toolbar .btn-export { color: #fff; background: var(--accent);}
+    .orders-toolbar .btn-export:hover { background: #ffe066; color: #111; }
+    .orders-toolbar .btn-refresh { background: transparent;}
+    .orders-toolbar .btn-refresh:hover { background: var(--accent); color: #222;}
+    .orders-toolbar input[type="search"] { min-width:150px;}
+    /* Metric cards */
+    .metrics-row {
+      display: flex; gap: 1.3rem; margin-bottom: 1.5rem; flex-wrap:wrap;
+    }
+    .metric-card {
+      background: var(--card-bg);
+      padding: 1.15rem 1.3rem;
+      border-radius: 13px;
+      min-width: 200px;
+      min-height: 96px;
+      box-shadow: 0 2px 14px 0 rgba(0,0,0,0.09);
+      color: var(--text-main);
+      display: flex; flex-direction: column;
+      gap: 0.33rem;
+      transition: box-shadow 0.22s;
+      border: 1.5px solid var(--border);
+      cursor:pointer;
+      position: relative;
+    }
+    .metric-card.active, .metric-card:hover {
+      border: 2px solid var(--accent);
+      box-shadow: 0 2px 14px 0 rgba(240,185,11,0.10);
+    }
+    .metric-title {
+      color: var(--accent);
+      font-weight: 700;
+      font-size: 1.1rem;
+      margin-bottom: .15rem;
+    }
+    .metric-value {
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+    }
+    /* Charts */
+    .charts-row { display: flex; gap: 2rem; margin-bottom:2rem; flex-wrap:wrap;}
+    .chart-box {
+      background: var(--card-bg);
+      border-radius: 14px;
+      padding: 1.1rem 1.3rem;
+      box-shadow: 0 2px 14px 0 rgba(0,0,0,0.09);
+      min-width: 330px; flex: 1 1 340px;
+      border: 1.5px solid var(--border);
+    }
+    .chart-title { color: var(--accent); font-weight:600; margin-bottom: .7rem;}
+    /* Orders Table */
+    .orders-table-box {
+      background: var(--card-bg);
+      border-radius: 10px;
+      padding: 1.1rem 1.1rem 0.5rem 1.1rem;
+      margin-bottom: 2.4rem;
+      border: 1.5px solid var(--border);
+      box-shadow: 0 2px 10px 0 rgba(0,0,0,0.09);
+    }
+    .orders-table-title { color: var(--accent); font-size:1.15rem; font-weight:600; margin-bottom: .6rem;}
+    .table.orders-table thead th {
+      background: var(--table-header) !important;
+      color: var(--accent);
+      font-size: 1.03rem;
+      font-weight: 700;
+      border-bottom: 2px solid var(--accent);
+    }
+    .table.orders-table td, .table.orders-table th {
+      vertical-align: middle;
+      font-size: 0.99rem;
+    }
+    .orders-table .btn-action {
+      padding: 4px 10px; border-radius: 7px; font-size:0.97rem;
+      background: var(--accent); color: #111; border:none;
+      margin-right: 5px;
+      transition: background .16s;
+    }
+    .orders-table .btn-action:hover { background: #ffd23c;}
+    /* Table status styling */
+    .status-badge {
+      font-size: 0.97rem;
+      padding: 3px 9px;
+      border-radius: 9px;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      display: inline-block;
+    }
+    .status-Pending { background: #fffbe0; color: #cc9502;}
+    .status-Shipped { background: #e0fff6; color: #178d6c;}
+    .status-Delivered { background: #e0ffe4; color: #198754;}
+    .status-Cancelled { background: #ffe0e0; color: #d62d1c;}
+    .status-All { background: #f0b90b; color: #fff;}
+    /* Comments Drawer */
+    .comments-drawer {
+      position: fixed;
+      right: -420px; top: 0;
+      width: 370px; height: 100vh;
+      background: var(--card-bg);
+      border-left: 2.5px solid var(--accent);
+      box-shadow: -4px 0 24px 0 rgba(0,0,0,0.09);
+      z-index: 1111;
+      padding: 1.4rem 1.3rem;
+      transition: right .32s cubic-bezier(.7,.2,.21,.91);
+      display: flex; flex-direction: column;
+    }
+    .comments-drawer.show { right: 0;}
+    .comments-title { color:var(--accent);font-weight:700;font-size:1.15rem;margin-bottom:.9rem;}
+    .comments-list { list-style:none;padding:0;max-height:50vh;overflow:auto;margin-bottom:1rem;}
+    .comments-list li { margin-bottom:.9rem; background:var(--bg-dark); padding:8px 14px;border-radius:8px;}
+    .comment-user { font-weight:700;color:var(--accent);}
+    .comment-time { font-size:.83rem; color:var(--text-muted);}
+    .comment-input-row { display:flex;gap:.5rem;}
+    .comment-input-row input { flex:1;}
+    .comment-add-btn { background:var(--accent);color:#000;border:none;padding:0 14px;border-radius:7px;}
+    /* Activity Modal */
+    .activity-modal {
+      position: fixed; top: 80px; right: 36px;
+      background: var(--card-bg); color: var(--text-main);
+      border-radius: 15px; box-shadow:0 2px 16px rgba(0,0,0,0.18);
+      padding: 1.1rem 1.7rem 1.2rem 1.2rem;
+      border: 1.7px solid var(--accent);
+      min-width: 270px;
+      z-index: 2000;
+      display: none;
+      animation: fadeIn .19s;
+    }
+    .activity-modal.show { display: block;}
+    @keyframes fadeIn {from {opacity:0;transform:translateY(8px);} to {opacity:1;transform:translateY(0);} }
+    /* Toast */
+    .custom-toast {
+      z-index: 9999;
+    }
+    /* Scrollbars */
+    ::-webkit-scrollbar { width: 7px; background: #222;}
+    ::-webkit-scrollbar-thumb { background: #232323; border-radius:5px;}
+    body.light-mode ::-webkit-scrollbar-thumb { background: #eee;}
+
+    @media (max-width: 768px) {
+      .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 280px;
+        height: 100vh;
+        background-color: #111;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        z-index: 1000;
+        padding: 1rem 0.5rem;
+        overflow-y: auto;
+        overflow-x: hidden;
+      }
+      .sidebar.open {
+        transform: translateX(0);
+      }
+      .main-content {
+        margin-left: 0 !important;
+        padding: 1rem !important;
+      }
+      .sidebar-link {
+        padding: 8px 10px;
+        font-size: 0.95rem;
+      }
+      .sidebar-heading {
+        font-size: 0.65rem;
+        margin: 0.6rem 0 0.3rem 0.2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!--  SIDEBAR  -->
+<nav class="sidebar" id="sidebar" tabindex="0">
+  <div class="logo">
+    <img src="https://iili.io/F7bM6Jt.md.png" alt="VBMS">
+    <span class="logo-eye-anim" style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); pointer-events:none; overflow:visible;">
+      <svg width="49" height="49" style="display:block; overflow:visible;">
+        <!-- Iris ripple -->
+        <circle cx="24.5" cy="23" r="13" stroke="#FFD600" stroke-width="2.2" fill="none" opacity="0.17">
+          <animate attributeName="r" values="13;18;13" dur="1.3s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0.17;0.33;0.17" dur="1.3s" repeatCount="indefinite"/>
+        </circle>
+        <!-- Pulsing iris -->
+        <circle cx="24.5" cy="23" r="6.3" fill="#FFD600" opacity="0.77">
+          <animate attributeName="opacity" values="0.77;0.21;0.77" dur="1.12s" repeatCount="indefinite"/>
+        </circle>
+        <!-- Scanning arc -->
+        <path d="M24.5,8 A15,15 0 0 1 39,23" stroke="#FFD600" stroke-width="2.7" stroke-linecap="round" fill="none" opacity="0.7">
+          <animateTransform
+            attributeName="transform"
+            type="rotate"
+            from="0 24.5 23"
+            to="360 24.5 23"
+            dur="1.24s"
+            repeatCount="indefinite"/>
+        </path>
+        <!-- Lens flare glint -->
+        <rect x="-20" y="19" width="15" height="5" fill="#fff" opacity="0.15"
+              transform="rotate(45 10 24.5)">
+          <animate attributeName="x" values="-20;60" dur="3s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0;0.2;0" dur="3s" repeatCount="indefinite"/>
+        </rect>
+      </svg>
+    </span>
+  </div>
+
+  <p class="sidebar-heading">CORE</p>
+  <a class="sidebar-link" href="dashboard.html" aria-label="Dashboard"><i class="bi bi-speedometer2"></i><span>Dashboard</span></a>
+  <a class="sidebar-link" href="reports.html" aria-label="Reports"><i class="bi bi-bar-chart-line"></i><span>Reports</span></a>
+
+  <p class="sidebar-heading">OPERATIONS</p>
+  <a class="sidebar-link active" href="orders.html" aria-label="Orders"><i class="bi bi-box"></i><span>Orders</span></a>
+  <a class="sidebar-link" href="monitoring.html" aria-label="Monitoring"><i class="bi bi-camera-video"></i><span>Monitoring</span></a>
+  <a class="sidebar-link" href="inventory.html" aria-label="Inventory"><i class="bi bi-stack"></i><span>Inventory</span></a>
+  <a class="sidebar-link" href="calendar.html" aria-label="Calendar"><i class="bi bi-calendar-event"></i><span>Calendar</span></a>
+
+  <p class="sidebar-heading">PEOPLE & CLIENTS</p>
+  <a class="sidebar-link" href="team.html" aria-label="Team"><i class="bi bi-people"></i><span>Team</span></a>
+  <a class="sidebar-link" href="clients.html" aria-label="Clients"><i class="bi bi-person-badge"></i><span>Clients</span></a>
+  <a class="sidebar-link" href="leads.html" aria-label="Leads"><i class="bi bi-person-lines-fill"></i><span>Leads</span></a>
+
+  <p class="sidebar-heading">TASKS & COMMUNICATION</p>
+  <a class="sidebar-link" href="task-board.html" aria-label="Task Manager"><i class="bi bi-kanban"></i><span>Task Manager</span></a>
+  <a class="sidebar-link" href="messaging.html" aria-label="Messaging"><i class="bi bi-chat-dots"></i><span>Messaging</span></a>
+
+  <p class="sidebar-heading">AI TOOLS</p>
+  <a class="sidebar-link" href="Aiphone.html" aria-label="AI Phone"><i class="bi bi-telephone"></i><span>AI Phone</span></a>
+  <a class="sidebar-link" href="Aiassistant.html" aria-label="AI Assistant"><i class="bi bi-robot"></i><span>AI Assistant</span></a>
+
+  <p class="sidebar-heading">BUSINESS TOOLS</p>
+  <a class="sidebar-link" href="billing.html" aria-label="Billing"><i class="bi bi-credit-card-2-front"></i><span>Billing</span></a>
+  <a class="sidebar-link" href="settings.html" aria-label="Settings"><i class="bi bi-gear"></i><span>Settings</span></a>
+  <a class="sidebar-link" href="training.html" aria-label="Training"><i class="bi bi-mortarboard"></i><span>Training</span></a>
+
+  <p class="sidebar-heading">DEV/UTILITY</p>
+  <a class="sidebar-link" href="wizard.html" aria-label="Wizard (Dev)"><i class="bi bi-tools"></i><span>Wizard (Dev)</span></a>
+  <a class="sidebar-link" href="wizard-step2.html" aria-label="Wizard Step 2"><i class="bi bi-tools"></i><span>Wizard Step 2</span></a>
+  <a class="sidebar-link" href="wizard-step3.html" aria-label="Wizard Step 3"><i class="bi bi-tools"></i><span>Wizard Step 3</span></a>
+
+  <button class="btn btn-warning btn-logout" onclick="logout()"><i class="bi bi-box-arrow-left"></i> Logout</button>
+</nav>
+  <!-- MAIN AREA -->
+  <main class="main-area">
+    <!-- HEADER -->
+    <div class="orders-header mb-2">
+      <div class="orders-header-left">
+        <div class="orders-title"><i class="bi bi-box"></i> Orders</div>
+      </div>
+      <div class="orders-header-toolbar">
+        <button class="btn-theme" id="themeToggleBtn" title="Toggle theme"><i class="bi bi-moon-stars"></i></button>
+        <button class="btn-activity" id="activityBell" title="Show alerts">
+          <i class="bi bi-bell fs-4"></i>
+          <span class="activity-badge">3</span>
+        </button>
+      </div>
+    </div>
+    <!-- TOOLBAR -->
+    <div class="orders-toolbar mb-3 d-flex flex-wrap align-items-center gap-1">
+      <input type="date" id="filterDate" title="Filter by date"/>
+      <select id="filterPlatform" title="Platform">
+        <option value="">All Platforms</option>
+        <option>UberEats</option>
+        <option>DoorDash</option>
+        <option>Grubhub</option>
+        <option>Other</option>
+      </select>
+      <select id="filterStatus" title="Status">
+        <option value="">All Status</option>
+        <option>Pending</option>
+        <option>Shipped</option>
+        <option>Delivered</option>
+        <option>Cancelled</option>
+      </select>
+      <input type="search" id="ordersSearch" placeholder="Search orders..." />
+      <button class="btn btn-refresh" id="refreshBtn"><i class="bi bi-arrow-repeat"></i> Refresh</button>
+      <button class="btn btn-export" id="exportBtn"><i class="bi bi-download"></i> Export</button>
+    </div>
+    <!-- METRICS -->
+    <div class="metrics-row">
+      <div class="metric-card active" data-metric="all">
+        <div class="metric-title">All Orders</div>
+        <div class="metric-value" id="allOrdersCard">4</div>
+      </div>
+      <div class="metric-card" data-metric="pending">
+        <div class="metric-title">Pending</div>
+        <div class="metric-value" id="pendingOrdersCard">1</div>
+      </div>
+      <div class="metric-card" data-metric="shipped">
+        <div class="metric-title">Shipped</div>
+        <div class="metric-value" id="shippedOrdersCard">1</div>
+      </div>
+      <div class="metric-card" data-metric="delivered">
+        <div class="metric-title">Delivered</div>
+        <div class="metric-value" id="deliveredOrdersCard">1</div>
+      </div>
+      <div class="metric-card" data-metric="cancelled">
+        <div class="metric-title">Cancelled</div>
+        <div class="metric-value" id="cancelledOrdersCard">1</div>
+      </div>
+    </div>
+    <!-- CHARTS -->
+    <div class="charts-row">
+      <div class="chart-box" style="flex: 1 1 200px;">
+        <div class="chart-title">Order Trend (Last 7 days)</div>
+        <canvas id="ordersTrendChart" height="60"></canvas>
+      </div>
+      <div class="chart-box" style="flex: 1 1 200px;">
+        <div class="chart-title">Orders by Platform</div>
+        <canvas id="ordersPlatformChart" height="60"></canvas>
+      </div>
+    </div>
+    <!-- TABLE -->
+    <div class="orders-table-box">
+      <div class="orders-table-title">Orders List</div>
+      <div class="table-responsive">
+        <table class="table table-dark table-striped orders-table mb-0">
+          <thead>
+            <tr>
+              <th>Platform</th>
+              <th>Order #</th>
+              <th>Client</th>
+              <th>Items</th>
+              <th>Total</th>
+              <th>Date</th>
+              <th>Status</th>
+              <th>ETA</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="ordersTableBody">
+            <!-- Populated by JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <!-- COMMENTS DRAWER -->
+    <div class="comments-drawer" id="commentsDrawer">
+      <div class="comments-title">Order Notes</div>
+      <ul class="comments-list" id="commentsList"></ul>
+      <div class="comment-input-row">
+        <input type="text" class="form-control" id="commentInput" placeholder="Add a note...">
+        <button class="comment-add-btn" id="addCommentBtn"><i class="bi bi-send"></i></button>
+      </div>
+      <button class="btn btn-secondary mt-2" onclick="closeComments()"><i class="bi bi-x-lg"></i> Close</button>
+    </div>
+    <!-- ACTIVITY MODAL -->
+    <div class="activity-modal" id="activityModal">
+      <h5>Live Alerts</h5>
+      <ul id="alertsList">
+        <li><span class="text-danger">UberEats</span> order delayed</li>
+        <li><span class="text-warning">New DoorDash order</span></li>
+        <li><span class="text-success">Grubhub</span> delivered</li>
+      </ul>
+      <button class="btn btn-sm btn-outline-warning" onclick="closeActivityModal()">Close</button>
+    </div>
+    <footer class="mt-4 text-center text-muted">&copy; 2025 VBMS. All rights reserved.</footer>
+  </main>
+  <!-- SCRIPTS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    // ===== DEMO DATA =====
+    const ordersData = [
+      {
+        platform: "UberEats",
+        orderId: "UE34322",
+        client: "Sashey’s Kitchen",
+        items: "3x Burger, 2x Fries",
+        total: "$45.90",
+        date: "2025-06-29",
+        status: "Pending",
+        eta: "40m",
+        notes: [
+          {user:"Support", text:"Delayed by driver", time:"2025-06-29 09:23"}
+        ]
+      },
+      {
+        platform: "DoorDash",
+        orderId: "DD18920",
+        client: "Blue Bar",
+        items: "4x Wings",
+        total: "$38.00",
+        date: "2025-06-28",
+        status: "Shipped",
+        eta: "20m",
+        notes: [
+          {user:"Manager", text:"Customer called for update.", time:"2025-06-28 20:18"}
+        ]
+      },
+      {
+        platform: "Grubhub",
+        orderId: "GH44883",
+        client: "Sunset Diner",
+        items: "2x Pizza",
+        total: "$31.50",
+        date: "2025-06-28",
+        status: "Delivered",
+        eta: "Delivered",
+        notes: []
+      },
+      {
+        platform: "UberEats",
+        orderId: "UE34355",
+        client: "Cafe Q",
+        items: "1x Salad",
+        total: "$12.40",
+        date: "2025-06-27",
+        status: "Cancelled",
+        eta: "-",
+        notes: [{user:"Support", text:"Cancelled by client.", time:"2025-06-27 12:17"}]
+      }
+    ];
+    // ===== THEME =====
+    const themeBtn = document.getElementById('themeToggleBtn');
+    themeBtn.onclick = function(){
+      document.body.classList.toggle("light-mode");
+      themeBtn.innerHTML = document.body.classList.contains("light-mode") ? '<i class="bi bi-brightness-high"></i>' : '<i class="bi bi-moon-stars"></i>';
+    };
+    // ===== SIDEBAR LOGOUT =====
+    function logout() {
+      localStorage.removeItem("vbmsLoggedIn");
+      localStorage.removeItem("vbmsToken");
+      sessionStorage.removeItem("vbmsLoggedIn");
+      window.location.href = "login.html";
+    }
+
+    function toggleSidebar() {
+      const sidebar = document.querySelector('.sidebar');
+      if (sidebar) {
+        sidebar.classList.toggle('open');
+      }
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      renderOrders();
+    });
+    // ===== METRICS CARDS =====
+    function updateMetricCards(filtered) {
+      document.getElementById("allOrdersCard").innerText = filtered.length;
+      document.getElementById("pendingOrdersCard").innerText = filtered.filter(o=>o.status==="Pending").length;
+      document.getElementById("shippedOrdersCard").innerText = filtered.filter(o=>o.status==="Shipped").length;
+      document.getElementById("deliveredOrdersCard").innerText = filtered.filter(o=>o.status==="Delivered").length;
+      document.getElementById("cancelledOrdersCard").innerText = filtered.filter(o=>o.status==="Cancelled").length;
+    }
+    // ====== FILTERS ======
+    const filterDate      = document.getElementById("filterDate");
+    const filterPlatform  = document.getElementById("filterPlatform");
+    const filterStatus    = document.getElementById("filterStatus");
+    const ordersSearch    = document.getElementById("ordersSearch");
+    // ==== TABLE RENDER ====
+    let currentOrderNotes = null;
+    function renderOrdersTable(){
+      let filtered = getFilteredOrders();
+      updateMetricCards(filtered);
+      let tbody = document.getElementById("ordersTableBody");
+      tbody.innerHTML = "";
+      filtered.forEach((o,i) => {
+        tbody.innerHTML += `<tr>
+          <td>${o.platform}</td>
+          <td>${o.orderId}</td>
+          <td>${o.client}</td>
+          <td>${o.items}</td>
+          <td>${o.total}</td>
+          <td>${o.date}</td>
+          <td>
+            <span class="status-badge status-${o.status}">${o.status}</span>
+          </td>
+          <td>${o.eta}</td>
+          <td>
+            <button class="btn-action" onclick="viewNotes(${i})" title="Notes"><i class="bi bi-chat-dots"></i></button>
+            <button class="btn-action" onclick="showToast('Order tracking (demo)','bi bi-box')"><i class="bi bi-geo-alt"></i></button>
+            <button class="btn-action" onclick="showToast('Print label (demo)','bi bi-printer')"><i class="bi bi-printer"></i></button>
+          </td>
+        </tr>`;
+      });
+    }
+    function getFilteredOrders(){
+      let term = ordersSearch.value.toLowerCase();
+      return ordersData.filter(o =>
+        (!filterPlatform.value || o.platform === filterPlatform.value) &&
+        (!filterStatus.value   || o.status === filterStatus.value) &&
+        (!filterDate.value    || o.date === filterDate.value) &&
+        (
+          !term || Object.values(o).join(" ").toLowerCase().includes(term)
+        )
+      );
+    }
+    [filterDate, filterPlatform, filterStatus, ordersSearch].forEach(input=>{      input && input.addEventListener("input", ()=>{
+        renderOrdersTable();
+        renderCharts();
+      });
+    });
+    // ===== CHARTS =====
+    let platformChart, trendChart;
+    function renderCharts(){
+      // Pie Chart - Platform breakdown
+      let filtered = getFilteredOrders();
+      let platforms = ["UberEats","DoorDash","Grubhub","Other"];
+      let data = platforms.map(p=>filtered.filter(o=>o.platform===p).length);
+      if(platformChart){platformChart.destroy();}
+      platformChart = new Chart(document.getElementById('ordersPlatformChart').getContext('2d'),{
+        type:"doughnut",
+        data:{
+          labels:platforms,
+          datasets:[{
+            data:data,
+            backgroundColor:["#f0b90b","#ffe066","#b39a02","#bbb"],
+            borderWidth:1.5
+          }]
+        },
+        options:{
+          plugins:{
+            legend: {display:true,labels:{color:document.body.classList.contains("light-mode")?"#222":"#fff"}}
+          }
+        }
+      });
+      // Line Chart - Last 7 days
+      let dates = [];
+      for(let i=6;i>=0;i--){
+        let d = new Date(Date.now()-i*24*3600*1000);
+        dates.push(d.toISOString().slice(0,10));
+      }
+      let ordersPerDay = dates.map(date=>
+        filtered.filter(o=>o.date===date).length
+      );
+      if(trendChart){trendChart.destroy();}
+      trendChart = new Chart(document.getElementById('ordersTrendChart').getContext('2d'),{
+        type:"line",
+        data:{
+          labels:dates.map(d=>d.slice(5)),
+          datasets:[{
+            label:"Orders",
+            data:ordersPerDay,
+            borderColor:"#f0b90b",
+            backgroundColor:"rgba(240,185,11,0.19)",
+            tension:0.39,
+            pointRadius:4
+          }]
+        },
+        options:{
+          plugins:{legend:{display:false}},
+          scales:{
+            y:{beginAtZero:true,ticks:{color:document.body.classList.contains("light-mode")?"#222":"#fff"},grid:{color:"#2b2b2b"}},
+            x:{ticks:{color:document.body.classList.contains("light-mode")?"#222":"#fff"},grid:{color:"#2b2b2b"}}
+          }
+        }
+      });
+    }
+    // ===== REFRESH & EXPORT =====
+    document.getElementById("refreshBtn").onclick = function(){
+      renderOrdersTable(); renderCharts();
+      showToast("Orders refreshed!","bi-arrow-repeat");
+    };
+    document.getElementById("exportBtn").onclick = function(){
+      let filtered = getFilteredOrders();
+      let csv = "Platform,Order #,Client,Items,Total,Date,Status,ETA\n";
+      filtered.forEach(o=>{
+        csv += [o.platform,o.orderId,o.client,o.items,o.total,o.date,o.status,o.eta].join(",")+"\n";
+      });
+      let a=document.createElement('a');
+      a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+      a.download='vbms-orders.csv';
+      a.click();
+      showToast("Exported as CSV!","bi-download");
+    };
+    // ===== COMMENTS / NOTES =====
+    function viewNotes(i){
+      currentOrderNotes = i;
+      document.getElementById("commentsDrawer").classList.add("show");
+      renderComments();
+    }
+    window.viewNotes = viewNotes;
+    function closeComments(){
+      document.getElementById("commentsDrawer").classList.remove("show");
+      currentOrderNotes = null;
+    }
+    function renderComments(){
+      let list = document.getElementById("commentsList");
+      list.innerHTML = "";
+      (ordersData[currentOrderNotes]?.notes||[]).forEach(c=>{
+        list.innerHTML += `<li>
+          <span class="comment-user">${c.user}</span>: 
+          ${c.text}
+          <div class="comment-time">${c.time}</div>
+        </li>`;
+      });
+    }
+    document.getElementById("addCommentBtn").onclick = function(){
+      let val = document.getElementById("commentInput").value.trim();
+      if(val && currentOrderNotes!=null){
+        ordersData[currentOrderNotes].notes = ordersData[currentOrderNotes].notes || [];
+        ordersData[currentOrderNotes].notes.push({
+          user:"You", text:val, time:new Date().toLocaleString()
+        });
+        document.getElementById("commentInput").value = "";
+        renderComments();
+        showToast("Note added!","bi-chat-dots");
+      }
+    }
+    // ===== ACTIVITY BELL =====
+    const activityBell = document.getElementById("activityBell");
+    const activityModal = document.getElementById("activityModal");
+    activityBell.onclick = function(){
+      activityModal.classList.toggle("show");
+    }
+    function closeActivityModal(){
+      activityModal.classList.remove("show");
+    }
+    window.closeActivityModal = closeActivityModal;
+    // ===== TOASTS =====
+    function showToast(msg,icon){
+      let toast = document.createElement("div");
+      toast.className = "position-fixed top-0 end-0 p-3 custom-toast";
+      toast.innerHTML = `<div class="toast align-items-center text-white bg-dark border-0 show" style="min-width:180px;">
+        <div class="d-flex"><div class="toast-body"><i class="bi ${icon||'bi-info-circle'} me-2"></i>${msg}</div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button></div>
+      </div>`;
+      document.body.append(toast);
+      setTimeout(()=>toast.remove(), 1800);
+    }
+    // ===== INITIAL RENDER =====
+    renderOrdersTable();
+    renderCharts();
+    // ===== THEME ON CHARTS =====
+    const observer = new MutationObserver(function(){
+      renderCharts();
+    });
+    observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+  </script>
+</body>
+</html>

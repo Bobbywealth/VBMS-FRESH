@@ -1,0 +1,14 @@
+{
+  "clients": [
+    { "name": "Alpha Co", "status": "active", "location": "NYC" },
+    { "name": "Beta LLC", "status": "inactive", "location": "Chicago" }
+  ],
+  "orders": [
+    { "orderId": 101, "client": "Alpha Co", "status": "shipped" },
+    { "orderId": 102, "client": "Beta LLC", "status": "pending" }
+  ],
+  "staff": [
+    { "name": "Sarah", "role": "Manager" },
+    { "name": "John", "role": "Support" }
+  ]
+}

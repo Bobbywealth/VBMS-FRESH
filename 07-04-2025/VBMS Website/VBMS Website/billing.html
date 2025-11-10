@@ -1,0 +1,1812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Billing & Payments - VBMS Admin</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+        :root {
+            --accent: #f0b90b;
+            --accent-light: #ffd700;
+            --accent-glow: rgba(240, 185, 11, 0.4);
+            --primary-dark: #d4a109;
+            --secondary: #2c3e50;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --purple: #a855f7;
+            --cyan: #06b6d4;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --glass: rgba(255,255,255,0.95);
+            --glass-glow: rgba(240, 185, 11, 0.15);
+            --border: #e9ecef;
+            --text: #212529;
+            --text-muted: #6c757d;
+            --card-bg: #ffffff;
+            --card-shadow: 0 8px 32px rgba(240, 185, 11, 0.1);
+            --bg: linear-gradient(135deg, #f8f9fa 0%, #f0f8ff 50%, #f8f4ff 100%);
+            --sidebar-bg: rgba(255,255,255,0.98);
+            --sidebar-link: #333;
+            --sidebar-link-active: #000;
+        }
+
+        /* Light theme - Enhanced */
+        [data-theme="light"] {
+            --bg: linear-gradient(135deg, #ffffff 0%, #f8fafc 30%, #e2e8f0 100%);
+            --light: #1a202c;
+            --dark: #ffffff;
+            --text: #2d3748;
+            --text-muted: #718096;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            --border: #e2e8f0;
+            --glass: rgba(255, 255, 255, 0.95);
+            --glass-glow: rgba(240, 185, 11, 0.12);
+            --sidebar-bg: rgba(255, 255, 255, 0.98);
+            --sidebar-link: #4a5568;
+            --sidebar-link-active: #1a202c;
+            --accent: #f59e0b;
+            --accent-light: #fbbf24;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --purple: #8b5cf6;
+            --cyan: #06b6d4;
+        }
+
+        /* Dark theme - Modern Black/Gray with Energy */
+        [data-theme="dark"] {
+            --bg: linear-gradient(135deg, #000000 0%, #0a0a0a 25%, #1a1a1a 50%, #0f0f0f 100%);
+            --light: #ffffff;
+            --dark: #000000;
+            --text: #ffffff;
+            --text-muted: #a1a1aa;
+            --card-bg: rgba(20, 20, 20, 0.95);
+            --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.8), 0 0 20px rgba(240, 185, 11, 0.15);
+            --border: rgba(64, 64, 64, 0.4);
+            --glass: rgba(18, 18, 18, 0.95);
+            --glass-glow: rgba(240, 185, 11, 0.2);
+            --sidebar-bg: rgba(12, 12, 12, 0.98);
+            --sidebar-link: #d4d4d8;
+            --sidebar-link-active: #ffffff;
+            --accent: #f0b90b;
+            --accent-light: #ffd700;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --purple: #a855f7;
+            --cyan: #06b6d4;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+            transition: all 0.3s ease;
+            position: relative;
+            min-height: 100vh;
+        }
+
+        /* Enhanced Background Animation */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(240, 185, 11, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(59, 130, 246, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.03) 0%, transparent 60%);
+            animation: enhancedGlow 25s ease-in-out infinite;
+        }
+
+        [data-theme="light"] body::before {
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(240, 185, 11, 0.12) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.06) 0%, transparent 60%);
+        }
+
+        /* Dark theme animated background */
+        [data-theme="dark"] body::before {
+            background: 
+                radial-gradient(circle at 15% 25%, rgba(240, 185, 11, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 85% 75%, rgba(128, 128, 128, 0.06) 0%, transparent 60%),
+                radial-gradient(circle at 50% 50%, rgba(64, 64, 64, 0.05) 0%, transparent 70%),
+                radial-gradient(circle at 70% 20%, rgba(240, 185, 11, 0.04) 0%, transparent 55%);
+            animation: darkThemeGlow 25s ease-in-out infinite;
+        }
+
+        /* Floating particles effect for dark theme */
+        [data-theme="dark"] body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background:
+                radial-gradient(circle 1.5px at 10% 20%, rgba(240, 185, 11, 0.4) 0%, transparent 50%),
+                radial-gradient(circle 1px at 90% 30%, rgba(128, 128, 128, 0.3) 0%, transparent 50%),
+                radial-gradient(circle 1px at 30% 80%, rgba(240, 185, 11, 0.2) 0%, transparent 50%),
+                radial-gradient(circle 0.5px at 70% 60%, rgba(96, 96, 96, 0.2) 0%, transparent 50%),
+                radial-gradient(circle 1px at 20% 70%, rgba(255, 215, 0, 0.15) 0%, transparent 50%);
+            animation: floatingParticles 20s linear infinite;
+        }
+
+        @keyframes enhancedGlow {
+            0%, 100% {
+                opacity: 0.6;
+                transform: rotate(0deg) scale(1);
+            }
+            33% {
+                opacity: 0.8;
+                transform: rotate(120deg) scale(1.05);
+            }
+            66% {
+                opacity: 0.7;
+                transform: rotate(240deg) scale(0.95);
+            }
+        }
+
+        @keyframes darkThemeGlow {
+            0%, 100% {
+                opacity: 0.8;
+                transform: rotate(0deg) scale(1);
+            }
+            25% {
+                opacity: 1;
+                transform: rotate(90deg) scale(1.1);
+            }
+            50% {
+                opacity: 0.9;
+                transform: rotate(180deg) scale(1.05);
+            }
+            75% {
+                opacity: 1;
+                transform: rotate(270deg) scale(1.08);
+            }
+        }
+
+        @keyframes floatingParticles {
+            0% {
+                transform: translateY(0px) rotate(0deg);
+                opacity: 1;
+            }
+            25% {
+                transform: translateY(-10px) rotate(90deg);
+                opacity: 0.8;
+            }
+            50% {
+                transform: translateY(-5px) rotate(180deg);
+                opacity: 0.6;
+            }
+            75% {
+                transform: translateY(-15px) rotate(270deg);
+                opacity: 0.9;
+            }
+            100% {
+                transform: translateY(0px) rotate(360deg);
+                opacity: 1;
+            }
+        }
+
+        .main-content {
+            margin-left: 320px;
+            padding: 30px;
+            min-height: 100vh;
+            background: transparent;
+            transition: all 0.3s ease;
+        }
+
+        /* Mobile content adjustments */
+        @media (max-width: 1024px) {
+            .main-content {
+                margin-left: 280px;
+                padding: 25px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+                padding: 80px 15px 15px 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-content {
+                padding: 75px 10px 10px 10px;
+            }
+        }
+
+        @media (max-width: 320px) {
+            .main-content {
+                padding: 70px 8px 8px 8px;
+            }
+        }
+
+        /* Header Styling */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 30px;
+            padding: 20px 0;
+        }
+
+        .header-left h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text);
+            margin: 0 0 10px 0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .header-left h1 i {
+            color: var(--accent);
+            font-size: 2rem;
+        }
+
+        .datetime-info {
+            display: flex;
+            gap: 20px;
+            margin-top: 8px;
+        }
+
+        .current-date, .current-time {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        /* Theme Toggle */
+        .btn-outline-warning {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px;
+            color: var(--accent);
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-warning:hover {
+            background: var(--glass-glow);
+            border-color: var(--accent);
+            color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--glass);
+            backdrop-filter: blur(15px);
+            padding: 25px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            box-shadow: var(--card-shadow);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent), var(--accent-light));
+            opacity: 0.8;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(240, 185, 11, 0.2);
+            border-color: var(--accent);
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .stat-info {
+            flex: 1;
+        }
+
+        .stat-number {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 5px;
+            line-height: 1;
+        }
+
+        .stat-trend {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .stat-card[data-trend="up"] .stat-trend {
+            color: var(--success);
+        }
+
+        .stat-card[data-trend="down"] .stat-trend {
+            color: var(--danger);
+        }
+
+        .stat-icon {
+            font-size: 2.5rem;
+            color: var(--accent);
+            opacity: 0.7;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover .stat-icon {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-progress {
+            height: 4px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        [data-theme="dark"] .stat-progress {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--accent-light));
+            border-radius: 2px;
+            transition: width 1s ease;
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 20px;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3));
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-20px); }
+            100% { transform: translateX(20px); }
+        }
+
+        /* Billing Table Card */
+        .billing-card {
+            background: var(--glass);
+            backdrop-filter: blur(15px);
+            padding: 25px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            box-shadow: var(--card-shadow);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 25px;
+        }
+
+        .billing-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent), var(--accent-light));
+            opacity: 0.8;
+        }
+
+        .billing-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(240, 185, 11, 0.2);
+            border-color: var(--accent);
+        }
+
+        .billing-card h3 {
+            color: var(--accent);
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Filter Section */
+        .filter-section {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-section select,
+        .filter-section input {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: var(--text);
+            min-width: 150px;
+        }
+
+        .filter-section select:focus,
+        .filter-section input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(240, 185, 11, 0.1);
+        }
+
+        /* Billing Table */
+        .billing-table {
+            background: var(--glass);
+            border-radius: 15px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            box-shadow: var(--card-shadow);
+        }
+
+        .billing-table table {
+            margin: 0;
+        }
+
+        .billing-table th {
+            background: var(--accent);
+            color: #000;
+            font-weight: 700;
+            padding: 15px;
+            border: none;
+        }
+
+        .billing-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text);
+        }
+
+        .billing-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .billing-table tr:hover {
+            background: var(--glass-glow);
+        }
+
+        /* Payment Status Styling */
+        .payment-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .status-completed {
+            color: var(--success);
+        }
+
+        .status-pending {
+            color: var(--warning);
+        }
+
+        .status-failed {
+            color: var(--danger);
+        }
+
+        .status-refunded {
+            color: var(--info);
+        }
+
+        /* Badge Styling */
+        .badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-premium {
+            background: linear-gradient(135deg, var(--accent), var(--accent-light));
+            color: #000;
+        }
+
+        .badge-basic {
+            background: var(--info);
+            color: white;
+        }
+
+        .badge-free {
+            background: var(--text-muted);
+            color: white;
+        }
+
+        .badge-active {
+            background: var(--success);
+            color: white;
+        }
+
+        .badge-inactive {
+            background: var(--danger);
+            color: white;
+        }
+
+        /* Action Buttons */
+        .action-btn {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 6px 12px;
+            color: var(--text);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 0.85rem;
+            margin-right: 5px;
+        }
+
+        .action-btn:hover {
+            background: var(--glass-glow);
+            color: var(--accent);
+            border-color: var(--accent);
+            text-decoration: none;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .header-left h1 {
+                font-size: 2rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .filter-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .filter-section select,
+            .filter-section input {
+                min-width: auto;
+            }
+
+            .billing-table {
+                font-size: 0.85rem;
+            }
+
+            .billing-table th,
+            .billing-table td {
+                padding: 8px 10px;
+            }
+        }
+
+        /* Dark theme card enhancements */
+        [data-theme="dark"] .billing-card,
+        [data-theme="dark"] .stat-card {
+            border: 1px solid rgba(64, 64, 64, 0.4);
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.8),
+                0 0 20px rgba(240, 185, 11, 0.1),
+                inset 0 1px 0 rgba(128, 128, 128, 0.1);
+        }
+
+        [data-theme="dark"] .billing-card:hover,
+        [data-theme="dark"] .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 
+                0 12px 40px rgba(0, 0, 0, 0.9),
+                0 0 30px rgba(240, 185, 11, 0.2),
+                0 0 10px rgba(255, 215, 0, 0.15),
+                inset 0 1px 0 rgba(240, 185, 11, 0.2);
+            border-color: rgba(240, 185, 11, 0.3);
+        }
+
+        /* Payment method icons */
+        .payment-method-icon {
+            font-size: 1.2rem;
+            margin-right: 5px;
+        }
+
+        .payment-visa { color: #1a1f71; }
+        .payment-mastercard { color: #eb001b; }
+        .payment-paypal { color: #003087; }
+        .payment-stripe { color: #635bff; }
+        .payment-cash { color: var(--success); }
+
+        /* Modal styling */
+        .modal-content {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            color: var(--text);
+        }
+
+        .modal-header {
+            border-bottom: 1px solid var(--border);
+        }
+
+        .modal-footer {
+            border-top: 1px solid var(--border);
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #000;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-light);
+            border-color: var(--accent-light);
+            color: #000;
+        }
+
+        .form-control {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+
+        .form-control:focus {
+            background: var(--glass);
+            border-color: var(--accent);
+            color: var(--text);
+            box-shadow: 0 0 0 0.2rem rgba(240, 185, 11, 0.25);
+        }
+  </style>
+</head>
+<body>
+<!-- Universal Sidebar Container -->
+<div id="sidebar-container"></div>
+
+<!-- MAIN -->
+<main class="main-content">
+  <!-- Header -->
+  <div class="header">
+    <div class="header-left">
+      <h1><i class="bi bi-credit-card-2-front"></i> Billing & Payments</h1>
+      <div class="datetime-info">
+        <div id="currentDate" class="current-date"></div>
+        <div id="currentTime" class="current-time"></div>
+      </div>
+    </div>
+    <div class="header-right">
+      <button class="btn btn-outline-warning btn-sm" onclick="toggleTheme()" title="Toggle light/dark theme">
+        <i id="themeIcon" class="bi bi-moon-fill"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Billing Stats Grid -->
+  <div class="stats-grid">
+    <div class="stat-card" data-trend="up">
+      <div class="stat-header">
+        <div class="stat-info">
+          <div class="stat-number" id="totalRevenue">$45,280</div>
+          <div class="stat-trend">
+            <i class="bi bi-arrow-up"></i>
+            <span>+18.2%</span>
+          </div>
+        </div>
+        <i class="bi bi-currency-dollar stat-icon"></i>
+      </div>
+      <div class="stat-label">Total Revenue</div>
+      <div class="stat-progress">
+        <div class="progress-fill" style="width: 92%"></div>
+      </div>
+    </div>
+
+    <div class="stat-card" data-trend="down">
+      <div class="stat-header">
+        <div class="stat-info">
+          <div class="stat-number" id="pendingPayments">$3,420</div>
+          <div class="stat-trend">
+            <i class="bi bi-arrow-down"></i>
+            <span>-5.1%</span>
+          </div>
+        </div>
+        <i class="bi bi-clock-history stat-icon"></i>
+      </div>
+      <div class="stat-label">Pending Payments</div>
+      <div class="stat-progress">
+        <div class="progress-fill" style="width: 35%"></div>
+      </div>
+    </div>
+
+    <div class="stat-card" data-trend="down">
+      <div class="stat-header">
+        <div class="stat-info">
+          <div class="stat-number" id="failedPayments">12</div>
+          <div class="stat-trend">
+            <i class="bi bi-arrow-down"></i>
+            <span>-25.0%</span>
+          </div>
+        </div>
+        <i class="bi bi-exclamation-triangle stat-icon"></i>
+      </div>
+      <div class="stat-label">Failed Payments</div>
+      <div class="stat-progress">
+        <div class="progress-fill" style="width: 15%"></div>
+      </div>
+    </div>
+
+    <div class="stat-card" data-trend="up">
+      <div class="stat-header">
+        <div class="stat-info">
+          <div class="stat-number" id="subscriptionRevenue">$38,940</div>
+          <div class="stat-trend">
+            <i class="bi bi-arrow-up"></i>
+            <span>+22.7%</span>
+          </div>
+        </div>
+        <i class="bi bi-arrow-repeat stat-icon"></i>
+      </div>
+      <div class="stat-label">Subscription Revenue</div>
+      <div class="stat-progress">
+        <div class="progress-fill" style="width: 88%"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Transactions Table -->
+  <div class="billing-card">
+    <h3><i class="bi bi-credit-card-2-front"></i> Recent Transactions</h3>
+    
+    <!-- Filter Section -->
+    <div class="filter-section">
+      <select id="statusFilter">
+        <option value="">All Status</option>
+        <option value="completed">Completed</option>
+        <option value="pending">Pending</option>
+        <option value="failed">Failed</option>
+        <option value="refunded">Refunded</option>
+      </select>
+      <input type="date" id="dateFromFilter" placeholder="From Date">
+      <input type="date" id="dateToFilter" placeholder="To Date">
+      <input type="search" id="searchTransactions" placeholder="Search transactions...">
+      <button class="action-btn" onclick="exportTransactions()">
+        <i class="bi bi-download"></i> Export
+      </button>
+    </div>
+
+    <div class="billing-table">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th>Transaction ID</th>
+            <th>Customer</th>
+            <th>Amount</th>
+            <th>Status</th>
+            <th>Payment Method</th>
+            <th>Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="transactionsTableBody">
+          <tr>
+            <td><strong>#TXN-2024-001</strong></td>
+            <td>Tech Startup Inc</td>
+            <td><strong>$2,450.00</strong></td>
+            <td><span class="payment-status status-completed"><i class="bi bi-check-circle-fill"></i> Completed</span></td>
+            <td><i class="bi bi-credit-card payment-method-icon payment-visa"></i>Visa ****1234</td>
+            <td>Jan 25, 2024</td>
+            <td>
+              <a href="#" class="action-btn" onclick="viewTransaction('TXN-2024-001')"><i class="bi bi-eye"></i> View</a>
+              <a href="#" class="action-btn" onclick="downloadInvoice('TXN-2024-001')"><i class="bi bi-download"></i> Invoice</a>
+            </td>
+          </tr>
+          <tr>
+            <td><strong>#TXN-2024-002</strong></td>
+            <td>Digital Solutions LLC</td>
+            <td><strong>$1,890.00</strong></td>
+            <td><span class="payment-status status-completed"><i class="bi bi-check-circle-fill"></i> Completed</span></td>
+            <td><i class="bi bi-paypal payment-method-icon payment-paypal"></i>PayPal</td>
+            <td>Jan 22, 2024</td>
+            <td>
+              <a href="#" class="action-btn" onclick="viewTransaction('TXN-2024-002')"><i class="bi bi-eye"></i> View</a>
+              <a href="#" class="action-btn" onclick="downloadInvoice('TXN-2024-002')"><i class="bi bi-download"></i> Invoice</a>
+            </td>
+          </tr>
+          <tr>
+            <td><strong>#TXN-2024-003</strong></td>
+            <td>Creative Agency Pro</td>
+            <td><strong>$750.00</strong></td>
+            <td><span class="payment-status status-pending"><i class="bi bi-clock-fill"></i> Pending</span></td>
+            <td><i class="bi bi-credit-card payment-method-icon payment-mastercard"></i>MasterCard ****5678</td>
+            <td>Jan 20, 2024</td>
+            <td>
+              <a href="#" class="action-btn" onclick="viewTransaction('TXN-2024-003')"><i class="bi bi-eye"></i> View</a>
+              <a href="#" class="action-btn" onclick="processPayment('TXN-2024-003')"><i class="bi bi-credit-card"></i> Process</a>
+            </td>
+          </tr>
+          <tr>
+            <td><strong>#TXN-2024-004</strong></td>
+            <td>Marketing Experts</td>
+            <td><strong>$3,200.00</strong></td>
+            <td><span class="payment-status status-completed"><i class="bi bi-check-circle-fill"></i> Completed</span></td>
+            <td><i class="bi bi-stripe payment-method-icon payment-stripe"></i>Stripe</td>
+            <td>Jan 18, 2024</td>
+            <td>
+              <a href="#" class="action-btn" onclick="viewTransaction('TXN-2024-004')"><i class="bi bi-eye"></i> View</a>
+              <a href="#" class="action-btn" onclick="downloadInvoice('TXN-2024-004')"><i class="bi bi-download"></i> Invoice</a>
+            </td>
+          </tr>
+          <tr>
+            <td><strong>#TXN-2024-005</strong></td>
+            <td>Small Business Hub</td>
+            <td><strong>$420.00</strong></td>
+            <td><span class="payment-status status-failed"><i class="bi bi-x-circle-fill"></i> Failed</span></td>
+            <td><i class="bi bi-credit-card payment-method-icon payment-visa"></i>Visa ****9876</td>
+            <td>Jan 15, 2024</td>
+            <td>
+              <a href="#" class="action-btn" onclick="viewTransaction('TXN-2024-005')"><i class="bi bi-eye"></i> View</a>
+              <a href="#" class="action-btn" onclick="retryPayment('TXN-2024-005')"><i class="bi bi-arrow-clockwise"></i> Retry</a>
+            </td>
+          </tr>
+          <tr>
+            <td><strong>#TXN-2024-006</strong></td>
+            <td>Retail Solutions Co</td>
+            <td><strong>$5,680.00</strong></td>
+            <td><span class="payment-status status-completed"><i class="bi bi-check-circle-fill"></i> Completed</span></td>
+            <td><i class="bi bi-bank payment-method-icon payment-cash"></i>Bank Transfer</td>
+            <td>Jan 12, 2024</td>
+            <td>
+              <a href="#" class="action-btn" onclick="viewTransaction('TXN-2024-006')"><i class="bi bi-eye"></i> View</a>
+              <a href="#" class="action-btn" onclick="downloadInvoice('TXN-2024-006')"><i class="bi bi-download"></i> Invoice</a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Subscription Management Table -->
+  <div class="billing-card">
+    <h3><i class="bi bi-arrow-repeat"></i> Active Subscriptions</h3>
+    
+    <!-- Filter Section -->
+    <div class="filter-section">
+      <select id="planFilter">
+        <option value="">All Plans</option>
+        <option value="premium">Premium</option>
+        <option value="basic">Basic</option>
+        <option value="enterprise">Enterprise</option>
+      </select>
+      <select id="subscriptionStatusFilter">
+        <option value="">All Status</option>
+        <option value="active">Active</option>
+        <option value="canceled">Canceled</option>
+        <option value="past_due">Past Due</option>
+      </select>
+      <input type="search" id="searchSubscriptions" placeholder="Search subscriptions...">
+      <button class="action-btn" onclick="addNewSubscription()">
+        <i class="bi bi-plus-circle"></i> Add Subscription
+      </button>
+    </div>
+
+    <div class="billing-table">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th>Customer</th>
+            <th>Plan</th>
+            <th>Monthly Fee</th>
+            <th>Status</th>
+            <th>Next Billing</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="subscriptionsTableBody">
+          <tr>
+            <td>
+              <div class="d-flex align-items-center">
+                <strong>Tech Startup Inc</strong>
+              </div>
+            </td>
+            <td><span class="badge badge-premium">Premium</span></td>
+            <td><strong>$299.99</strong></td>
+            <td><span class="badge badge-active">Active</span></td>
+            <td>Feb 15, 2024</td>
+            <td>
+              <a href="#" class="action-btn" onclick="viewSubscription('SUB-001')"><i class="bi bi-eye"></i> View</a>
+              <a href="#" class="action-btn" onclick="editSubscription('SUB-001')"><i class="bi bi-pencil"></i> Edit</a>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="d-flex align-items-center">
+                <strong>Digital Solutions LLC</strong>
+              </div>
+            </td>
+            <td><span class="badge badge-premium">Premium</span></td>
+            <td><strong>$299.99</strong></td>
+            <td><span class="badge badge-active">Active</span></td>
+            <td>Feb 8, 2024</td>
+            <td>
+              <a href="#" class="action-btn" onclick="viewSubscription('SUB-002')"><i class="bi bi-eye"></i> View</a>
+              <a href="#" class="action-btn" onclick="editSubscription('SUB-002')"><i class="bi bi-pencil"></i> Edit</a>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="d-flex align-items-center">
+                <strong>Creative Agency Pro</strong>
+              </div>
+            </td>
+            <td><span class="badge badge-basic">Basic</span></td>
+            <td><strong>$99.99</strong></td>
+            <td><span class="badge badge-active">Active</span></td>
+            <td>Feb 22, 2024</td>
+            <td>
+              <a href="#" class="action-btn" onclick="viewSubscription('SUB-003')"><i class="bi bi-eye"></i> View</a>
+              <a href="#" class="action-btn" onclick="editSubscription('SUB-003')"><i class="bi bi-pencil"></i> Edit</a>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="d-flex align-items-center">
+                <strong>Marketing Experts</strong>
+              </div>
+            </td>
+            <td><span class="badge badge-premium">Premium</span></td>
+            <td><strong>$299.99</strong></td>
+            <td><span class="badge badge-active">Active</span></td>
+            <td>Feb 3, 2024</td>
+            <td>
+              <a href="#" class="action-btn" onclick="viewSubscription('SUB-004')"><i class="bi bi-eye"></i> View</a>
+              <a href="#" class="action-btn" onclick="editSubscription('SUB-004')"><i class="bi bi-pencil"></i> Edit</a>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="d-flex align-items-center">
+                <strong>Small Business Hub</strong>
+              </div>
+            </td>
+            <td><span class="badge badge-basic">Basic</span></td>
+            <td><strong>$99.99</strong></td>
+            <td><span class="badge badge-inactive">Canceled</span></td>
+            <td>-</td>
+            <td>
+              <a href="#" class="action-btn" onclick="viewSubscription('SUB-005')"><i class="bi bi-eye"></i> View</a>
+              <a href="#" class="action-btn" onclick="reactivateSubscription('SUB-005')"><i class="bi bi-arrow-clockwise"></i> Reactivate</a>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="d-flex align-items-center">
+                <strong>Retail Solutions Co</strong>
+              </div>
+            </td>
+            <td><span class="badge badge-premium">Premium</span></td>
+            <td><strong>$299.99</strong></td>
+            <td><span class="badge badge-active">Active</span></td>
+            <td>Feb 28, 2024</td>
+            <td>
+              <a href="#" class="action-btn" onclick="viewSubscription('SUB-006')"><i class="bi bi-eye"></i> View</a>
+              <a href="#" class="action-btn" onclick="editSubscription('SUB-006')"><i class="bi bi-pencil"></i> Edit</a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Payment Methods Table -->
+  <div class="billing-card">
+    <h3><i class="bi bi-credit-card"></i> Payment Methods</h3>
+    
+    <!-- Filter Section -->
+    <div class="filter-section">
+      <select id="methodTypeFilter">
+        <option value="">All Types</option>
+        <option value="credit_card">Credit Card</option>
+        <option value="bank_transfer">Bank Transfer</option>
+        <option value="paypal">PayPal</option>
+        <option value="stripe">Stripe</option>
+      </select>
+      <input type="search" id="searchPaymentMethods" placeholder="Search payment methods...">
+      <button class="action-btn" onclick="addPaymentMethod()">
+        <i class="bi bi-plus-circle"></i> Add Method
+      </button>
+    </div>
+
+    <div class="billing-table">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th>Customer</th>
+            <th>Payment Method</th>
+            <th>Type</th>
+            <th>Status</th>
+            <th>Last Used</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="paymentMethodsTableBody">
+          <tr>
+            <td><strong>Tech Startup Inc</strong></td>
+            <td><i class="bi bi-credit-card payment-method-icon payment-visa"></i>Visa ending in 1234</td>
+            <td>Credit Card</td>
+            <td><span class="badge badge-active">Active</span></td>
+            <td>Jan 25, 2024</td>
+            <td>
+              <a href="#" class="action-btn" onclick="editPaymentMethod('PM-001')"><i class="bi bi-pencil"></i> Edit</a>
+              <a href="#" class="action-btn" onclick="deletePaymentMethod('PM-001')"><i class="bi bi-trash"></i> Delete</a>
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Digital Solutions LLC</strong></td>
+            <td><i class="bi bi-paypal payment-method-icon payment-paypal"></i>PayPal (admin@digitalsolutions.com)</td>
+            <td>PayPal</td>
+            <td><span class="badge badge-active">Active</span></td>
+            <td>Jan 22, 2024</td>
+            <td>
+              <a href="#" class="action-btn" onclick="editPaymentMethod('PM-002')"><i class="bi bi-pencil"></i> Edit</a>
+              <a href="#" class="action-btn" onclick="deletePaymentMethod('PM-002')"><i class="bi bi-trash"></i> Delete</a>
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Creative Agency Pro</strong></td>
+            <td><i class="bi bi-credit-card payment-method-icon payment-mastercard"></i>MasterCard ending in 5678</td>
+            <td>Credit Card</td>
+            <td><span class="badge badge-active">Active</span></td>
+            <td>Jan 20, 2024</td>
+            <td>
+              <a href="#" class="action-btn" onclick="editPaymentMethod('PM-003')"><i class="bi bi-pencil"></i> Edit</a>
+              <a href="#" class="action-btn" onclick="deletePaymentMethod('PM-003')"><i class="bi bi-trash"></i> Delete</a>
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Marketing Experts</strong></td>
+            <td><i class="bi bi-stripe payment-method-icon payment-stripe"></i>Stripe Connect</td>
+            <td>Stripe</td>
+            <td><span class="badge badge-active">Active</span></td>
+            <td>Jan 18, 2024</td>
+            <td>
+              <a href="#" class="action-btn" onclick="editPaymentMethod('PM-004')"><i class="bi bi-pencil"></i> Edit</a>
+              <a href="#" class="action-btn" onclick="deletePaymentMethod('PM-004')"><i class="bi bi-trash"></i> Delete</a>
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Small Business Hub</strong></td>
+            <td><i class="bi bi-credit-card payment-method-icon payment-visa"></i>Visa ending in 9876</td>
+            <td>Credit Card</td>
+            <td><span class="badge badge-inactive">Expired</span></td>
+            <td>Dec 15, 2023</td>
+            <td>
+              <a href="#" class="action-btn" onclick="editPaymentMethod('PM-005')"><i class="bi bi-pencil"></i> Update</a>
+              <a href="#" class="action-btn" onclick="deletePaymentMethod('PM-005')"><i class="bi bi-trash"></i> Delete</a>
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Retail Solutions Co</strong></td>
+            <td><i class="bi bi-bank payment-method-icon payment-cash"></i>Bank Transfer (***-1234)</td>
+            <td>Bank Transfer</td>
+            <td><span class="badge badge-active">Active</span></td>
+            <td>Jan 12, 2024</td>
+            <td>
+              <a href="#" class="action-btn" onclick="editPaymentMethod('PM-006')"><i class="bi bi-pencil"></i> Edit</a>
+              <a href="#" class="action-btn" onclick="deletePaymentMethod('PM-006')"><i class="bi bi-trash"></i> Delete</a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<!-- Transaction Details Modal -->
+<div class="modal fade" id="transactionModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-credit-card-2-front"></i> Transaction Details</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="transactionModalBody">
+        <!-- Transaction details will be populated here -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" onclick="downloadInvoice()">Download Invoice</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="auth.js"></script>
+<script src="load-sidebar.js"></script>
+<script src="theme-manager.js"></script>
+<script src="notifications-manager.js"></script>
+<script src="activity-tracker.js"></script>
+<script src="api-simulation.js"></script>
+
+<script>
+// Sample data for billing functionality
+const transactions = [
+  {
+    id: 'TXN-2024-001',
+    customer: 'Tech Startup Inc',
+    amount: 2450.00,
+    status: 'completed',
+    method: 'Visa ****1234',
+    date: '2024-01-25',
+    type: 'credit_card'
+  },
+  {
+    id: 'TXN-2024-002',
+    customer: 'Digital Solutions LLC',
+    amount: 1890.00,
+    status: 'completed',
+    method: 'PayPal',
+    date: '2024-01-22',
+    type: 'paypal'
+  },
+  {
+    id: 'TXN-2024-003',
+    customer: 'Creative Agency Pro',
+    amount: 750.00,
+    status: 'pending',
+    method: 'MasterCard ****5678',
+    date: '2024-01-20',
+    type: 'credit_card'
+  },
+  {
+    id: 'TXN-2024-004',
+    customer: 'Marketing Experts',
+    amount: 3200.00,
+    status: 'completed',
+    method: 'Stripe',
+    date: '2024-01-18',
+    type: 'stripe'
+  },
+  {
+    id: 'TXN-2024-005',
+    customer: 'Small Business Hub',
+    amount: 420.00,
+    status: 'failed',
+    method: 'Visa ****9876',
+    date: '2024-01-15',
+    type: 'credit_card'
+  },
+  {
+    id: 'TXN-2024-006',
+    customer: 'Retail Solutions Co',
+    amount: 5680.00,
+    status: 'completed',
+    method: 'Bank Transfer',
+    date: '2024-01-12',
+    type: 'bank_transfer'
+  }
+];
+
+// Authentication check
+function checkAuthWithRetry(maxRetries = 3, delay = 100) {
+  let retries = 0;
+  
+  function attemptAuth() {
+    if (!vbmsAuth.isAuthenticated()) {
+      window.location.href = 'login.html';
+      return;
+    }
+
+    const userRole = vbmsAuth.getCurrentRole();
+    
+    if ((!userRole || userRole === '') && retries < maxRetries) {
+      retries++;
+      setTimeout(attemptAuth, delay);
+      return;
+    }
+    
+    if (!userRole || userRole === '') {
+      console.log('Auth check failed - no role found after retries');
+      window.location.href = 'login.html';
+      return;
+    }
+    
+    // Enhanced admin check with additional validation to prevent race conditions
+    if (!vbmsAuth.isAdmin()) {
+      console.log('Admin access check failed for user role:', userRole);
+      alert('Access Denied: Admin access required');
+      
+      // Double-check the role with a slight delay to handle race conditions
+      setTimeout(() => {
+        const verifiedRole = vbmsAuth.getCurrentRole();
+        console.log('Role verification after delay:', verifiedRole);
+        
+        // Only redirect to customer dashboard if we're absolutely certain the user is a customer
+        if ((verifiedRole === 'customer' || verifiedRole === 'client') && 
+            !vbmsAuth.isAdmin() && 
+            verifiedRole === userRole) {
+          console.log('Redirecting verified customer/client to customer dashboard');
+          window.location.href = 'customer-dashboard.html';
+        } else {
+          console.log('Redirecting to login - role uncertain or changed');
+          window.location.href = 'login.html';
+        }
+      }, 150);
+      return;
+    }
+    
+    initializeBillingManagement();
+  }
+  
+  attemptAuth();
+}
+
+function initializeBillingManagement() {
+  // Update date and time
+  function updateDateTime() {
+    const now = new Date();
+    const dateOptions = { 
+      weekday: 'long', 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    };
+    const timeOptions = { 
+      hour: '2-digit', 
+      minute: '2-digit',
+      second: '2-digit'
+    };
+    
+    const currentDate = document.getElementById('currentDate');
+    const currentTime = document.getElementById('currentTime');
+    
+    if (currentDate) {
+      currentDate.textContent = now.toLocaleDateString('en-US', dateOptions);
+    }
+    if (currentTime) {
+      currentTime.textContent = now.toLocaleTimeString('en-US', timeOptions);
+    }
+  }
+
+  updateDateTime();
+  setInterval(updateDateTime, 1000);
+
+  // Initialize filters
+  initializeFilters();
+  
+  // Load billing data
+  loadBillingData();
+  
+  // Track page access
+  if (window.activityTracker) {
+    activityTracker.trackPageView('Billing & Payments');
+  }
+}
+
+function initializeFilters() {
+  // Transaction filters
+  const statusFilter = document.getElementById('statusFilter');
+  const dateFromFilter = document.getElementById('dateFromFilter');
+  const dateToFilter = document.getElementById('dateToFilter');
+  const searchTransactions = document.getElementById('searchTransactions');
+  
+  if (statusFilter) {
+    statusFilter.addEventListener('change', filterTransactions);
+  }
+  if (dateFromFilter) {
+    dateFromFilter.addEventListener('change', filterTransactions);
+  }
+  if (dateToFilter) {
+    dateToFilter.addEventListener('change', filterTransactions);
+  }
+  if (searchTransactions) {
+    searchTransactions.addEventListener('input', filterTransactions);
+  }
+
+  // Subscription filters
+  const planFilter = document.getElementById('planFilter');
+  const subscriptionStatusFilter = document.getElementById('subscriptionStatusFilter');
+  const searchSubscriptions = document.getElementById('searchSubscriptions');
+  
+  if (planFilter) {
+    planFilter.addEventListener('change', filterSubscriptions);
+  }
+  if (subscriptionStatusFilter) {
+    subscriptionStatusFilter.addEventListener('change', filterSubscriptions);
+  }
+  if (searchSubscriptions) {
+    searchSubscriptions.addEventListener('input', filterSubscriptions);
+  }
+
+  // Payment method filters
+  const methodTypeFilter = document.getElementById('methodTypeFilter');
+  const searchPaymentMethods = document.getElementById('searchPaymentMethods');
+  
+  if (methodTypeFilter) {
+    methodTypeFilter.addEventListener('change', filterPaymentMethods);
+  }
+  if (searchPaymentMethods) {
+    searchPaymentMethods.addEventListener('input', filterPaymentMethods);
+  }
+}
+
+function filterTransactions() {
+  const statusFilter = document.getElementById('statusFilter').value;
+  const dateFromFilter = document.getElementById('dateFromFilter').value;
+  const dateToFilter = document.getElementById('dateToFilter').value;
+  const searchTerm = document.getElementById('searchTransactions').value.toLowerCase();
+  const tableBody = document.getElementById('transactionsTableBody');
+  const rows = tableBody.getElementsByTagName('tr');
+
+  for (let row of rows) {
+    const cells = row.getElementsByTagName('td');
+    if (cells.length === 0) continue;
+
+    const transactionId = cells[0].textContent.toLowerCase();
+    const customer = cells[1].textContent.toLowerCase();
+    const status = cells[3].textContent.toLowerCase();
+    const date = cells[5].textContent;
+
+    let showRow = true;
+
+    // Status filter
+    if (statusFilter && !status.includes(statusFilter)) {
+      showRow = false;
+    }
+
+    // Date range filter
+    if (dateFromFilter || dateToFilter) {
+      const rowDate = new Date(date);
+      if (dateFromFilter && rowDate < new Date(dateFromFilter)) {
+        showRow = false;
+      }
+      if (dateToFilter && rowDate > new Date(dateToFilter)) {
+        showRow = false;
+      }
+    }
+
+    // Search filter
+    if (searchTerm && !transactionId.includes(searchTerm) && !customer.includes(searchTerm)) {
+      showRow = false;
+    }
+
+    row.style.display = showRow ? '' : 'none';
+  }
+}
+
+function filterSubscriptions() {
+  const planFilter = document.getElementById('planFilter').value;
+  const statusFilter = document.getElementById('subscriptionStatusFilter').value;
+  const searchTerm = document.getElementById('searchSubscriptions').value.toLowerCase();
+  const tableBody = document.getElementById('subscriptionsTableBody');
+  const rows = tableBody.getElementsByTagName('tr');
+
+  for (let row of rows) {
+    const cells = row.getElementsByTagName('td');
+    if (cells.length === 0) continue;
+
+    const customer = cells[0].textContent.toLowerCase();
+    const plan = cells[1].textContent.toLowerCase();
+    const status = cells[3].textContent.toLowerCase();
+
+    let showRow = true;
+
+    // Plan filter
+    if (planFilter && !plan.includes(planFilter)) {
+      showRow = false;
+    }
+
+    // Status filter
+    if (statusFilter && !status.includes(statusFilter)) {
+      showRow = false;
+    }
+
+    // Search filter
+    if (searchTerm && !customer.includes(searchTerm)) {
+      showRow = false;
+    }
+
+    row.style.display = showRow ? '' : 'none';
+  }
+}
+
+function filterPaymentMethods() {
+  const typeFilter = document.getElementById('methodTypeFilter').value;
+  const searchTerm = document.getElementById('searchPaymentMethods').value.toLowerCase();
+  const tableBody = document.getElementById('paymentMethodsTableBody');
+  const rows = tableBody.getElementsByTagName('tr');
+
+  for (let row of rows) {
+    const cells = row.getElementsByTagName('td');
+    if (cells.length === 0) continue;
+
+    const customer = cells[0].textContent.toLowerCase();
+    const method = cells[1].textContent.toLowerCase();
+    const type = cells[2].textContent.toLowerCase();
+
+    let showRow = true;
+
+    // Type filter
+    if (typeFilter && !type.includes(typeFilter.replace('_', ' '))) {
+      showRow = false;
+    }
+
+    // Search filter
+    if (searchTerm && !customer.includes(searchTerm) && !method.includes(searchTerm)) {
+      showRow = false;
+    }
+
+    row.style.display = showRow ? '' : 'none';
+  }
+}
+
+// Transaction functions
+function viewTransaction(transactionId) {
+  // Track transaction view
+  if (window.activityTracker) {
+    activityTracker.trackCustomActivity('transaction_view', `Viewed transaction ${transactionId}`, {
+      priority: 'low',
+      module: 'Billing & Payments',
+      transactionId: transactionId
+    });
+  }
+  
+  const transaction = transactions.find(t => t.id === transactionId);
+  if (transaction) {
+    document.getElementById('transactionModalBody').innerHTML = `
+      <div class="row">
+        <div class="col-md-6">
+          <p><strong>Transaction ID:</strong> ${transaction.id}</p>
+          <p><strong>Customer:</strong> ${transaction.customer}</p>
+          <p><strong>Amount:</strong> $${transaction.amount.toFixed(2)}</p>
+          <p><strong>Status:</strong> <span class="payment-status status-${transaction.status}">${transaction.status.charAt(0).toUpperCase() + transaction.status.slice(1)}</span></p>
+        </div>
+        <div class="col-md-6">
+          <p><strong>Payment Method:</strong> ${transaction.method}</p>
+          <p><strong>Date:</strong> ${transaction.date}</p>
+          <p><strong>Type:</strong> ${transaction.type.replace('_', ' ')}</p>
+        </div>
+      </div>
+      <hr>
+      <div class="row">
+        <div class="col-12">
+          <h6>Transaction Details</h6>
+          <p>This transaction was processed successfully through our secure payment gateway. All payment information is encrypted and stored securely.</p>
+        </div>
+      </div>
+    `;
+    new bootstrap.Modal(document.getElementById('transactionModal')).show();
+  }
+}
+
+async function loadBillingData() {
+  try {
+    // API base URL
+    const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+      ? 'http://localhost:5050'
+      : 'https://vbms-backend.onrender.com';
+
+    // Get auth token
+    const token = localStorage.getItem('vbms_token');
+    if (!token) {
+      console.error('No auth token found');
+      return;
+    }
+
+    // Fetch user's subscription and billing data
+    const [subscriptionResponse, analyticsResponse] = await Promise.all([
+      fetch(`${API_BASE}/api/stripe/subscription`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      }),
+      fetch(`${API_BASE}/api/admin/analytics?period=30d`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+    ]);
+
+    // Load subscription data
+    if (subscriptionResponse.ok) {
+      const subscriptionData = await subscriptionResponse.json();
+      updateSubscriptionDisplay(subscriptionData);
+    }
+
+    // Load analytics/revenue data for admin users
+    if (analyticsResponse.ok) {
+      const analyticsData = await analyticsResponse.json();
+      updateRevenueStats(analyticsData);
+    }
+
+    // Load transaction history
+    loadTransactionHistory();
+
+  } catch (error) {
+    console.error('Error loading billing data:', error);
+  }
+}
+
+function updateSubscriptionDisplay(data) {
+  if (data.subscription) {
+    const sub = data.subscription;
+    
+    // Update current plan display
+    const planElement = document.querySelector('.current-plan');
+    if (planElement) {
+      planElement.innerHTML = `
+        <h5>${sub.packageName}</h5>
+        <p class="text-muted">$${sub.price.monthly}/month</p>
+        <span class="badge ${sub.status === 'active' ? 'bg-success' : 'bg-warning'}">
+          ${sub.status.toUpperCase()}
+        </span>
+      `;
+    }
+
+    // Update next billing date
+    const nextBillingElement = document.getElementById('nextBillingDate');
+    if (nextBillingElement && sub.billing.nextBillingDate) {
+      nextBillingElement.textContent = new Date(sub.billing.nextBillingDate).toLocaleDateString();
+    }
+
+    // Update billing amount
+    const billingAmountElement = document.getElementById('billingAmount');
+    if (billingAmountElement) {
+      billingAmountElement.textContent = `$${sub.price.monthly}`;
+    }
+  }
+}
+
+function updateRevenueStats(data) {
+  if (data.metrics) {
+    // Update subscription revenue
+    const revenueElement = document.getElementById('subscriptionRevenue');
+    if (revenueElement) {
+      revenueElement.textContent = `$${data.metrics.totalRevenue.toLocaleString()}`;
+    }
+
+    // Update other revenue metrics if available
+    const avgOrderElement = document.getElementById('averageOrder');
+    if (avgOrderElement && data.metrics.averageOrderValue) {
+      avgOrderElement.textContent = `$${data.metrics.averageOrderValue.toFixed(2)}`;
+    }
+  }
+}
+
+async function loadTransactionHistory() {
+  try {
+    const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+      ? 'http://localhost:5050'
+      : 'https://vbms-backend.onrender.com';
+
+    const token = localStorage.getItem('vbms_token');
+    
+    // For admin users, get all transactions; for customers, get their own
+    const response = await fetch(`${API_BASE}/api/admin/orders?limit=20`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      renderTransactionTable(data.orders || []);
+    }
+  } catch (error) {
+    console.error('Error loading transaction history:', error);
+  }
+}
+
+function renderTransactionTable(transactions) {
+  const tableBody = document.querySelector('#transactionsTable tbody');
+  if (!tableBody) return;
+
+  if (transactions.length === 0) {
+    tableBody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No transactions found</td></tr>';
+    return;
+  }
+
+  tableBody.innerHTML = transactions.map(transaction => {
+    const date = new Date(transaction.createdAt).toLocaleDateString();
+    const status = transaction.status || 'completed';
+    const amount = transaction.total || transaction.amount || 0;
+    const customerName = transaction.customerId?.name || 'N/A';
+    
+    const statusClass = {
+      'completed': 'status-completed',
+      'pending': 'status-pending', 
+      'failed': 'status-failed',
+      'cancelled': 'status-cancelled'
+    }[status] || 'status-pending';
+
+    return `
+      <tr>
+        <td>
+          <strong>#${transaction._id.slice(-8).toUpperCase()}</strong>
+          <br><small class="text-muted">${customerName}</small>
+        </td>
+        <td>$${amount.toFixed(2)}</td>
+        <td>${date}</td>
+        <td>
+          <span class="payment-status ${statusClass}">
+            <i class="bi bi-${status === 'completed' ? 'check-circle-fill' : status === 'failed' ? 'x-circle-fill' : 'clock-fill'}"></i>
+            ${status.charAt(0).toUpperCase() + status.slice(1)}
+          </span>
+        </td>
+        <td>
+          <i class="bi bi-credit-card payment-method-icon payment-stripe"></i>
+          Stripe Payment
+        </td>
+        <td>
+          <button class="btn btn-sm btn-outline-primary" onclick="viewTransaction('${transaction._id}')">
+            <i class="bi bi-eye"></i> View
+          </button>
+          <button class="btn btn-sm btn-outline-secondary" onclick="downloadInvoice('${transaction._id}')">
+            <i class="bi bi-download"></i> Invoice
+          </button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function viewTransaction(transactionId) {
+  alert(`Transaction details for ${transactionId} - Would show detailed modal`);
+}
+
+function downloadInvoice(transactionId) {
+  // Track invoice download
+  if (window.activityTracker) {
+    activityTracker.trackCustomActivity('invoice_download', `Downloaded invoice for transaction ${transactionId}`, {
+      priority: 'medium',
+      module: 'Billing & Payments',
+      transactionId: transactionId
+    });
+  }
+  
+  alert(`Invoice for transaction ${transactionId} would be downloaded here`);
+}
+
+function processPayment(transactionId) {
+  // Track payment processing
+  if (window.activityTracker) {
+    activityTracker.trackCustomActivity('payment_process', `Processed payment for transaction ${transactionId}`, {
+      priority: 'high',
+      module: 'Billing & Payments',
+      transactionId: transactionId
+    });
+  }
+  
+  alert(`Processing payment for transaction ${transactionId}...`);
+}
+
+function retryPayment(transactionId) {
+  // Track payment retry
+  if (window.activityTracker) {
+    activityTracker.trackCustomActivity('payment_retry', `Retried payment for transaction ${transactionId}`, {
+      priority: 'high',
+      module: 'Billing & Payments',
+      transactionId: transactionId
+    });
+  }
+  
+  alert(`Retrying payment for transaction ${transactionId}...`);
+}
+
+function exportTransactions() {
+  // Track export action
+  if (window.activityTracker) {
+    activityTracker.trackCustomActivity('transactions_export', 'Exported transactions data', {
+      priority: 'medium',
+      module: 'Billing & Payments'
+    });
+  }
+  
+  alert('Transaction export functionality would be implemented here');
+}
+
+// Subscription functions
+function viewSubscription(subscriptionId) {
+  alert(`Viewing subscription ${subscriptionId} details...`);
+}
+
+function editSubscription(subscriptionId) {
+  alert(`Editing subscription ${subscriptionId}...`);
+}
+
+function addNewSubscription() {
+  alert('Add new subscription functionality would be implemented here');
+}
+
+function reactivateSubscription(subscriptionId) {
+  alert(`Reactivating subscription ${subscriptionId}...`);
+}
+
+// Payment method functions
+function editPaymentMethod(methodId) {
+  alert(`Editing payment method ${methodId}...`);
+}
+
+function deletePaymentMethod(methodId) {
+  if (confirm('Are you sure you want to delete this payment method?')) {
+    alert(`Payment method ${methodId} deleted`);
+  }
+}
+
+function addPaymentMethod() {
+  alert('Add payment method functionality would be implemented here');
+}
+
+// Logout function
+function logout() {
+  vbmsAuth.logout();
+}
+
+// Start authentication check
+checkAuthWithRetry();
+</script>
+
+</body>
+</html>

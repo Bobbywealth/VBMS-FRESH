@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Monitoring - VBMS Customer Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="config.js"></script>
+  <script src="navigation-enforcement.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <style>
+    :root {
+        --accent: #f0b90b;
+        --accent-light: #ffd700;
+        --accent-glow: rgba(240, 185, 11, 0.4);
+        --primary-dark: #d4a109;
+        --secondary: #2c3e50;
+        --success: #22c55e;
+        --danger: #ef4444;
+        --warning: #f59e0b;
+        --info: #3b82f6;
+        --purple: #a855f7;
+        --cyan: #06b6d4;
+        --light: #f8f9fa;
+        --dark: #212529;
+        --glass: rgba(255,255,255,0.95);
+        --glass-glow: rgba(240, 185, 11, 0.15);
+        --border: #e9ecef;
+        --text: #212529;
+        --text-muted: #6c757d;
+        --card-bg: #ffffff;
+        --card-shadow: 0 8px 32px rgba(240, 185, 11, 0.1);
+        --bg: linear-gradient(135deg, #f8f9fa 0%, #f0f8ff 50%, #f8f4ff 100%);
+    }
+
+    /* Dark theme - Modern Black/Gray with Energy */
+    [data-theme="dark"] {
+        --bg: linear-gradient(135deg, #000000 0%, #0a0a0a 25%, #1a1a1a 50%, #0f0f0f 100%);
+        --light: #ffffff;
+        --dark: #000000;
+        --text: #ffffff;
+        --text-muted: #a1a1aa;
+        --card-bg: rgba(20, 20, 20, 0.95);
+        --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.8), 0 0 20px rgba(240, 185, 11, 0.15);
+        --border: rgba(64, 64, 64, 0.4);
+        --glass: rgba(18, 18, 18, 0.95);
+        --glass-glow: rgba(240, 185, 11, 0.2);
+        --accent: #f0b90b;
+        --accent-light: #ffd700;
+        --success: #22c55e;
+        --danger: #ef4444;
+        --warning: #f59e0b;
+        --info: #3b82f6;
+        --purple: #a855f7;
+        --cyan: #06b6d4;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+        font-family: 'Inter', sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        overflow-x: hidden;
+        transition: all 0.3s ease;
+        position: relative;
+        min-height: 100vh;
+    }
+
+    /* Enhanced Background Animation */
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -2;
+        background: 
+            radial-gradient(circle at 20% 30%, rgba(240, 185, 11, 0.08) 0%, transparent 50%),
+            radial-gradient(circle at 80% 70%, rgba(59, 130, 246, 0.05) 0%, transparent 50%),
+            radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.03) 0%, transparent 60%);
+        animation: enhancedGlow 25s ease-in-out infinite;
+    }
+
+    [data-theme="dark"] body::before {
+        background: 
+            radial-gradient(circle at 20% 30%, rgba(240, 185, 11, 0.12) 0%, transparent 50%),
+            radial-gradient(circle at 80% 70%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
+            radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.06) 0%, transparent 60%);
+    }
+
+    @keyframes enhancedGlow {
+        0%, 100% {
+            opacity: 0.6;
+            transform: rotate(0deg) scale(1);
+        }
+        33% {
+            opacity: 0.8;
+            transform: rotate(120deg) scale(1.05);
+        }
+        66% {
+            opacity: 0.7;
+            transform: rotate(240deg) scale(0.95);
+        }
+    }
+
+    .main {
+        margin-left: 320px;
+        padding: 30px;
+        min-height: 100vh;
+        transition: margin-left 0.3s ease;
+    }
+
+    /* Header Styles */
+    .page-header {
+        background: var(--card-bg);
+        backdrop-filter: blur(20px);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 30px;
+        margin-bottom: 30px;
+        box-shadow: var(--card-shadow);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .page-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--accent), var(--accent-light), var(--info), var(--purple));
+    }
+
+    .page-header h1 {
+        color: var(--accent);
+        font-weight: 800;
+        font-size: 2.5rem;
+        margin: 0;
+        text-shadow: 0 2px 4px rgba(240, 185, 11, 0.3);
+    }
+
+    .page-subtitle {
+        color: var(--text-muted);
+        font-size: 1.1rem;
+        margin: 8px 0 0 0;
+        font-weight: 400;
+    }
+
+    /* Status Grid */
+    .status-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 25px;
+        margin-bottom: 40px;
+    }
+
+    .status-card {
+        background: var(--card-bg);
+        backdrop-filter: blur(20px);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 30px;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: var(--card-shadow);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .status-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--accent), var(--accent-light));
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+    }
+
+    .status-card:hover {
+        transform: translateY(-6px) scale(1.02);
+        box-shadow: 0 20px 40px rgba(240, 185, 11, 0.2);
+    }
+
+    .status-card:hover::before {
+        transform: scaleX(1);
+    }
+
+    .status-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 20px;
+    }
+
+    .status-icon {
+        width: 70px;
+        height: 70px;
+        border-radius: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+        box-shadow: 0 10px 25px rgba(240, 185, 11, 0.2);
+        transition: all 0.3s ease;
+    }
+
+    .status-card:hover .status-icon {
+        transform: scale(1.1) rotate(5deg);
+    }
+
+    .status-online .status-icon {
+        background: linear-gradient(135deg, #22c55e, #16a34a);
+        color: white;
+    }
+
+    .status-offline .status-icon {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        color: white;
+    }
+
+    .status-warning .status-icon {
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        color: white;
+    }
+
+    .status-info .status-icon {
+        background: linear-gradient(135deg, #3b82f6, #2563eb);
+        color: white;
+    }
+
+    .status-badge {
+        padding: 6px 16px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .badge-online {
+        background: rgba(34, 197, 94, 0.15);
+        color: var(--success);
+        border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+
+    .badge-offline {
+        background: rgba(239, 68, 68, 0.15);
+        color: var(--danger);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .badge-warning {
+        background: rgba(245, 158, 11, 0.15);
+        color: var(--warning);
+        border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .status-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text);
+        margin-bottom: 8px;
+    }
+
+    .status-description {
+        color: var(--text-muted);
+        font-size: 0.95rem;
+        line-height: 1.5;
+        margin-bottom: 20px;
+    }
+
+    .status-metrics {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 0;
+        border-top: 1px solid var(--border);
+    }
+
+    .metric {
+        text-align: center;
+    }
+
+    .metric-value {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: var(--accent);
+        margin-bottom: 4px;
+    }
+
+    .metric-label {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        font-weight: 600;
+    }
+
+    /* Camera Grid */
+    .camera-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 25px;
+        margin-bottom: 40px;
+    }
+
+    .camera-card {
+        background: var(--card-bg);
+        backdrop-filter: blur(20px);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 25px;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: var(--card-shadow);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .camera-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--info), var(--purple));
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+    }
+
+    .camera-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 15px 35px rgba(59, 130, 246, 0.2);
+    }
+
+    .camera-card:hover::before {
+        transform: scaleX(1);
+    }
+
+    .camera-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .camera-title {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--text);
+    }
+
+    .camera-viewer {
+        width: 100%;
+        height: 200px;
+        background: linear-gradient(135deg, #1f2937, #374151);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 20px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .camera-placeholder {
+        text-align: center;
+        color: #9ca3af;
+    }
+
+    .camera-placeholder i {
+        font-size: 3rem;
+        margin-bottom: 10px;
+        opacity: 0.7;
+    }
+
+    .camera-controls {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+    }
+
+    .btn-camera {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 10px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .btn-view {
+        background: var(--info);
+        color: white;
+        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+    }
+
+    .btn-view:hover {
+        background: #2563eb;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+    }
+
+    .btn-record {
+        background: var(--danger);
+        color: white;
+        box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+    }
+
+    .btn-record:hover {
+        background: #dc2626;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+    }
+
+    .btn-settings {
+        background: var(--glass);
+        color: var(--text);
+        border: 1px solid var(--border);
+    }
+
+    .btn-settings:hover {
+        background: var(--glass-glow);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(240, 185, 11, 0.2);
+    }
+
+    /* Activity Feed */
+    .activity-feed {
+        background: var(--card-bg);
+        backdrop-filter: blur(20px);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: var(--card-shadow);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .activity-feed::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--purple), var(--cyan));
+    }
+
+    .feed-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .feed-title {
+        color: var(--accent);
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .activity-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 15px;
+        padding: 15px 0;
+        border-bottom: 1px solid var(--border);
+        transition: all 0.3s ease;
+    }
+
+    .activity-item:last-child {
+        border-bottom: none;
+    }
+
+    .activity-item:hover {
+        background: var(--glass-glow);
+        margin: 0 -15px;
+        padding: 15px;
+        border-radius: 10px;
+    }
+
+    .activity-icon {
+        width: 45px;
+        height: 45px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        flex-shrink: 0;
+    }
+
+    .activity-success {
+        background: rgba(34, 197, 94, 0.15);
+        color: var(--success);
+    }
+
+    .activity-warning {
+        background: rgba(245, 158, 11, 0.15);
+        color: var(--warning);
+    }
+
+    .activity-error {
+        background: rgba(239, 68, 68, 0.15);
+        color: var(--danger);
+    }
+
+    .activity-info {
+        background: rgba(59, 130, 246, 0.15);
+        color: var(--info);
+    }
+
+    .activity-content {
+        flex: 1;
+    }
+
+    .activity-title {
+        font-weight: 600;
+        color: var(--text);
+        margin-bottom: 4px;
+    }
+
+    .activity-description {
+        color: var(--text-muted);
+        font-size: 0.875rem;
+        margin-bottom: 6px;
+    }
+
+    .activity-time {
+        color: var(--text-muted);
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 1024px) {
+        .main {
+            margin-left: 280px;
+        }
+
+        .status-grid,
+        .camera-grid {
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .main {
+            margin-left: 0;
+            padding: 80px 15px 20px;
+        }
+
+        .page-header {
+            padding: 20px;
+            text-align: center;
+        }
+
+        .page-header h1 {
+            font-size: 2rem;
+        }
+
+        .status-grid,
+        .camera-grid {
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        .status-card,
+        .camera-card {
+            padding: 20px;
+        }
+
+        .status-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 15px;
+        }
+
+        .activity-feed {
+            padding: 20px;
+        }
+
+        .activity-item {
+            gap: 12px;
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .main {
+            padding: 70px 10px 15px;
+        }
+
+        .page-header h1 {
+            font-size: 1.75rem;
+        }
+
+        .status-card,
+        .camera-card,
+        .activity-feed {
+            padding: 15px;
+        }
+
+        .status-icon {
+            width: 60px;
+            height: 60px;
+        }
+
+        .camera-viewer {
+            height: 160px;
+        }
+
+        .btn-camera {
+            font-size: 0.8rem;
+            padding: 6px 12px;
+        }
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar Container -->
+  <div id="sidebar-container"></div>
+
+  <!-- Main Content -->
+  <main class="main">
+    <!-- Page Header -->
+    <div class="page-header">
+      <h1><i class="bi bi-camera-video"></i> Monitoring Dashboard</h1>
+      <p class="page-subtitle">Monitor your restaurant operations, security cameras, and system status in real-time</p>
+    </div>
+
+    <!-- System Status Grid -->
+    <div class="status-grid">
+      <div class="status-card status-online">
+        <div class="status-header">
+          <div class="status-icon">
+            <i class="bi bi-wifi"></i>
+          </div>
+          <span class="status-badge badge-online">Online</span>
+        </div>
+        <h3 class="status-title">Network Status</h3>
+        <p class="status-description">All network connections are stable and operating normally. Internet connectivity is excellent.</p>
+        <div class="status-metrics">
+          <div class="metric">
+            <div class="metric-value">99.9%</div>
+            <div class="metric-label">Uptime</div>
+          </div>
+          <div class="metric">
+            <div class="metric-value">45ms</div>
+            <div class="metric-label">Latency</div>
+          </div>
+          <div class="metric">
+            <div class="metric-value">250Mbps</div>
+            <div class="metric-label">Speed</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="status-card status-online">
+        <div class="status-header">
+          <div class="status-icon">
+            <i class="bi bi-cpu"></i>
+          </div>
+          <span class="status-badge badge-online">Healthy</span>
+        </div>
+        <h3 class="status-title">System Performance</h3>
+        <p class="status-description">All servers and systems are running optimally with normal resource usage.</p>
+        <div class="status-metrics">
+          <div class="metric">
+            <div class="metric-value">34%</div>
+            <div class="metric-label">CPU Usage</div>
+          </div>
+          <div class="metric">
+            <div class="metric-value">68%</div>
+            <div class="metric-label">Memory</div>
+          </div>
+          <div class="metric">
+            <div class="metric-value">45%</div>
+            <div class="metric-label">Storage</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="status-card status-warning">
+        <div class="status-header">
+          <div class="status-icon">
+            <i class="bi bi-shield-exclamation"></i>
+          </div>
+          <span class="status-badge badge-warning">Warning</span>
+        </div>
+        <h3 class="status-title">Security System</h3>
+        <p class="status-description">Minor security alert detected. Camera #3 requires attention but system is operational.</p>
+        <div class="status-metrics">
+          <div class="metric">
+            <div class="metric-value">7/8</div>
+            <div class="metric-label">Cameras</div>
+          </div>
+          <div class="metric">
+            <div class="metric-value">2</div>
+            <div class="metric-label">Alerts</div>
+          </div>
+          <div class="metric">
+            <div class="metric-value">24/7</div>
+            <div class="metric-label">Monitoring</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="status-card status-online">
+        <div class="status-header">
+          <div class="status-icon">
+            <i class="bi bi-database"></i>
+          </div>
+          <span class="status-badge badge-online">Connected</span>
+        </div>
+        <h3 class="status-title">Database Status</h3>
+        <p class="status-description">All databases are online and synchronized. Backup systems are current and operational.</p>
+        <div class="status-metrics">
+          <div class="metric">
+            <div class="metric-value">3</div>
+            <div class="metric-label">Databases</div>
+          </div>
+          <div class="metric">
+            <div class="metric-value">12ms</div>
+            <div class="metric-label">Response</div>
+          </div>
+          <div class="metric">
+            <div class="metric-value">2h ago</div>
+            <div class="metric-label">Last Backup</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Security Cameras -->
+    <div class="camera-grid">
+      <div class="camera-card">
+        <div class="camera-header">
+          <h4 class="camera-title">Main Entrance</h4>
+          <span class="status-badge badge-online">Online</span>
+        </div>
+        <div class="camera-viewer">
+          <div class="camera-placeholder">
+            <i class="bi bi-camera-video"></i>
+            <div>Camera Feed</div>
+            <small>Click View to access live stream</small>
+          </div>
+        </div>
+        <div class="camera-controls">
+          <button class="btn-camera btn-view" onclick="viewCamera('entrance')">
+            <i class="bi bi-play-circle"></i>
+            View Live
+          </button>
+          <button class="btn-camera btn-record" onclick="recordCamera('entrance')">
+            <i class="bi bi-record-circle"></i>
+            Record
+          </button>
+          <button class="btn-camera btn-settings" onclick="cameraSettings('entrance')">
+            <i class="bi bi-gear"></i>
+            Settings
+          </button>
+        </div>
+      </div>
+
+      <div class="camera-card">
+        <div class="camera-header">
+          <h4 class="camera-title">Kitchen Area</h4>
+          <span class="status-badge badge-online">Online</span>
+        </div>
+        <div class="camera-viewer">
+          <div class="camera-placeholder">
+            <i class="bi bi-camera-video"></i>
+            <div>Camera Feed</div>
+            <small>Click View to access live stream</small>
+          </div>
+        </div>
+        <div class="camera-controls">
+          <button class="btn-camera btn-view" onclick="viewCamera('kitchen')">
+            <i class="bi bi-play-circle"></i>
+            View Live
+          </button>
+          <button class="btn-camera btn-record" onclick="recordCamera('kitchen')">
+            <i class="bi bi-record-circle"></i>
+            Record
+          </button>
+          <button class="btn-camera btn-settings" onclick="cameraSettings('kitchen')">
+            <i class="bi bi-gear"></i>
+            Settings
+          </button>
+        </div>
+      </div>
+
+      <div class="camera-card">
+        <div class="camera-header">
+          <h4 class="camera-title">Dining Area</h4>
+          <span class="status-badge badge-online">Online</span>
+        </div>
+        <div class="camera-viewer">
+          <div class="camera-placeholder">
+            <i class="bi bi-camera-video"></i>
+            <div>Camera Feed</div>
+            <small>Click View to access live stream</small>
+          </div>
+        </div>
+        <div class="camera-controls">
+          <button class="btn-camera btn-view" onclick="viewCamera('dining')">
+            <i class="bi bi-play-circle"></i>
+            View Live
+          </button>
+          <button class="btn-camera btn-record" onclick="recordCamera('dining')">
+            <i class="bi bi-record-circle"></i>
+            Record
+          </button>
+          <button class="btn-camera btn-settings" onclick="cameraSettings('dining')">
+            <i class="bi bi-gear"></i>
+            Settings
+          </button>
+        </div>
+      </div>
+
+      <div class="camera-card">
+        <div class="camera-header">
+          <h4 class="camera-title">Storage Room</h4>
+          <span class="status-badge badge-warning">Warning</span>
+        </div>
+        <div class="camera-viewer">
+          <div class="camera-placeholder">
+            <i class="bi bi-camera-video-off"></i>
+            <div>Camera Offline</div>
+            <small>Connection issue detected</small>
+          </div>
+        </div>
+        <div class="camera-controls">
+          <button class="btn-camera btn-view" onclick="viewCamera('storage')" disabled>
+            <i class="bi bi-exclamation-triangle"></i>
+            Reconnecting...
+          </button>
+          <button class="btn-camera btn-settings" onclick="cameraSettings('storage')">
+            <i class="bi bi-gear"></i>
+            Settings
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Activity Feed -->
+    <div class="activity-feed">
+      <div class="feed-header">
+        <h3 class="feed-title">
+          <i class="bi bi-activity"></i>
+          Recent Activity
+        </h3>
+        <button class="btn-camera btn-settings" onclick="exportActivity()">
+          <i class="bi bi-download"></i>
+          Export Log
+        </button>
+      </div>
+
+      <div class="activity-item">
+        <div class="activity-icon activity-success">
+          <i class="bi bi-check-circle"></i>
+        </div>
+        <div class="activity-content">
+          <div class="activity-title">System Backup Completed</div>
+          <div class="activity-description">Automatic backup of all restaurant data completed successfully</div>
+          <div class="activity-time">2 minutes ago</div>
+        </div>
+      </div>
+
+      <div class="activity-item">
+        <div class="activity-icon activity-warning">
+          <i class="bi bi-exclamation-triangle"></i>
+        </div>
+        <div class="activity-content">
+          <div class="activity-title">Camera Connection Issue</div>
+          <div class="activity-description">Storage room camera (#4) lost connection - attempting to reconnect</div>
+          <div class="activity-time">15 minutes ago</div>
+        </div>
+      </div>
+
+      <div class="activity-item">
+        <div class="activity-icon activity-info">
+          <i class="bi bi-info-circle"></i>
+        </div>
+        <div class="activity-content">
+          <div class="activity-title">Security System Armed</div>
+          <div class="activity-description">Night mode security protocols activated automatically</div>
+          <div class="activity-time">1 hour ago</div>
+        </div>
+      </div>
+
+      <div class="activity-item">
+        <div class="activity-icon activity-success">
+          <i class="bi bi-cpu"></i>
+        </div>
+        <div class="activity-content">
+          <div class="activity-title">Performance Optimization</div>
+          <div class="activity-description">System maintenance completed - improved response times by 12%</div>
+          <div class="activity-time">3 hours ago</div>
+        </div>
+      </div>
+
+      <div class="activity-item">
+        <div class="activity-icon activity-info">
+          <i class="bi bi-shield-check"></i>
+        </div>
+        <div class="activity-content">
+          <div class="activity-title">Security Scan Complete</div>
+          <div class="activity-description">Weekly security scan completed - no threats detected</div>
+          <div class="activity-time">6 hours ago</div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="auth.js"></script>
+  <script src="theme-manager.js"></script>
+  <script src="load-sidebar.js"></script>
+  
+  <script>
+    // Authentication check
+    if (!vbmsAuth.isAuthenticated()) {
+      console.log('Not authenticated - redirecting to customer login');
+      window.location.href = 'customer-login.html';
+    }
+
+    // Camera control functions
+    function viewCamera(cameraId) {
+      console.log('Viewing camera:', cameraId);
+      alert(`Opening live feed for ${cameraId} camera...`);
+      // In a real implementation, this would open a video stream
+    }
+
+    function recordCamera(cameraId) {
+      console.log('Recording camera:', cameraId);
+      alert(`Starting recording for ${cameraId} camera...`);
+      // In a real implementation, this would start video recording
+    }
+
+    function cameraSettings(cameraId) {
+      console.log('Opening settings for camera:', cameraId);
+      alert(`Opening settings for ${cameraId} camera...`);
+      // In a real implementation, this would open camera configuration
+    }
+
+    function exportActivity() {
+      console.log('Exporting activity log');
+      alert('Exporting activity log to CSV...');
+      // In a real implementation, this would export the activity log
+    }
+
+    function logout() {
+      vbmsAuth.logout();
+    }
+
+    // Simulate real-time updates
+    function updateSystemStatus() {
+      // Simulate changing metrics
+      const metrics = document.querySelectorAll('.metric-value');
+      metrics.forEach(metric => {
+        if (metric.textContent.includes('%')) {
+          const currentValue = parseInt(metric.textContent);
+          const newValue = Math.max(0, Math.min(100, currentValue + Math.floor(Math.random() * 6) - 3));
+          metric.textContent = newValue + '%';
+        }
+      });
+    }
+
+    // Update status every 30 seconds
+    setInterval(updateSystemStatus, 30000);
+
+    // Initialize the page
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('Customer Monitoring page initialized');
+    });
+  </script>
+</body>
+</html>

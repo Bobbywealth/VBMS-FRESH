@@ -1,0 +1,80 @@
+version: '3.8'
+
+services:
+  # VBMS Backend API
+  vbms-backend:
+    build: .
+    container_name: vbms-backend
+    restart: unless-stopped
+    ports:
+      - "5050:5050"
+    environment:
+      - NODE_ENV=production
+    env_file:
+      - .env.production
+    volumes:
+      - ./uploads:/app/uploads
+      - ./logs:/app/logs
+    depends_on:
+      - redis
+    networks:
+      - vbms-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5050/api/test"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Redis for caching and session storage
+  redis:
+    image: redis:7-alpine
+    container_name: vbms-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - vbms-network
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-vbms_redis_pass}
+
+  # Nginx reverse proxy (optional)
+  nginx:
+    image: nginx:alpine
+    container_name: vbms-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./ssl:/etc/nginx/ssl
+    depends_on:
+      - vbms-backend
+    networks:
+      - vbms-network
+
+  # MongoDB (if not using Atlas)
+  # Uncomment if you want to run MongoDB locally
+  # mongodb:
+  #   image: mongo:6
+  #   container_name: vbms-mongodb
+  #   restart: unless-stopped
+  #   ports:
+  #     - "27017:27017"
+  #   environment:
+  #     MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME:-admin}
+  #     MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:-password}
+  #   volumes:
+  #     - mongodb-data:/data/db
+  #   networks:
+  #     - vbms-network
+
+volumes:
+  redis-data:
+  # mongodb-data:
+
+networks:
+  vbms-network:
+    driver: bridge

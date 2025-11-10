@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Leads Management - Master Admin - VBMS</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+        :root {
+            --accent: #f0b90b;
+            --accent-light: #ffd700;
+            --accent-glow: rgba(240, 185, 11, 0.4);
+            --primary-dark: #d4a109;
+            --secondary: #2c3e50;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --purple: #a855f7;
+            --cyan: #06b6d4;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --glass: rgba(255,255,255,0.95);
+            --glass-glow: rgba(240, 185, 11, 0.15);
+            --border: #e9ecef;
+            --text: #212529;
+            --text-muted: #6c757d;
+            --card-bg: #ffffff;
+            --card-shadow: 0 8px 32px rgba(240, 185, 11, 0.1);
+            --bg: linear-gradient(135deg, #f8f9fa 0%, #f0f8ff 50%, #f8f4ff 100%);
+            --sidebar-bg: rgba(255,255,255,0.98);
+            --sidebar-link: #333;
+            --sidebar-link-active: #000;
+            --master-admin-glow: rgba(255, 0, 0, 0.2);
+            --master-admin-accent: #dc3545;
+        }
+
+        /* Dark theme */
+        [data-theme="dark"] {
+            --bg: linear-gradient(135deg, #000000 0%, #0a0a0a 25%, #1a1a1a 50%, #0f0f0f 100%);
+            --light: #ffffff;
+            --dark: #000000;
+            --text: #ffffff;
+            --text-muted: #a1a1aa;
+            --card-bg: rgba(20, 20, 20, 0.95);
+            --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.8), 0 0 20px rgba(240, 185, 11, 0.15);
+            --border: rgba(64, 64, 64, 0.4);
+            --glass: rgba(18, 18, 18, 0.95);
+            --glass-glow: rgba(240, 185, 11, 0.2);
+            --sidebar-bg: rgba(12, 12, 12, 0.98);
+            --sidebar-link: #d4d4d8;
+            --sidebar-link-active: #ffffff;
+            --accent: #f0b90b;
+            --master-admin-accent: #dc3545;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+            transition: all 0.3s ease;
+            position: relative;
+            min-height: 100vh;
+        }
+
+        /* Enhanced Background Animation */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(240, 185, 11, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(59, 130, 246, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.03) 0%, transparent 60%);
+            animation: enhancedGlow 25s ease-in-out infinite;
+        }
+
+        [data-theme="dark"] body::before {
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(240, 185, 11, 0.12) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.06) 0%, transparent 60%);
+        }
+
+        @keyframes enhancedGlow {
+            0%, 100% {
+                opacity: 0.6;
+                transform: rotate(0deg) scale(1);
+            }
+            33% {
+                opacity: 0.8;
+                transform: rotate(120deg) scale(1.05);
+            }
+            66% {
+                opacity: 0.7;
+                transform: rotate(240deg) scale(0.95);
+            }
+        }
+
+    
+/* Sidebar CSS removed - now handled by admin-sidebar.html */
+.main-content {
+  margin-left: 320px;
+  padding: 30px;
+  min-height: 100vh;
+  background: transparent;
+  transition: all 0.3s ease;
+}
+
+/* Emergency fix for button visibility and layout */
+@media (max-width: 1200px) {
+  .main-content {
+    margin-left: 280px;
+  }
+}
+
+@media (max-width: 992px) {
+  .main-content {
+    margin-left: 0;
+    padding: 15px;
+  }
+  
+  .d-flex.justify-content-between {
+    flex-direction: column;
+    gap: 15px;
+    align-items: stretch;
+  }
+  
+  .d-flex.flex-wrap.gap-2 {
+    justify-content: center;
+  }
+  
+  .toggle-btn, .btn {
+    flex: 1;
+    min-width: 120px;
+  }
+}
+
+/* Mobile content adjustments */
+@media (max-width: 1024px) {
+  .main-content {
+    margin-left: 280px;
+    padding: 25px;
+  }
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 0;
+    padding: 80px 15px 15px 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .main-content {
+    padding: 75px 10px 10px 10px;
+  }
+}
+
+@media (max-width: 320px) {
+  .main-content {
+    padding: 70px 8px 8px 8px;
+  }
+}
+    .stats-cards { display: flex; gap: 1.5rem; margin-bottom: 2rem; flex-wrap: wrap; }
+    .stat-card {
+      background: #18181b;
+      color: #fff;
+      padding: 1.3rem 2.2rem;
+      border-radius: 18px;
+      box-shadow: 0 3px 16px 0 #0002;
+      min-width: 180px;
+      max-width: 230px;
+      flex: 1 1 180px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      transition: box-shadow 0.2s;
+      border: 1px solid #2a2a2a;
+    }
+    .stat-card .stat-label {
+      color: #aaa;
+      font-size: 0.96rem;
+      margin-bottom: 2px;
+    }
+    .stat-card .stat-value {
+      font-size: 2.2rem;
+      font-weight: bold;
+      color: #f0b90b;
+      letter-spacing: 1px;
+    }
+    .toggle-btn {
+      background: #18181b;
+      color: #f0b90b;
+      border: none;
+      border-radius: 10px;
+      font-size: 1.08rem;
+      font-weight: 700;
+      padding: 9px 20px;
+      margin-bottom: 24px;
+      margin-left: 4px;
+      transition: background 0.22s;
+    }
+    .toggle-btn.active {
+      background: #f0b90b;
+      color: #18181b;
+    }
+    .lead-status-tag {
+      padding: 2px 12px;
+      border-radius: 10px;
+      font-size: 0.92rem;
+      font-weight: 600;
+      letter-spacing: 0.2px;
+      display: inline-block;
+    }
+    .status-New { background: #f0b90b; color: #222; }
+    .status-Contacted { background: #2d8cf0; color: #fff; }
+    .status-Client { background: #00d26a; color: #fff; }
+    .status-Lost { background: #f24b4b; color: #fff; }
+    .table thead { background: #1f1f1f; color: #f0b90b; }
+    .table tbody { background: #18181b; color: #fff; }
+    .table-striped > tbody > tr:nth-of-type(odd) { background-color: #18181b; }
+    .lead-card {
+      background: #18181b;
+      border-radius: 18px;
+      box-shadow: 0 3px 14px #0003;
+      margin-bottom: 20px;
+      padding: 16px 12px 12px 12px;
+      transition: box-shadow 0.2s;
+      border: 1.5px solid #23232a;
+      cursor: grab;
+      min-width: 240px;
+    }
+    .lead-card .lead-title { font-size: 1.08rem; font-weight: 700; }
+    .lead-card .lead-note { font-size: 0.93rem; color: #aaa; margin-top: 6px; }
+    .kanban-board {
+      display: flex;
+      gap: 1.5rem;
+      overflow-x: auto;
+      min-height: 420px;
+      margin-bottom: 28px;
+    }
+    .kanban-col {
+      background: #121215;
+      padding: 13px;
+      border-radius: 14px;
+      min-width: 270px;
+      max-width: 350px;
+      flex: 1 1 320px;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      border: 1px solid #24242c;
+    }
+    .kanban-col-title {
+      font-size: 1.09rem;
+      font-weight: 700;
+      color: #f0b90b;
+      margin-bottom: 12px;
+      letter-spacing: 0.5px;
+      text-align: left;
+    }
+    .lead-card-btns {
+      margin-top: 8px;
+      display: flex;
+      gap: 10px;
+    }
+    .btn-icon {
+      background: none;
+      border: none;
+      color: #f0b90b;
+      font-size: 1.1rem;
+      padding: 3px 7px;
+      border-radius: 7px;
+      transition: background 0.18s;
+    }
+    .btn-icon:hover { background: #23232a; color: #ffd900; }
+    .form-label { font-weight: 600; }
+    .modal-content {
+      background: #151519;
+      border-radius: 18px;
+      color: #fff;
+    }
+    .form-control, .form-select {
+      background: #23232a;
+      color: #fff;
+      border-radius: 9px;
+      border: 1px solid #353545;
+    }
+    .form-control:focus, .form-select:focus {
+      background: #23232a;
+      color: #fff;
+      border-color: #f0b90b;
+      box-shadow: 0 0 0 2px #f0b90b2c;
+    }
+    .btn-yellow { background: #f0b90b; color: #18181b; font-weight: bold; }
+    .btn-yellow:hover { background: #ffd900; color: #222; }
+    .lead-link { color: #f0b90b; cursor: pointer; text-decoration: underline; }
+    .lead-link:hover { color: #ffd900; }
+    footer {
+      text-align: center;
+      color: #888;
+      padding: 15px;
+      font-size: 0.93rem;
+    }
+    @media (max-width: 992px) {
+      .stats-cards { flex-direction: column; }
+      .kanban-board { flex-direction: column; gap: 2.5rem; }
+      .kanban-col { max-width: unset; min-width: unset; }
+    }
+  </style>
+</head>
+<body>
+    <!-- Sidebar Container -->
+    <div id="sidebar-container"></div>
+
+    <!-- Main Content -->
+    <main class="main-content w-100">
+    <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap">
+      <h1><i class="bi bi-person-lines-fill" style="color: var(--master-admin-accent);"></i> Leads Management</h1>
+      <div class="breadcrumb-nav" style="color: var(--text-muted); font-size: 0.95rem; margin-top: 8px;">
+        <a href="admin-main-dashboard.html" style="color: var(--accent); text-decoration: none;">Master Dashboard</a> / Leads Management
+      </div>
+      <div class="d-flex flex-wrap gap-2">
+        <button class="toggle-btn" id="tableToggleBtn"><i class="bi bi-table"></i> Table</button>
+        <button class="toggle-btn active" id="kanbanToggleBtn"><i class="bi bi-kanban"></i> Kanban</button>
+        <button class="btn btn-yellow" onclick="openLeadModal()"><i class="bi bi-plus-circle"></i> Add Lead</button>
+        <button class="btn btn-outline-light" onclick="exportCSV()"><i class="bi bi-download"></i> Export CSV</button>
+      </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="stats-cards" id="statsCards"></div>
+
+    <!-- Search & Filter Row -->
+    <div class="row mb-3">
+      <div class="col-md-4 mb-2">
+        <input class="form-control" id="searchInput" placeholder="Search name, industry, phone, email, location...">
+      </div>
+      <div class="col-md-3 mb-2">
+        <select class="form-select" id="statusFilter">
+          <option value="">All Status</option>
+          <option value="New">New</option>
+          <option value="Contacted">Contacted</option>
+          <option value="Client">Client</option>
+          <option value="Lost">Lost</option>
+        </select>
+      </div>
+      <div class="col-md-3 mb-2">
+        <select class="form-select" id="assignedFilter">
+          <option value="">All Assigned</option>
+        </select>
+      </div>
+      <div class="col-md-2 mb-2">
+        <button class="btn btn-outline-danger w-100" onclick="bulkDelete()">Delete Selected</button>
+      </div>
+    </div>
+
+    <!-- Table View -->
+    <div id="tableView">
+      <div class="table-responsive" style="max-height: 440px; overflow-y: auto;">
+        <table class="table table-bordered table-dark table-striped align-middle" id="leadTable">
+          <thead>
+            <tr>
+              <th><input type="checkbox" id="selectAll" onchange="toggleSelectAll(this)"></th>
+              <th>Name</th>
+              <th>Industry</th>
+              <th>Phone</th>
+              <th>Website/Social</th>
+              <th>Status</th>
+              <th>Assigned</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="leadTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Kanban View -->
+    <div id="kanbanView" style="display:none;">
+      <div class="kanban-board" id="kanbanBoard"></div>
+    </div>
+
+    <footer class="mt-4">&copy; 2025 VBMS. All rights reserved.</footer>
+  </main>
+</div>
+
+<!-- Lead Add/Edit Modal -->
+<div class="modal fade" id="leadModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <form id="leadForm">
+        <div class="modal-header">
+          <h5 class="modal-title" id="leadModalLabel">Add/Edit Lead</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="filter: invert(1);"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="leadId" />
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Name / Business Name</label>
+              <input type="text" class="form-control" id="leadName" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Industry / Category</label>
+              <input type="text" class="form-control" id="leadIndustry">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Phone</label>
+              <input type="text" class="form-control" id="leadPhone">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Email</label>
+              <input type="email" class="form-control" id="leadEmail">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Website / Social</label>
+              <input type="text" class="form-control" id="leadWebsite">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Location / Address</label>
+              <input type="text" class="form-control" id="leadLocation">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Status / Pipeline</label>
+              <select class="form-select" id="leadStatus" required>
+                <option value="New">New</option>
+                <option value="Contacted">Contacted</option>
+                <option value="Client">Client</option>
+                <option value="Lost">Lost</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Assigned To</label>
+              <input type="text" class="form-control" id="leadAssigned">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Follow-Up Date</label>
+              <input type="date" class="form-control" id="leadFollowup">
+            </div>
+            <div class="col-md-8">
+              <label class="form-label">Notes</label>
+              <input type="text" class="form-control" id="leadNotes">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-yellow">Save Lead</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Lead Details Modal -->
+<div class="modal fade" id="leadDetailsModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="leadDetailsTitle">Lead Details</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="filter: invert(1);"></button>
+      </div>
+      <div class="modal-body" id="leadDetailsBody">
+        <!-- Details will be injected here -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let leads = JSON.parse(localStorage.getItem("vbmsLeads") || "null") || [
+    {
+      id: 1, name: "Sashey’s Kitchen", industry: "Restaurant", phone: "973-227-8897",
+      email: "info@sashey.com", website: "instagram.com/sasheyskitchen",
+      location: "1400 Burnet Ave, Union, NJ", status: "Client",
+      assigned: "Bobby", followup: "2025-07-10", notes: "Long-time client, reorder this week"
+    },
+    {
+      id: 2, name: "Feed Me Sista", industry: "Food Blogger", phone: "",
+      email: "anna@feedmesista.com", website: "feedmesista.com",
+      location: "NYC", status: "Contacted", assigned: "Thea",
+      followup: "2025-07-05", notes: "Sent media kit, waiting response"
+    },
+    {
+      id: 3, name: "Roy's Fish Fry", industry: "Restaurant", phone: "973-399-1882",
+      email: "", website: "", location: "830 S Orange Ave, Newark, NJ",
+      status: "New", assigned: "", followup: "", notes: "Samples needed"
+    },
+    {
+      id: 4, name: "Best Dressed Plate", industry: "Restaurant", phone: "",
+      email: "", website: "instagram.com/bestdressedplate", location: "NJ",
+      status: "Contacted", assigned: "Thea", followup: "2025-07-03", notes: ""
+    }
+  ];
+  let selectedLeads = new Set();
+  let editingId = null;
+
+  function saveLeads() { localStorage.setItem("vbmsLeads", JSON.stringify(leads)); }
+  function newId() { return Math.max(0, ...leads.map(l=>l.id || 0)) + 1; }
+
+  // Stats - Fixed duplicate function issue
+  function renderStats() {
+    const total = leads.length;
+    const newCount = leads.filter(l=>l.status==="New").length;
+    const contacted = leads.filter(l=>l.status==="Contacted").length;
+    const clients = leads.filter(l=>l.status==="Client").length;
+    const lost = leads.filter(l=>l.status==="Lost").length;
+    const conversionRate = total ? Math.round((clients/total)*100) : 0;
+    document.getElementById("statsCards").innerHTML = `
+      <div class="stat-card"><span class="stat-label">Total Leads</span><span class="stat-value">${total}</span></div>
+      <div class="stat-card"><span class="stat-label">New</span><span class="stat-value">${newCount}</span></div>
+      <div class="stat-card"><span class="stat-label">Contacted</span><span class="stat-value">${contacted}</span></div>
+      <div class="stat-card"><span class="stat-label">Clients</span><span class="stat-value">${clients}</span></div>
+      <div class="stat-card"><span class="stat-label">Lost</span><span class="stat-value">${lost}</span></div>
+      <div class="stat-card"><span class="stat-label">Conversion Rate</span><span class="stat-value">${conversionRate}%</span></div>
+    `;
+  }
+
+  // Assigned Filter
+  function populateAssignedFilter() {
+    const select = document.getElementById("assignedFilter");
+    const assignedSet = new Set(leads.map(l => l.assigned).filter(Boolean));
+    select.innerHTML = '<option value="">All Assigned</option>';
+    assignedSet.forEach(assigned => {
+      select.innerHTML += `<option value="${assigned}">${assigned}</option>`;
+    });
+  }
+
+  // NEW renderLeadsTable
+  function renderLeadsTable(filter = "") {
+    renderStats();
+    populateAssignedFilter();
+    const tbody = document.getElementById("leadTableBody");
+    tbody.innerHTML = "";
+    let status = document.getElementById("statusFilter").value;
+    let assigned = document.getElementById("assignedFilter").value;
+    let keyword = (filter || document.getElementById("searchInput").value || "").toLowerCase();
+    leads
+      .filter(lead => (!status || lead.status===status) &&
+        (!assigned || lead.assigned===assigned) &&
+        (
+          lead.name?.toLowerCase().includes(keyword) ||
+          lead.industry?.toLowerCase().includes(keyword) ||
+          lead.phone?.toLowerCase().includes(keyword) ||
+          lead.email?.toLowerCase().includes(keyword) ||
+          lead.location?.toLowerCase().includes(keyword)
+        )
+      )
+      .forEach((lead, i) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td><input type="checkbox" class="row-select" data-id="${lead.id}" ${selectedLeads.has(lead.id) ? "checked" : ""}></td>
+          <td>
+            <span class="lead-link" onclick="showLeadDetails(${lead.id})">${lead.name || ""}</span>
+          </td>
+          <td>${lead.industry || ""}</td>
+          <td>${lead.phone || ""}</td>
+          <td>${lead.website || ""}</td>
+          <td><span class="lead-status-tag status-${lead.status || "New"}">${lead.status || "New"}</span></td>
+          <td>${lead.assigned || ""}</td>
+          <td>
+            <button class="btn-icon" title="Edit" onclick="editLead(${lead.id})"><i class="bi bi-pencil-square"></i></button>
+            <button class="btn-icon" title="Delete" onclick="deleteLead(${lead.id})"><i class="bi bi-trash"></i></button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+    // Add select events
+    document.querySelectorAll(".row-select").forEach(cb => {
+      cb.addEventListener("change", function() {
+        const id = +this.getAttribute("data-id");
+        if (this.checked) selectedLeads.add(id);
+        else selectedLeads.delete(id);
+      });
+    });
+  }
+
+  // Kanban Rendering
+  const pipelineStages = ["New","Contacted","Client","Lost"];
+  function renderKanban() {
+    renderStats();
+    populateAssignedFilter();
+    const board = document.getElementById("kanbanBoard");
+    board.innerHTML = "";
+    let status = document.getElementById("statusFilter").value;
+    let assigned = document.getElementById("assignedFilter").value;
+    let keyword = (document.getElementById("searchInput").value || "").toLowerCase();
+    pipelineStages.forEach(stage => {
+      let filtered = leads.filter(lead =>
+        lead.status===stage &&
+        (!assigned || lead.assigned===assigned) &&
+        (
+          lead.name?.toLowerCase().includes(keyword) ||
+          lead.industry?.toLowerCase().includes(keyword) ||
+          lead.phone?.toLowerCase().includes(keyword) ||
+          lead.email?.toLowerCase().includes(keyword) ||
+          lead.location?.toLowerCase().includes(keyword)
+        )
+      );
+      const col = document.createElement("div");
+      col.className = "kanban-col";
+      col.dataset.stage = stage;
+      col.innerHTML = `<div class="kanban-col-title">${stage}</div>`;
+      // Dropzone
+      const dropzone = document.createElement("div");
+      dropzone.style.minHeight = "10px";
+      dropzone.ondragover = e => { e.preventDefault(); col.style.background="#22223a"; };
+      dropzone.ondragleave = e => { col.style.background="#121215"; };
+      dropzone.ondrop = e => {
+        e.preventDefault();
+        col.style.background="#121215";
+        const id = +e.dataTransfer.getData("leadId");
+        updateLeadStatus(id, stage);
+      };
+      filtered.forEach(lead => {
+        const card = document.createElement("div");
+        card.className = "lead-card";
+        card.setAttribute("draggable","true");
+        card.ondragstart = e => e.dataTransfer.setData("leadId", lead.id);
+        card.innerHTML = `
+          <div class="lead-title">${lead.name || ""}</div>
+          <div><span class="text-muted">${lead.industry || ""}</span></div>
+          <div class="mt-1"><i class="bi bi-geo-alt"></i> ${lead.location || ""}</div>
+          <div class="mt-1"><i class="bi bi-telephone"></i> ${lead.phone || ""} &nbsp; <i class="bi bi-envelope"></i> ${lead.email || ""}</div>
+          <div class="mt-1"><i class="bi bi-link"></i> <span style="word-break:break-all;">${lead.website || ""}</span></div>
+          <div class="mt-1"><b>Assigned:</b> ${lead.assigned || "-"} <br> <b>Follow-Up:</b> ${lead.followup || "-"}</div>
+          <span class="lead-status-tag status-${lead.status || "New"}">${lead.status || "New"}</span>
+          <div class="lead-note">${lead.notes || ""}</div>
+          <div class="lead-card-btns">
+            <button class="btn-icon" title="Edit" onclick="editLead(${lead.id})"><i class="bi bi-pencil-square"></i></button>
+            <button class="btn-icon" title="Delete" onclick="deleteLead(${lead.id})"><i class="bi bi-trash"></i></button>
+          </div>
+        `;
+        dropzone.appendChild(card);
+      });
+      col.appendChild(dropzone);
+      board.appendChild(col);
+    });
+  }
+
+  function updateLeadStatus(id, status) {
+    leads = leads.map(l => l.id===id ? {...l, status} : l);
+    saveLeads();
+    renderKanban();
+    renderLeadsTable();
+  }
+
+  // Add/Edit Lead Modal
+  function openLeadModal(editing = false, lead = null) {
+    editingId = editing && lead ? lead.id : null;
+    document.getElementById("leadForm").reset();
+    document.getElementById("leadId").value = editing ? lead.id : "";
+    document.getElementById("leadModalLabel").innerText = editing ? "Edit Lead" : "Add Lead";
+    ["Name","Industry","Phone","Email","Website","Location","Status","Assigned","Followup","Notes"].forEach(field => {
+      document.getElementById("lead"+field).value = editing && lead ? (lead[field.toLowerCase()]||"") : "";
+    });
+    var modal = new bootstrap.Modal(document.getElementById('leadModal'));
+    modal.show();
+  }
+
+  function editLead(id) {
+    const lead = leads.find(l=>l.id===id);
+    openLeadModal(true, lead);
+  }
+
+  function deleteLead(id) {
+    if (!confirm("Delete this lead?")) return;
+    leads = leads.filter(l=>l.id!==id);
+    saveLeads();
+    renderLeadsTable();
+    renderKanban();
+  }
+
+  function bulkDelete() {
+    if (selectedLeads.size === 0) { alert("Select at least one lead."); return; }
+    if (!confirm("Delete selected leads?")) return;
+    leads = leads.filter(l => !selectedLeads.has(l.id));
+    selectedLeads.clear();
+    saveLeads();
+    renderLeadsTable();
+    renderKanban();
+  }
+
+  // Export as CSV
+  function exportCSV() {
+    let header = ["Name","Industry","Phone","Email","Website","Location","Status","Assigned","Followup","Notes"];
+    let csv = header.join(",") + "\n";
+    leads.forEach(lead => {
+      let row = header.map(h => `"${(lead[h.toLowerCase()]||"").replace(/"/g,'""')}"`).join(",");
+      csv += row + "\n";
+    });
+    let blob = new Blob([csv], {type:"text/csv"});
+    let url = URL.createObjectURL(blob);
+    let a = document.createElement("a");
+    a.href = url; a.download = "VBMS_Leads.csv";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  // Table/Kanban Toggle
+  function setView(view) {
+    document.getElementById("tableView").style.display = (view==="table")?"block":"none";
+    document.getElementById("kanbanView").style.display = (view==="kanban")?"block":"none";
+    document.getElementById("tableToggleBtn").classList.toggle("active",view==="table");
+    document.getElementById("kanbanToggleBtn").classList.toggle("active",view==="kanban");
+    if (view==="table") renderLeadsTable();
+    else renderKanban();
+  }
+
+  // On Modal Submit
+  document.getElementById("leadForm").onsubmit = function(e) {
+    e.preventDefault();
+    let lead = {
+      id: editingId || newId(),
+      name: document.getElementById("leadName").value.trim(),
+      industry: document.getElementById("leadIndustry").value.trim(),
+      phone: document.getElementById("leadPhone").value.trim(),
+      email: document.getElementById("leadEmail").value.trim(),
+      website: document.getElementById("leadWebsite").value.trim(),
+      location: document.getElementById("leadLocation").value.trim(),
+      status: document.getElementById("leadStatus").value,
+      assigned: document.getElementById("leadAssigned").value.trim(),
+      followup: document.getElementById("leadFollowup").value,
+      notes: document.getElementById("leadNotes").value.trim()
+    };
+    // Save
+    if (editingId) {
+      leads = leads.map(l => l.id===editingId ? lead : l);
+    } else {
+      leads.push(lead);
+    }
+    saveLeads();
+    editingId = null;
+    renderLeadsTable();
+    renderKanban();
+    bootstrap.Modal.getInstance(document.getElementById('leadModal')).hide();
+  };
+
+  // Lead Details Modal
+  function showLeadDetails(id) {
+    const lead = leads.find(l => l.id === id);
+    if (!lead) return;
+    document.getElementById("leadDetailsTitle").innerText = (lead.name || "Lead") + " – Details";
+    document.getElementById("leadDetailsBody").innerHTML = `
+      <div class="row mb-2">
+        <div class="col-md-6"><b>Name:</b> ${lead.name || ""}</div>
+        <div class="col-md-6"><b>Industry:</b> ${lead.industry || ""}</div>
+      </div>
+      <div class="row mb-2">
+        <div class="col-md-6"><b>Phone:</b> ${lead.phone || ""}</div>
+        <div class="col-md-6"><b>Email:</b> ${lead.email || ""}</div>
+      </div>
+      <div class="row mb-2">
+        <div class="col-md-6"><b>Website/Social:</b> ${lead.website || ""}</div>
+        <div class="col-md-6"><b>Location:</b> ${lead.location || ""}</div>
+      </div>
+      <div class="row mb-2">
+        <div class="col-md-6"><b>Status:</b> <span class="lead-status-tag status-${lead.status || "New"}">${lead.status || "New"}</span></div>
+        <div class="col-md-6"><b>Assigned:</b> ${lead.assigned || ""}</div>
+      </div>
+      <div class="row mb-2">
+        <div class="col-md-6"><b>Follow-Up:</b> ${lead.followup || ""}</div>
+        <div class="col-md-6"><b>Notes:</b> ${lead.notes || ""}</div>
+      </div>
+    `;
+    var modal = new bootstrap.Modal(document.getElementById('leadDetailsModal'));
+    modal.show();
+  }
+  window.showLeadDetails = showLeadDetails;
+
+  // Select All Checkbox
+  function toggleSelectAll(cb) {
+    let checked = cb.checked;
+    document.querySelectorAll(".row-select").forEach(box => {
+      box.checked = checked;
+      const id = +box.getAttribute("data-id");
+      if (checked) selectedLeads.add(id);
+      else selectedLeads.delete(id);
+    });
+  }
+
+  // Search/Filters Events
+  document.getElementById("searchInput").oninput = () => { renderLeadsTable(); renderKanban(); };
+  document.getElementById("statusFilter").onchange = () => { renderLeadsTable(); renderKanban(); };
+  document.getElementById("assignedFilter").onchange = () => { renderLeadsTable(); renderKanban(); };
+  document.getElementById("tableToggleBtn").onclick = () => setView("table");
+  document.getElementById("kanbanToggleBtn").onclick = () => setView("kanban");
+
+  // Expose modal for global use
+  window.openLeadModal = openLeadModal;
+  window.editLead = editLead;
+  window.deleteLead = deleteLead;
+  window.bulkDelete = bulkDelete;
+  window.exportCSV = exportCSV;
+  window.updateLeadStatus = updateLeadStatus;
+  window.logout = function() {
+    localStorage.removeItem("vbmsLoggedIn");
+    window.location.href = "login.html";
+  };
+
+  // Initial Render
+  setView("table");
+
+// Authentication check - require admin role
+let authCheckInProgress = false;
+let lastAuthCheck = 0;
+
+function checkAuthWithRetry(maxRetries = 5, delay = 150) {
+  // Prevent multiple auth checks from running simultaneously
+  const now = Date.now();
+  if (authCheckInProgress || (now - lastAuthCheck < 500)) {
+    console.log('Auth check already in progress or too recent, skipping...');
+    return;
+  }
+  authCheckInProgress = true;
+  lastAuthCheck = now;
+  
+  let retries = 0;
+  
+  function attemptAuth() {
+    console.log(`Auth attempt ${retries + 1}/${maxRetries}`);
+    
+    if (!vbmsAuth.isAuthenticated()) {
+      console.log('User not authenticated - redirecting to login');
+      authCheckInProgress = false;
+      window.location.href = 'login.html';
+      return;
+    }
+
+    const userRole = vbmsAuth.getCurrentRole();
+    console.log(`Current user role: "${userRole}"`);
+    
+    // If role is empty/undefined and we haven't exhausted retries, wait and try again
+    if ((!userRole || userRole === '' || userRole === 'null' || userRole === 'undefined') && retries < maxRetries) {
+      retries++;
+      console.log(`Role not loaded yet, retrying in ${delay}ms...`);
+      setTimeout(attemptAuth, delay);
+      return;
+    }
+    
+    // If still no role after retries, redirect to login  
+    if (!userRole || userRole === '' || userRole === 'null' || userRole === 'undefined') {
+      console.log('Auth check failed - no valid role found after retries');
+      authCheckInProgress = false;
+      alert('Session expired. Please log in again.');
+      window.location.href = 'login.html';
+      return;
+    }
+    
+    // Double-check admin status with explicit role checking
+    const isUserAdmin = (userRole === 'admin' || userRole === 'main_admin');
+    console.log(`User role: ${userRole}, isAdmin: ${isUserAdmin}`);
+    
+    if (!isUserAdmin) {
+      console.log(`Access denied for role: ${userRole}`); 
+      authCheckInProgress = false;
+      alert('Access Denied: Admin access required for leads');
+      
+      // Redirect based on role with safety checks
+      if (userRole === 'customer' || userRole === 'client') {
+        console.log('Redirecting to customer dashboard');
+        window.location.href = 'customer-dashboard.html';
+      } else {
+        console.log('Redirecting to login');
+        window.location.href = 'login.html';
+      }
+      return;
+    }
+    
+    console.log('Authentication successful - initializing leads page');
+    authCheckInProgress = false;
+  }
+  
+  attemptAuth();
+}
+
+// Start the authentication check with retry logic after a small delay to ensure all scripts are loaded
+setTimeout(() => {
+  checkAuthWithRetry();
+}, 50);
+
+</script>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="auth.js"></script>
+<script src="load-sidebar.js"></script>
+<script src="theme-manager.js"></script>
+<script src="notifications-manager.js"></script>
+<script src="activity-tracker.js"></script>
+</body>
+</html>

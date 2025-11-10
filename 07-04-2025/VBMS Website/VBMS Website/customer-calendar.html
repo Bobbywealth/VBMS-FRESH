@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calendar Management - VBMS</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <script>
+    // IMMEDIATE URL FIX - Check current URL and redirect if needed
+    (function() {
+      const path = window.location.pathname;
+      const page = path.split('/').pop();
+      if (page === 'customer-calendar' && !page.endsWith('.html')) {
+        console.log('⚡ IMMEDIATE HEAD REDIRECT: customer-calendar → customer-calendar.html');
+        window.location.replace(path + '.html');
+      }
+    })();
+  </script>
+  <style>
+        :root {
+            --accent: #f0b90b;
+            --accent-light: #ffd700;
+            --accent-glow: rgba(240, 185, 11, 0.4);
+            --primary-dark: #d4a109;
+            --secondary: #2c3e50;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --purple: #a855f7;
+            --cyan: #06b6d4;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --glass: rgba(255,255,255,0.95);
+            --glass-glow: rgba(240, 185, 11, 0.15);
+            --border: #e9ecef;
+            --text: #212529;
+            --text-muted: #6c757d;
+            --card-bg: #ffffff;
+            --card-shadow: 0 8px 32px rgba(240, 185, 11, 0.1);
+            --bg: linear-gradient(135deg, #f8f9fa 0%, #f0f8ff 50%, #f8f4ff 100%);
+            --sidebar-bg: rgba(255,255,255,0.98);
+            --sidebar-link: #333;
+            --sidebar-link-active: #000;
+            --customer-glow: rgba(59, 130, 246, 0.2);
+            --customer-accent: #3b82f6;
+        }
+
+        /* Dark theme - Modern Black/Gray with Energy */
+        [data-theme="dark"] {
+            --bg: linear-gradient(135deg, #000000 0%, #0a0a0a 25%, #1a1a1a 50%, #0f0f0f 100%);
+            --light: #ffffff;
+            --dark: #000000;
+            --text: #ffffff;
+            --text-muted: #a1a1aa;
+            --card-bg: rgba(20, 20, 20, 0.95);
+            --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.8), 0 0 20px rgba(240, 185, 11, 0.15);
+            --border: rgba(64, 64, 64, 0.4);
+            --glass: rgba(18, 18, 18, 0.95);
+            --glass-glow: rgba(240, 185, 11, 0.2);
+            --sidebar-bg: rgba(12, 12, 12, 0.98);
+            --sidebar-link: #d4d4d8;
+            --sidebar-link-active: #ffffff;
+            --accent: #f0b90b;
+            --accent-light: #ffd700;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --purple: #a855f7;
+            --cyan: #06b6d4;
+            --customer-accent: #3b82f6;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+            transition: all 0.3s ease;
+            position: relative;
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -2;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(240, 185, 11, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.03) 0%, transparent 60%);
+            animation: enhancedGlow 25s ease-in-out infinite;
+        }
+
+        [data-theme="dark"] body::before {
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(59, 130, 246, 0.12) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(240, 185, 11, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.06) 0%, transparent 60%);
+        }
+
+        @keyframes enhancedGlow {
+            0%, 100% { opacity: 0.6; transform: rotate(0deg) scale(1); }
+            33% { opacity: 0.8; transform: rotate(120deg) scale(1.05); }
+            66% { opacity: 0.7; transform: rotate(240deg) scale(0.95); }
+        }
+
+        .main-content {
+            margin-left: 320px;
+            padding: 30px;
+            min-height: 100vh;
+            background: transparent;
+            position: relative;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 30px;
+            padding: 20px 0;
+        }
+
+        .header h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--text);
+            text-shadow: 0 2px 10px rgba(59, 130, 246, 0.3);
+            margin: 0;
+        }
+
+        .header h1 i {
+            margin-right: 15px;
+            background: linear-gradient(135deg, var(--customer-accent), #60a5fa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(0 2px 4px rgba(59, 130, 246, 0.3));
+        }
+
+        .breadcrumb-nav {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-top: 8px;
+        }
+
+        .breadcrumb-nav a {
+            color: var(--accent);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .breadcrumb-nav a:hover {
+            color: var(--accent-light);
+            text-shadow: 0 0 8px rgba(240, 185, 11, 0.6);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        /* Calendar Controls */
+        .calendar-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            background: var(--glass);
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid var(--border);
+            box-shadow: var(--card-shadow);
+        }
+
+        .calendar-nav {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .calendar-nav button {
+            padding: 10px 15px;
+            border: 1px solid var(--border);
+            background: var(--card-bg);
+            color: var(--text);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .calendar-nav button:hover {
+            background: var(--customer-accent);
+            color: white;
+            border-color: var(--customer-accent);
+        }
+
+        .calendar-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text);
+            margin: 0 20px;
+        }
+
+        .view-controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .view-btn {
+            padding: 8px 16px;
+            border: 1px solid var(--border);
+            background: var(--card-bg);
+            color: var(--text);
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .view-btn.active,
+        .view-btn:hover {
+            background: var(--customer-accent);
+            color: white;
+            border-color: var(--customer-accent);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Calendar Content */
+        .calendar-content {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 30px;
+        }
+
+        .calendar-main {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .calendar-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .sidebar-card {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .sidebar-card h6 {
+            color: var(--text);
+            font-weight: 700;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* AI Features */
+        .ai-features {
+            border: 2px solid var(--accent);
+            border-radius: 10px;
+            background: linear-gradient(135deg, rgba(240, 185, 11, 0.1), rgba(240, 185, 11, 0.05));
+        }
+
+        .ai-features h6 {
+            color: var(--accent);
+        }
+
+        .ai-btn {
+            background: linear-gradient(135deg, var(--accent), var(--accent-light));
+            border: none;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-weight: 600;
+            width: 100%;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .ai-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(240, 185, 11, 0.4);
+        }
+
+        /* Event Cards */
+        .event-card {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background: var(--card-bg);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .event-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .event-card.meeting { border-left: 4px solid var(--success); }
+        .event-card.deadline { border-left: 4px solid var(--danger); }
+        .event-card.task { border-left: 4px solid var(--warning); }
+        .event-card.appointment { border-left: 4px solid var(--info); }
+
+        .event-title {
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 5px;
+        }
+
+        .event-time {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* Calendar Grid */
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1px;
+            background: var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .calendar-day {
+            background: var(--card-bg);
+            padding: 15px 10px;
+            min-height: 120px;
+            position: relative;
+            transition: all 0.3s ease;
+            border: 1px solid var(--border);
+        }
+
+        .calendar-day:hover {
+            background: rgba(59, 130, 246, 0.05);
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
+        }
+
+        .day-header {
+            background: var(--customer-accent);
+            color: white;
+            padding: 10px;
+            text-align: center;
+            font-weight: 700;
+        }
+
+        .day-number {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text);
+        }
+
+        .day-events {
+            font-size: 0.8em;
+        }
+
+        .event {
+            background: var(--customer-accent);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-bottom: 2px;
+            font-size: 0.75em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .event:hover {
+            transform: scale(1.02);
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+        }
+
+        .event.task {
+            background: var(--warning);
+            color: #000;
+        }
+
+        .event.appointment {
+            background: var(--success);
+        }
+
+        .event.meeting {
+            background: var(--info);
+        }
+
+        .today {
+            background: rgba(59, 130, 246, 0.1) !important;
+            border: 2px solid var(--customer-accent) !important;
+        }
+
+        .other-month {
+            opacity: 0.5;
+        }
+
+        /* Floating Action Button */
+        .add-event-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--accent-light));
+            color: #000;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(240, 185, 11, 0.3);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .add-event-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 25px rgba(240, 185, 11, 0.4);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .calendar-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .calendar-sidebar {
+                flex-direction: row;
+                overflow-x: auto;
+            }
+            
+            .sidebar-card {
+                min-width: 300px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+            
+            .calendar-controls {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .calendar-nav {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+        }
+
+        /* Loading States */
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--border);
+            border-top: 4px solid var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+  </style>
+</head>
+<body>
+
+<div id="sidebar-container"></div>
+
+<main class="main-content">
+  <!-- Header -->
+  <div class="header">
+    <div class="header-left">
+      <h1><i class="bi bi-calendar3" style="color: var(--customer-accent);"></i> My Calendar</h1>
+      <div class="breadcrumb-nav" style="color: var(--text-muted); font-size: 0.95rem; margin-top: 8px;">
+        <a href="customer-dashboard.html" style="color: var(--accent); text-decoration: none;">Dashboard</a> / My Calendar
+      </div>
+    </div>
+    <div class="header-right">
+      <button class="btn btn-outline-warning btn-sm" onclick="toggleTheme()" title="Toggle light/dark theme">
+        <i id="themeIcon" class="bi bi-moon-fill"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Calendar Controls -->
+  <div class="calendar-controls">
+    <div class="calendar-nav">
+      <button id="prevMonth" class="btn">
+        <i class="bi bi-chevron-left"></i>
+      </button>
+      <h3 id="currentMonthYear" class="calendar-title">December 2024</h3>
+      <button id="nextMonth" class="btn">
+        <i class="bi bi-chevron-right"></i>
+      </button>
+      <button id="todayBtn" class="btn btn-outline-primary">Today</button>
+    </div>
+
+    <div class="view-controls">
+      <button id="monthView" class="view-btn active">Month</button>
+      <button id="weekView" class="view-btn">Week</button>
+      <button id="dayView" class="view-btn">Day</button>
+    </div>
+
+    <div class="action-buttons">
+      <button class="btn btn-success" id="quickCreateBtn">
+        <i class="bi bi-plus-circle"></i> Quick Create
+      </button>
+      <button class="btn btn-warning" id="aiCreateBtn">
+        <i class="bi bi-robot"></i> AI Create
+      </button>
+    </div>
+  </div>
+
+  <!-- Calendar Content -->
+  <div class="calendar-content">
+    <!-- Main Calendar View -->
+    <div class="calendar-main">
+      <div id="calendarView">
+        <!-- Calendar would be rendered here -->
+        <div class="calendar-grid" id="calendarGrid">
+          <!-- Calendar will be generated here -->
+        </div>
+      </div>
+      
+      <!-- Events List -->
+      <div id="eventsList" class="mt-4">
+        <!-- Events will be loaded here -->
+      </div>
+    </div>
+
+    <!-- Calendar Sidebar -->
+    <div class="calendar-sidebar">
+      <!-- AI-Powered Features -->
+      <div class="sidebar-card ai-features">
+        <h6><i class="bi bi-robot"></i> AI Calendar Assistant</h6>
+        <button class="ai-btn" id="smartScheduleBtn">
+          <i class="bi bi-brain"></i> Smart Schedule
+        </button>
+        <button class="ai-btn" onclick="showEmailAnalyzer()">
+          <i class="bi bi-envelope"></i> Analyze Emails
+        </button>
+        <button class="ai-btn" onclick="showConflictResolver()">
+          <i class="bi bi-shield-check"></i> Resolve Conflicts
+        </button>
+      </div>
+
+      <!-- Upcoming Events -->
+      <div class="sidebar-card">
+        <h6><i class="bi bi-clock"></i> Upcoming Events</h6>
+        <div id="upcomingEvents">
+          <!-- Upcoming events will be loaded here -->
+        </div>
+      </div>
+
+      <!-- Event Filters -->
+      <div class="sidebar-card">
+        <h6><i class="bi bi-funnel"></i> Filters</h6>
+        <div class="mb-3">
+          <label class="form-label">Event Type</label>
+          <select class="form-select form-select-sm" id="eventTypeFilter">
+            <option value="">All Types</option>
+            <option value="meeting">Meetings</option>
+            <option value="appointment">Appointments</option>
+            <option value="deadline">Deadlines</option>
+            <option value="task">Tasks</option>
+            <option value="call">Calls</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Category</label>
+          <select class="form-select form-select-sm" id="eventCategoryFilter">
+            <option value="">All Categories</option>
+            <option value="work">Work</option>
+            <option value="personal">Personal</option>
+            <option value="business">Business</option>
+            <option value="training">Training</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Quick Stats -->
+      <div class="sidebar-card">
+        <h6><i class="bi bi-graph-up"></i> Quick Stats</h6>
+        <div class="row text-center">
+          <div class="col-6">
+            <strong class="d-block">95%</strong>
+            <small class="text-muted">On Time</small>
+          </div>
+          <div class="col-6">
+            <strong class="d-block">2.8h</strong>
+            <small class="text-muted">Avg Duration</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating Action Button -->
+  <button class="add-event-btn" onclick="showQuickCreateModal()" title="Add New Event">
+    <i class="bi bi-plus"></i>
+  </button>
+</main>
+
+<!-- Quick Create Event Modal -->
+<div class="modal fade" id="quickCreateEventModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-plus-circle"></i> Quick Create Event</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form id="quickCreateForm">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">Event Title *</label>
+                <input type="text" class="form-control" name="title" required>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">Event Type</label>
+                <select class="form-select" name="type">
+                  <option value="meeting">Meeting</option>
+                  <option value="appointment">Appointment</option>
+                  <option value="call">Call</option>
+                  <option value="deadline">Deadline</option>
+                  <option value="task">Task</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Description</label>
+            <textarea class="form-control" name="description" rows="3"></textarea>
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">Start Date & Time *</label>
+                <input type="datetime-local" class="form-control" name="startDate" required>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">End Date & Time *</label>
+                <input type="datetime-local" class="form-control" name="endDate" required>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">Location</label>
+                <input type="text" class="form-control" name="location" placeholder="Meeting room, address, or online">
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">Priority</label>
+                <select class="form-select" name="priority">
+                  <option value="low">Low</option>
+                  <option value="medium" selected>Medium</option>
+                  <option value="high">High</option>
+                  <option value="urgent">Urgent</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-success" onclick="createQuickEvent()">Create Event</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- AI Create Event Modal -->
+<div class="modal fade" id="aiCreateEventModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-warning text-dark">
+        <h5 class="modal-title"><i class="bi bi-robot"></i> AI-Powered Event Creation</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-info">
+          <i class="bi bi-lightbulb"></i>
+          <strong>How it works:</strong> Describe your event in natural language and AI will create a structured calendar event for you.
+        </div>
+        <form id="aiCreateForm">
+          <div class="mb-3">
+            <label class="form-label">Describe Your Event</label>
+            <textarea class="form-control" name="prompt" rows="4" 
+                      placeholder="Example: Schedule a client meeting for next Tuesday at 2 PM with John to discuss our project progress"></textarea>
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">Preferred Duration (minutes)</label>
+                <select class="form-select" name="duration">
+                  <option value="30">30 minutes</option>
+                  <option value="60" selected>1 hour</option>
+                  <option value="90">1.5 hours</option>
+                  <option value="120">2 hours</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">Timezone</label>
+                <select class="form-select" name="timezone">
+                  <option value="America/New_York" selected>Eastern Time</option>
+                  <option value="America/Chicago">Central Time</option>
+                  <option value="America/Denver">Mountain Time</option>
+                  <option value="America/Los_Angeles">Pacific Time</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-warning" onclick="createAIEvent()">
+          <i class="bi bi-robot"></i> Generate Event
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Smart Scheduling Modal -->
+<div class="modal fade" id="smartScheduleModal" tabindex="-1">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title"><i class="bi bi-brain"></i> Smart Scheduling Assistant</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-primary">
+          <i class="bi bi-info-circle"></i>
+          <strong>Smart Scheduling:</strong> AI analyzes your calendar and suggests optimal meeting times based on your preferences and availability.
+        </div>
+        <form id="smartScheduleForm">
+          <div class="mb-3">
+            <label class="form-label">What would you like to schedule?</label>
+            <textarea class="form-control" name="prompt" rows="3" 
+                      placeholder="Example: I need to schedule a meeting with my team. It should be 1 hour long and include my colleagues."></textarea>
+          </div>
+          <div class="row">
+            <div class="col-md-4">
+              <div class="mb-3">
+                <label class="form-label">Duration</label>
+                <select class="form-select" name="duration">
+                  <option value="30">30 minutes</option>
+                  <option value="60" selected>1 hour</option>
+                  <option value="90">1.5 hours</option>
+                  <option value="120">2 hours</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="mb-3">
+                <label class="form-label">Preferred Time</label>
+                <select class="form-select" name="preferredTime">
+                  <option value="morning">Morning (9 AM - 12 PM)</option>
+                  <option value="afternoon" selected>Afternoon (1 PM - 5 PM)</option>
+                  <option value="evening">Evening (5 PM - 8 PM)</option>
+                  <option value="any">Any Time</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="mb-3">
+                <label class="form-label">Days to Consider</label>
+                <select class="form-select" name="daysAhead">
+                  <option value="7" selected>Next 7 days</option>
+                  <option value="14">Next 2 weeks</option>
+                  <option value="30">Next month</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </form>
+        <div id="smartScheduleResults" class="mt-4" style="display: none;">
+          <!-- AI suggestions will appear here -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" onclick="requestSmartScheduling()">
+          <i class="bi bi-brain"></i> Get Suggestions
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Scripts -->
+<script src="config.js"></script>
+<script src="navigation-enforcement.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="auth.js"></script>
+<script src="load-sidebar.js"></script>
+<script src="theme-manager.js"></script>
+<script src="notifications-manager.js"></script>
+<script src="activity-tracker.js"></script>
+<script src="calendar-manager.js"></script>
+
+<script>
+// Authentication check
+vbmsAuth.requireAuth();
+
+// Check if user is customer/client
+const userRole = vbmsAuth.getCurrentRole();
+if (userRole && !['client', 'customer'].includes(userRole.toLowerCase())) {
+  window.location.href = 'customer-login.html';
+}
+
+// Initialize datetime display
+function updateDateTime() {
+  const now = new Date();
+  const dateElement = document.querySelector('.current-date');
+  const timeElement = document.querySelector('.current-time');
+  
+  if (dateElement) {
+    dateElement.textContent = now.toLocaleDateString('en-US', { 
+      weekday: 'long', 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    });
+  }
+  
+  if (timeElement) {
+    timeElement.textContent = now.toLocaleTimeString('en-US', { 
+      hour: '2-digit', 
+      minute: '2-digit',
+      second: '2-digit'
+    });
+  }
+}
+
+updateDateTime();
+setInterval(updateDateTime, 1000);
+
+// Global functions for modals
+function createQuickEvent() {
+  const form = document.getElementById('quickCreateForm');
+  const formData = new FormData(form);
+  const eventData = Object.fromEntries(formData.entries());
+  
+  if (window.calendarManager) {
+    window.calendarManager.createEvent(eventData);
+    bootstrap.Modal.getInstance(document.getElementById('quickCreateEventModal')).hide();
+    form.reset();
+  }
+}
+
+function createAIEvent() {
+  const form = document.getElementById('aiCreateForm');
+  const formData = new FormData(form);
+  const eventData = Object.fromEntries(formData.entries());
+  
+  if (window.calendarManager) {
+    window.calendarManager.createEvent(eventData, true);
+    bootstrap.Modal.getInstance(document.getElementById('aiCreateEventModal')).hide();
+    form.reset();
+  }
+}
+
+function requestSmartScheduling() {
+  const form = document.getElementById('smartScheduleForm');
+  const formData = new FormData(form);
+  const data = Object.fromEntries(formData.entries());
+  
+  if (window.calendarManager) {
+    window.calendarManager.requestSmartScheduling(data.prompt, data);
+  }
+}
+
+function showQuickCreateModal() {
+  const modal = new bootstrap.Modal(document.getElementById('quickCreateEventModal'));
+  modal.show();
+}
+
+function showEmailAnalyzer() {
+  alert('Email analyzer feature coming soon! This will analyze your emails and suggest calendar events.');
+}
+
+function showConflictResolver() {
+  alert('Conflict resolver feature coming soon! This will help resolve scheduling conflicts automatically.');
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>VBMS Messaging - MASTER ADMIN SIDEBAR</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+  <audio id="chatSound" src="https://cdn.pixabay.com/audio/2022/08/20/audio_12s6.mp3" preload="auto"></audio>
+  <style>
+    :root {
+        --accent: #f0b90b;
+        --accent-light: #ffd700;
+        --accent-glow: rgba(240, 185, 11, 0.4);
+        --primary-dark: #d4a109;
+        --secondary: #2c3e50;
+        --success: #22c55e;
+        --danger: #ef4444;
+        --warning: #f59e0b;
+        --info: #3b82f6;
+        --purple: #a855f7;
+        --cyan: #06b6d4;
+        --light: #f8f9fa;
+        --dark: #212529;
+        --glass: rgba(255,255,255,0.95);
+        --glass-glow: rgba(240, 185, 11, 0.15);
+        --border: #e9ecef;
+        --text: #212529;
+        --text-muted: #6c757d;
+        --card-bg: #ffffff;
+        --card-shadow: 0 8px 32px rgba(240, 185, 11, 0.1);
+        --bg: linear-gradient(135deg, #f8f9fa 0%, #f0f8ff 50%, #f8f4ff 100%);
+        --sidebar-bg: rgba(255,255,255,0.98);
+        --sidebar-link: #333;
+        --sidebar-link-active: #000;
+        --master-admin-glow: rgba(255, 0, 0, 0.2);
+        --master-admin-accent: #dc3545;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', sans-serif;
+      overflow-x: hidden;
+    }
+
+    .master-admin-sidebar {
+        width: 320px;
+        background: var(--sidebar-bg);
+        backdrop-filter: blur(20px);
+        border-right: 2px solid var(--master-admin-accent);
+        padding: 20px;
+        position: fixed;
+        height: 100vh;
+        overflow-y: auto;
+        box-shadow: 
+            2px 0 30px rgba(240, 185, 11, 0.15),
+            inset 1px 0 0 rgba(255, 255, 255, 0.1),
+            0 0 50px var(--master-admin-glow);
+        z-index: 1000;
+        transition: all 0.35s ease;
+        font-family: 'Segoe UI', sans-serif;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+        top: 0;
+        left: 0;
+    }
+    
+    .master-admin-sidebar::-webkit-scrollbar { display: none; }
+    
+    /* Enhanced Master Admin Styling */
+    .master-admin-sidebar::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 5px;
+        background: linear-gradient(90deg, var(--master-admin-accent), var(--danger), var(--accent));
+        animation: masterAdminGlow 3s ease-in-out infinite;
+    }
+
+    @keyframes masterAdminGlow {
+        0%, 100% { opacity: 0.8; }
+        50% { opacity: 1; }
+    }
+
+    /* Master Admin Sidebar Elements */
+    .sidebar-header {
+        text-align: center;
+        padding: 20px 0;
+        border-bottom: 2px solid var(--light);
+        margin-bottom: 20px;
+    }
+
+    .logo {
+        font-size: 2rem;
+        color: var(--master-admin-accent);
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .user-info {
+        margin-top: 15px;
+    }
+
+    .user-avatar {
+        width: 50px;
+        height: 50px;
+        background: var(--master-admin-accent);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        margin: 0 auto 10px;
+    }
+
+    .user-name {
+        font-weight: 600;
+        color: var(--text);
+    }
+
+    .user-role {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+    }
+
+    .sidebar-heading {
+        color: var(--text-muted);
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        margin: 25px 0 15px 0;
+        padding-bottom: 5px;
+        border-bottom: 1px solid var(--light);
+    }
+
+    .sidebar-link {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 15px;
+        color: var(--text);
+        text-decoration: none;
+        border-radius: 10px;
+        margin-bottom: 5px;
+        transition: all 0.3s ease;
+    }
+
+    .sidebar-link:hover {
+        background: var(--light);
+        color: var(--master-admin-accent);
+        transform: translateX(5px);
+    }
+
+    .sidebar-link.active {
+        background: var(--master-admin-accent);
+        color: white;
+    }
+
+    /* Chat Container Styles */
+    .chat-container {
+      display: flex;
+      height: 100vh;
+      background: var(--card-bg);
+      margin-left: 320px;
+    }
+
+    .chat-sidebar {
+      width: 300px;
+      background: var(--card-bg);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chat-sidebar-header {
+      padding: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .chat-search {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    .chat-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .chat-tab {
+      flex: 1;
+      padding: 15px;
+      text-align: center;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.3s ease;
+    }
+
+    .chat-tab.active {
+      border-bottom-color: var(--master-admin-accent);
+      color: var(--master-admin-accent);
+      font-weight: 600;
+    }
+
+    .chat-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px;
+    }
+
+    .chat-item {
+      display: flex;
+      align-items: center;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .chat-item:hover {
+      background: var(--light);
+    }
+
+    .chat-item.active {
+      background: var(--master-admin-accent);
+      color: white;
+    }
+
+    .chat-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--master-admin-accent);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      margin-right: 15px;
+    }
+
+    .chat-info {
+      flex: 1;
+    }
+
+    .chat-name {
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+
+    .chat-preview {
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    .chat-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chat-header {
+      padding: 20px;
+      border-bottom: 1px solid var(--border);
+      background: var(--card-bg);
+    }
+
+    .chat-messages {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+      background: var(--bg);
+    }
+
+    .message {
+      display: flex;
+      margin-bottom: 20px;
+      align-items: flex-start;
+    }
+
+    .message.sent {
+      justify-content: flex-end;
+    }
+
+    .message-content {
+      max-width: 70%;
+      padding: 15px;
+      border-radius: 18px;
+      position: relative;
+    }
+
+    .message.received .message-content {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+    }
+
+    .message.sent .message-content {
+      background: var(--master-admin-accent);
+      color: white;
+    }
+
+    .message-time {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 5px;
+      text-align: right;
+    }
+
+    .chat-input {
+      padding: 20px;
+      border-top: 1px solid var(--border);
+      background: var(--card-bg);
+    }
+
+    .input-group {
+      display: flex;
+      gap: 10px;
+    }
+
+    .message-input {
+      flex: 1;
+      padding: 15px;
+      border: 1px solid var(--border);
+      border-radius: 25px;
+      font-size: 14px;
+      resize: none;
+    }
+
+    .send-button {
+      padding: 15px 25px;
+      background: var(--master-admin-accent);
+      color: white;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .send-button:hover {
+      background: var(--danger);
+      transform: translateY(-2px);
+    }
+
+    .back-button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background: var(--light);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .back-button:hover {
+      background: var(--master-admin-accent);
+      color: white;
+    }
+
+    @media (max-width: 768px) {
+      .master-admin-sidebar {
+        transform: translateX(-100%);
+      }
+      
+      .chat-container {
+        margin-left: 0;
+      }
+      
+      .chat-sidebar {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Master Admin Sidebar -->
+  <nav class="master-admin-sidebar" id="sidebar" tabindex="0">
+    <div class="sidebar-header">
+      <div class="logo">
+        <i class="bi bi-crown-fill"></i>
+        <span>VBMS</span>
+      </div>
+      <div class="user-info">
+        <div class="user-avatar">BA</div>
+        <div class="user-details">
+          <div class="user-name">Bobby Admin</div>
+          <div class="user-role">Master Admin</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="sidebar-content">
+      <p class="sidebar-heading">MAIN</p>
+      <a class="sidebar-link" href="admin-main-dashboard.html">
+        <i class="bi bi-speedometer2"></i> Dashboard
+      </a>
+      <a class="sidebar-link" href="master-admin-analytics.html">
+        <i class="bi bi-graph-up"></i> Analytics
+      </a>
+      <a class="sidebar-link" href="master-admin-customers.html">
+        <i class="bi bi-people"></i> Customers
+      </a>
+      <a class="sidebar-link" href="master-admin-pricing.html">
+        <i class="bi bi-tags"></i> Pricing
+      </a>
+      <a class="sidebar-link" href="master-admin-reports.html">
+        <i class="bi bi-file-earmark-text"></i> Reports
+      </a>
+      <a class="sidebar-link" href="master-admin-settings.html">
+        <i class="bi bi-gear"></i> Settings
+      </a>
+      
+      <p class="sidebar-heading">COMMUNICATION</p>
+      <a class="sidebar-link active" href="messaging.html">
+        <i class="bi bi-chat-dots"></i> Messaging
+      </a>
+      <a class="sidebar-link" href="master-admin-email.html">
+        <i class="bi bi-envelope-fill"></i> Email Management
+      </a>
+      <a class="sidebar-link" href="admin-taskboard.html">
+        <i class="bi bi-kanban"></i> Task Board
+      </a>
+      
+      <p class="sidebar-heading">AI & AUTOMATION</p>
+      <a class="sidebar-link" href="admin-ai-agent.html">
+        <i class="bi bi-robot"></i> AI Agent
+      </a>
+      <a class="sidebar-link" href="admin-vapi-dashboard.html">
+        <i class="bi bi-mic"></i> Vapi AI
+      </a>
+      
+      <p class="sidebar-heading">BUSINESS TOOLS</p>
+      <a class="sidebar-link" href="admin-affiliates.html">
+        <i class="bi bi-share"></i> Affiliates
+      </a>
+      <a class="sidebar-link" href="admin-calendar.html">
+        <i class="bi bi-calendar3"></i> Calendar
+      </a>
+      <a class="sidebar-link" href="admin-inventory.html">
+        <i class="bi bi-box"></i> Inventory
+      </a>
+      <a class="sidebar-link" href="admin-orders.html">
+        <i class="bi bi-cart"></i> Orders
+      </a>
+      <a class="sidebar-link" href="admin-monitoring.html">
+        <i class="bi bi-camera-video"></i> Monitoring
+      </a>
+    </div>
+    
+    <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
+      <button class="btn btn-outline-secondary w-100" onclick="logout()">
+        <i class="bi bi-box-arrow-left"></i> Logout
+      </button>
+    </div>
+  </nav>
+
+  <!-- Chat Container -->
+  <div class="chat-container">
+    <!-- Chat Sidebar -->
+    <div class="chat-sidebar">
+      <div class="chat-sidebar-header">
+        <input type="text" class="chat-search" placeholder="Search conversations..." />
+      </div>
+      
+      <div class="chat-tabs">
+        <div class="chat-tab active">Chats</div>
+        <div class="chat-tab">Contacts</div>
+      </div>
+      
+      <div class="chat-list">
+        <div class="chat-item active">
+          <div class="chat-avatar">AS</div>
+          <div class="chat-info">
+            <div class="chat-name">All Staff</div>
+            <div class="chat-preview">You, Sarah, Dev, Mary, Bob</div>
+          </div>
+        </div>
+        
+        <div class="chat-item">
+          <div class="chat-avatar">M</div>
+          <div class="chat-info">
+            <div class="chat-name">Managers</div>
+            <div class="chat-preview">You, Sarah, Mary</div>
+          </div>
+        </div>
+        
+        <div class="chat-item">
+          <div class="chat-avatar">TS</div>
+          <div class="chat-info">
+            <div class="chat-name">Tech Support</div>
+            <div class="chat-preview">You, Dev, Bob</div>
+          </div>
+        </div>
+        
+        <div class="chat-item">
+          <div class="chat-avatar">CX</div>
+          <div class="chat-info">
+            <div class="chat-name">Client X</div>
+            <div class="chat-preview">You, Bob</div>
+          </div>
+        </div>
+      </div>
+      
+      <button class="back-button" onclick="window.location.href='admin-main-dashboard.html'">
+        ← Back to Dashboard
+      </button>
+    </div>
+    
+    <!-- Chat Main Area -->
+    <div class="chat-main">
+      <div class="chat-header">
+        <h4>All Staff</h4>
+        <p class="text-muted">You, Sarah, Dev, Mary, Bob</p>
+      </div>
+      
+      <div class="chat-messages">
+        <div class="message received">
+          <div class="message-content">
+            <div>Good morning team!</div>
+            <div class="message-time">8:49 PM</div>
+          </div>
+        </div>
+        
+        <div class="message sent">
+          <div class="message-content">
+            <div>Morning! What's on the agenda?</div>
+            <div class="message-time">8:50 PM</div>
+          </div>
+        </div>
+        
+        <div class="message received">
+          <div class="message-content">
+            <div>Deploy at 10AM.</div>
+            <div class="message-time">8:51 PM</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="chat-input">
+        <div class="input-group">
+          <textarea class="message-input" placeholder="Type your message..." rows="1"></textarea>
+          <button class="send-button">Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Simple chat functionality
+    document.querySelector('.send-button').addEventListener('click', function() {
+      const input = document.querySelector('.message-input');
+      const message = input.value.trim();
+      
+      if (message) {
+        const messagesContainer = document.querySelector('.chat-messages');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'message sent';
+        messageDiv.innerHTML = `
+          <div class="message-content">
+            <div>${message}</div>
+            <div class="message-time">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+          </div>
+        `;
+        
+        messagesContainer.appendChild(messageDiv);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        input.value = '';
+      }
+    });
+    
+    // Tab switching
+    document.querySelectorAll('.chat-tab').forEach(tab => {
+      tab.addEventListener('click', function() {
+        document.querySelectorAll('.chat-tab').forEach(t => t.classList.remove('active'));
+        this.classList.add('active');
+      });
+    });
+    
+    // Chat item selection
+    document.querySelectorAll('.chat-item').forEach(item => {
+      item.addEventListener('click', function() {
+        document.querySelectorAll('.chat-item').forEach(i => i.classList.remove('active'));
+        this.classList.add('active');
+      });
+    });
+    
+    // Logout function
+    function logout() {
+      window.location.href = 'login.html';
+    }
+  </script>
+</body>
+</html>

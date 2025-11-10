@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>VBMS Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+:root {
+  --accent:#f0b90b;
+  --light:#fff;
+  --bg:#121212;
+  --glass:rgba(20,20,20,.85);
+  --border:rgba(240,185,11,.22);
+  --rail:#222;
+  --thumb:#555;
+  --sidebar-bg: #111;
+  --sidebar-heading: #888;
+  --sidebar-link: #ccc;
+  --sidebar-link-active: #000;
+  --card-bg: #202020;
+  --card-shadow: 0 0 8px rgba(240,185,11,.22);
+  --card-title: #f0b90b;
+  --input-bg: #222;
+  --input-border: var(--accent);
+  --badge-due: #f0a500;
+  --badge-new: #21a1ff;
+  --task-done: #28c028;
+  --card-shadow-heavy: 0 0 22px 2px rgba(240,185,11,.20);
+}
+:root[data-theme="light"] {
+  --bg: #fafafa;
+  --glass: #ffffff;
+  --light: #232323;
+  --border: #e0dcd3;
+  --rail: #f1f0ec;
+  --thumb: #c8c3b5;
+  --accent: #b38f00;
+  --sidebar-bg: #ffffff;
+  --sidebar-heading: #7d6a30;
+  --sidebar-link: #555555;
+  --sidebar-link-active: #ffffff;
+  --card-bg: #ffffff;
+  --card-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  --card-shadow-heavy: 0 0 16px rgba(0,0,0,0.05);
+  --input-bg: #ffffff;
+  --input-border: #cbc2a5;
+  --badge-due: #d4a500;
+  --badge-new: #1977c7;
+  --task-done: #28c028;
+}
+html {
+  position: relative;
+  background: var(--bg);
+  height: 100%;
+  transition: background 0.3s ease;
+}
+body {
+  font-family: 'Inter',Arial,sans-serif;
+  color: var(--light);
+  background: transparent;
+  overflow-x: hidden;
+  margin: 0;
+  height: 100%;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+/* Dynamic BG animation for both themes */
+html::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 20% 30%,rgba(240,185,11,.13) 0%,transparent 42%),
+    radial-gradient(circle at 80% 60%,rgba(200,200,200,.08) 0%,transparent 60%),
+    radial-gradient(circle at 50% 80%,rgba(90,90,90,.20) 0%,transparent 75%);
+  background-blend-mode: screen;
+  background-position:
+    20% 30%,
+    80% 60%,
+    50% 80%;
+  animation: bgMove 18s ease-in-out infinite;
+  background-size: auto;
+}
+@keyframes bgMove {
+  0% {
+    background-position: 20% 30%, 80% 60%, 50% 80%;
+  }
+  33% {
+    background-position: 25% 32%, 78% 65%, 45% 82%;
+  }
+  66% {
+    background-position: 30% 28%, 76% 55%, 54% 78%;
+  }
+  100% {
+    background-position: 20% 30%, 80% 60%, 50% 80%;
+  }
+}
+html::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  background:
+    radial-gradient(circle 2.2px at 10% 20%,rgba(240,185,11,.4) 0%,transparent 55%),
+    radial-gradient(circle 2.6px at 70% 10%,rgba(240,185,11,.25) 0%,transparent 60%),
+    radial-gradient(circle 1.5px at 40% 80%,rgba(240,185,11,.25) 0%,transparent 50%);
+  animation: spark 4s linear infinite;
+}
+@keyframes spark { 50%{opacity:.4} }
+body[data-theme="light"] {
+  background: var(--bg);
+  color: var(--light);
+}
+
+/* Sidebar */
+nav.sidebar {
+  position: fixed;
+  top: 0; left: 0;
+  width: 280px;
+  height: 100vh;
+  background: var(--sidebar-bg) !important;
+  border-right: 1px solid var(--border);
+  padding: 2rem 1rem;
+  display: flex; flex-direction: column;
+  overflow-y: auto;
+  transition: .3s;
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent; /* Invisible by default (dark mode) */
+}
+nav.sidebar.collapsed { width:90px }
+
+  /* Icon-only layout when sidebar is collapsed */
+  nav.sidebar.collapsed .sidebar-heading {
+    display: none;
+  }
+  nav.sidebar.collapsed .sidebar-link,
+  nav.sidebar.collapsed .sidebar-dropdown {
+    justify-content: center;
+  }
+  nav.sidebar.collapsed .sidebar-link i,
+  nav.sidebar.collapsed .sidebar-dropdown i {
+    margin: 0;
+    font-size: 1.25rem;
+  }
+  nav.sidebar.collapsed .sidebar-link span,
+  nav.sidebar.collapsed .sidebar-dropdown span {
+    display: none !important;
+  }
+  nav.sidebar.collapsed .logo {
+    display: flex;
+    justify-content: center;
+  }
+nav.sidebar::-webkit-scrollbar { width: 8px; background: transparent }
+nav.sidebar::-webkit-scrollbar-thumb { background: transparent; border-radius: 4px }
+[data-theme="light"] nav.sidebar::-webkit-scrollbar { background: var(--rail); }
+[data-theme="light"] nav.sidebar::-webkit-scrollbar-thumb { background: var(--accent); }
+[data-theme="light"] nav.sidebar { scrollbar-color: var(--accent) var(--rail); }
+.logo img { max-width: 180px; transition: .3s; margin-bottom: 2rem }
+.sidebar.collapsed .logo img { max-width: 54px }
+.sidebar-heading { font-size: .72rem; color: var(--sidebar-heading); margin: .8rem 0 .4rem .4rem; text-transform: uppercase; font-weight: 600 }
+.sidebar-link,.sidebar-dropdown {
+  display: flex; align-items: center;
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 6px;
+  color: var(--sidebar-link);
+  text-decoration: none;
+  cursor: pointer;
+  transition: .2s;
+  font-weight: 500;
+}
+.sidebar-link i, .sidebar-dropdown i:first-child { margin-right:10px;font-size:1.15rem }
+.sidebar-link:hover, .sidebar-link.active, .sidebar-dropdown:hover {
+  background: var(--accent);
+  color: var(--sidebar-link-active) !important;
+  font-weight: 700;
+}
+.sidebar.collapsed .sidebar-link span, .sidebar.collapsed .sidebar-dropdown span { display: none }
+.sidebar-dropdown i.dropdown-arrow { margin-left: auto; transition: .3s }
+.sidebar-dropdown.open i.dropdown-arrow { transform: rotate(90deg) }
+.sidebar-submenu { margin-left:1.4rem; max-height:0; overflow:hidden; transition: max-height .3s }
+.sidebar-submenu.open { max-height:500px }
+.sidebar-submenu a {
+  display:block; padding:6px 10px; font-size:.9rem; color:#bbb; border-radius:6px; margin-bottom:4px
+}
+.sidebar-submenu a:hover { color:var(--accent); font-weight:600 }
+.btn-logout { margin-top:auto;width:100% }
+
+.main { margin-left:280px; padding:1.2rem; transition:.3s }
+.sidebar.collapsed~.main { margin-left:90px }
+header { display:flex;justify-content:space-between;flex-wrap:wrap;align-items:center;margin-bottom:1.2rem }
+header h1 { font-size:1.75rem; color:var(--accent);margin:0;font-weight:800 }
+header .left { display:flex;align-items:center;gap:.9rem }
+#toggleSidebar { padding:.25rem .55rem }
+
+/* Mini stats bar */
+.mini-stats-bar {
+  display:flex;
+  align-items:center;
+  gap:2rem;
+  background:var(--glass);
+  border-radius:24px;
+  box-shadow:0 2px 8px 0 var(--border);
+  margin-bottom:.6rem;
+  padding:.4rem 2rem;
+  font-size:1.05rem;
+}
+.mini-stats-bar .stat {
+  display:flex;align-items:center;gap:.5rem;
+  font-weight:600;
+  color:var(--accent);
+}
+/* Quick actions */
+.quick-actions { display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1.4rem }
+.quick-actions button {
+  background: var(--accent);
+  border:none;
+  color:#000;
+  font-weight:700;
+  border-radius:6px;
+  padding:.42rem 1rem;
+  display:flex;gap:.45rem;align-items:center
+}
+.quick-actions button:hover { background:#d4a906 }
+.quick-actions i { font-size:1.25rem }
+
+/* Card, stats, sections */
+.card-section {
+  background: var(--glass);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:1.2rem 1.5rem;
+  margin-bottom:1.6rem;
+  box-shadow:0 0 14px 2px rgba(240,185,11,.18), var(--card-shadow-heavy)
+}
+.card-section>h2 { font-size:1.1rem;font-weight:700;color:var(--accent);margin-bottom:.9rem }
+.stats-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit,minmax(180px,1fr));
+  align-items: stretch;
+}
+.stat-card {
+  background: var(--card-bg);
+  border-radius:10px;
+  padding:1.3rem 1.2rem 1.2rem 1.2rem;
+  box-shadow: var(--card-shadow);
+  text-align:center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.stat-card .value { font-size:2rem;font-weight:700;color:#fff;margin:.2rem 0 }
+[data-theme="light"] .stat-card .value { color: #232323 }
+.stat-card .desc { font-weight:600; color:var(--accent); font-size:.98rem; margin-bottom:.2em; }
+.stat-card .subdesc { font-size:.89rem;color:#bbb;font-weight:400 }
+[data-theme="light"] .stat-card .subdesc { color: #666 }
+.stat-card i { font-size:2rem; margin-bottom:.35em; color:var(--accent) }
+
+/* Task widget */
+.task-widget {
+  background: var(--card-bg);
+  border-radius:12px;
+  padding:1rem;
+  box-shadow:0 0 12px 2px rgba(240,185,11,.25);
+  max-width:270px;
+  color:var(--light);
+  align-self:stretch;
+  display:flex; flex-direction:column;
+  justify-content:space-between;
+}
+.task-widget h3 { color:var(--accent);font-size:1.05rem;font-weight:700;margin-bottom:.8rem }
+.task-list { list-style:none;margin:0 0 .9rem 0;padding:0 }
+.task-list li {
+  background:#111;
+  border-radius:7px;
+  padding:.5rem .7rem;
+  color:#eee;
+  font-size:.91rem;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:.55rem
+}
+[data-theme="light"] .task-list li { background: #f9eebb; color: #111 }
+.badge { font-size:.7rem;font-weight:700;border-radius:12px;padding:.12rem .55rem }
+.badge.due { background:var(--badge-due);color:#000 }
+.badge.new { background:var(--badge-new);color:#fff }
+.check { color:var(--task-done);font-size:1rem }
+.task-widget button {
+  width: 100%;
+  background: linear-gradient(90deg, #ffe267 0%, #ffbb1e 100%);
+  color: #111;
+  font-weight: 800;
+  border: none;
+  border-radius: 7px;
+  font-size: 1.07rem;
+  padding: 0.58rem 0;
+  transition: background .22s;
+  box-shadow: 0 2px 12px 0 #ffe26780;
+  margin-top:.7em;
+}
+.task-widget button:hover { background: var(--accent); color: #222; }
+
+/* Progress bars and widgets */
+.progress-widgets {
+  display: flex; gap:2.4rem; margin-top:1.5rem; margin-bottom:0;
+}
+.progress-bars-col {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25em;
+  flex: 1 1 250px;
+  min-width: 210px;
+}
+.progress-bar-widget {
+  display: flex;
+  flex-direction: column;
+  gap: .25em;
+  background: var(--glass);
+  border-radius: 10px;
+  box-shadow: 0 1px 3px 0 var(--border);
+  margin-bottom: 0.25em;
+  padding: .7em 1.1em .95em 1.1em;
+}
+.progress-bar-label {
+  display: flex; align-items: center; justify-content: space-between; margin-bottom: .35em; color: var(--accent); font-size: .99em; font-weight: 700;
+}
+.progress-bar-label i { margin-right: 7px; font-size: 1.1em; }
+.custom-progress {
+  height: 9px;
+  width: 100%;
+  background: var(--rail);
+  border-radius: 6px;
+  box-shadow: 0 1px 2px 0 var(--border);
+  overflow: hidden;
+}
+.custom-progress-bar {
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg,var(--accent) 60%,#fffbe2 100%);
+  border-radius: 6px;
+  transition: width 1s cubic-bezier(.56,.08,.28,1.15);
+}
+[data-theme="light"] .custom-progress-bar {
+  background: linear-gradient(90deg,#ffe267 60%,#fffde2 100%);
+}
+/* Activity feed alignment */
+.activity-feed {
+  background: var(--glass);
+  border-radius:12px;
+  border:1px solid var(--border);
+  padding:1.2em 1.1em .7em 1.1em;
+  max-width: 380px;
+  box-shadow:0 2px 14px 0 #b59e0022;
+  flex: 1 1 280px;
+  min-width: 230px;
+}
+.activity-feed h4 { color: var(--accent); font-size: 1.03em; font-weight: 700; margin-bottom: 1em; }
+.activity-feed ul { list-style:none;margin:0;padding:0 }
+.activity-feed li { display:flex;align-items:center;gap:.8em; padding: .62em 0; border-bottom: 1px solid #ffe28b44; font-size: .98em; }
+.activity-feed li:last-child { border-bottom: none }
+.activity-feed i { color: var(--accent); font-size:1.2em; }
+/* User/notification styles */
+.user-pill-dropdown {
+  background: var(--accent);
+  border: none;
+  border-radius: 28px;
+  color: #222;
+  font-weight: 700;
+  padding: .3rem 1.2rem .3rem .7rem;
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  font-size: 1.08rem;
+  box-shadow: 0 1px 7px 0 var(--border);
+  cursor: pointer;
+  position: relative;
+}
+.user-pill-dropdown .avatar-img {
+  width:32px; height:32px;
+  border-radius:50%;
+  object-fit:cover;
+  margin-right:.2em;
+  border:2px solid var(--accent);
+}
+.user-pill-dropdown .dropdown-caret {
+  font-size:1.25em; margin-left:.4em;
+}
+.user-menu-dropdown {
+  position: absolute;
+  top: 110%; right: 0;
+  min-width: 180px;
+  background: var(--glass);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: var(--accent);
+  box-shadow: 0 3px 14px 0 #b59e0022;
+  display: none;
+  z-index: 30;
+}
+.user-menu-dropdown.show { display: block }
+.user-menu-dropdown a, .user-menu-dropdown button {
+  display: block;
+  width: 100%;
+  padding: 10px 16px;
+  color: var(--accent);
+  background: transparent;
+  border: none;
+  text-align: left;
+  font-weight: 600;
+  cursor: pointer;
+}
+.user-menu-dropdown a:hover, .user-menu-dropdown button:hover {
+  background: var(--accent); color: #000;
+}
+
+/* Notification bell & dropdown */
+.notification-btn {
+  background:transparent;
+  border:none;
+  color:var(--accent);
+  position:relative;
+  font-size:1.6rem;
+  margin-left:.2em;
+  margin-right:.6em;
+  cursor:pointer;
+}
+.notification-btn .badge {
+  position:absolute;top:-8px;right:-5px;
+  font-size:.75rem;
+  background:#dc3545;
+  color:#fff;
+  padding:1.5px 6px;
+  border-radius:12px;
+  font-weight:700;
+}
+.notif-dropdown {
+  position: absolute;
+  top: 120%; right: 0;
+  min-width: 260px;
+  background: var(--glass);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: var(--accent);
+  box-shadow: 0 3px 16px 0 #b59e0022;
+  display: none;
+  z-index: 30;
+  padding: 0;
+}
+.notif-dropdown.show { display:block }
+.notif-dropdown ul { list-style:none; margin:0; padding:0 }
+.notif-dropdown li {
+  padding: 11px 18px 11px 18px;
+  border-bottom: 1px solid #ffe28b44;
+  display: flex; align-items: center; gap:.85rem;
+  color: #fffde1;
+  font-size: .97em;
+}
+[data-theme="light"] .notif-dropdown li {
+  color: #222;
+}
+.notif-dropdown .notif-time {
+  font-size: .87em;
+  color: #c2a900;
+  margin-left: auto;
+}
+
+/* Dark/Light toggle */
+.darkmode-btn {
+  border: none;
+  background: transparent;
+  color: var(--accent);
+  font-size: 1.45em;
+  margin-left: 1.3em;
+  cursor: pointer;
+  outline: none;
+}
+.darkmode-btn:focus { outline: 2px solid var(--accent) }
+/* Responsive tweaks */
+@media(max-width:1200px){
+  nav.sidebar{width:90px}nav.sidebar.collapsed{width:70px}
+  .main{margin-left:90px}.sidebar.collapsed~.main{margin-left:70px}
+  .sidebar-link span,.sidebar-dropdown span{display:none}
+}
+@media(max-width:980px){
+  .progress-widgets { flex-direction: column; gap:1.1rem; }
+  .activity-feed { max-width:100%; }
+}
+@media(max-width:768px){
+  nav.sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+  }
+  nav.sidebar.open {
+    transform: translateX(0);
+  }
+  .main {
+    margin-left: 0 !important;
+    padding: 0.8rem !important;
+  }
+  .charts-wrapper{flex-direction:column}
+  .task-widget{max-width:100%}
+  header{flex-direction:column;gap:.7rem}
+  .mini-stats-bar { flex-direction:column; gap:.8em; padding:.9em 1.1em }
+  .main { padding: 0.55em; }
+
+  /* Neaten mobile layout */
+  /* Quick actions as two columns */
+  .quick-actions {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+  }
+  .quick-actions button {
+    width: 100%;
+    margin: 0 !important;
+  }
+  /* Mini stats bar wrap */
+  .mini-stats-bar {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.5rem 0.8rem;
+  }
+  .mini-stats-bar .stat {
+    flex: 1 1 45%;
+    justify-content: center;
+  }
+  /* Center header elements */
+  header {
+    text-align: center;
+  }
+  header .left, header .right {
+    width: 100%;
+    justify-content: center;
+  }
+}
+  .dashboard-greeting {
+    margin-bottom: 1.8rem;
+    text-align: left;
+  }
+  .dashboard-greeting h2 {
+    font-size: 1.6rem;
+    color: var(--accent);
+    font-weight: 800;
+    margin-bottom: 0.1em;
+  }
+  #dashboard-date {
+    color: #aaa;
+    font-size: 1rem;
+    margin-left: 3px;
+  }
+  </style>
+</head>
+<body>
+<!--  SIDEBAR  -->
+<nav class="sidebar" id="sidebar" tabindex="0">
+  <div class="logo"><img src="https://iili.io/F7bM6Jt.md.png" alt="VBMS"></div>
+  
+  <p class="sidebar-heading">CORE</p>
+  <a class="sidebar-link active" href="#"><i class="bi bi-speedometer2"></i><span>Dashboard</span></a>
+  <a class="sidebar-link" href="reports.html"><i class="bi bi-bar-chart-line"></i><span>Reports</span></a>
+  
+  <p class="sidebar-heading">OPERATIONS</p>
+  <a class="sidebar-link" href="orders.html"><i class="bi bi-box"></i><span>Orders</span></a>
+  <a class="sidebar-link" href="monitoring.html"><i class="bi bi-camera-video"></i><span>Monitoring</span></a>
+  <a class="sidebar-link" href="inventory.html"><i class="bi bi-stack"></i><span>Inventory</span></a>
+  <a class="sidebar-link" href="calendar.html"><i class="bi bi-calendar-event"></i><span>Calendar</span></a>
+  
+  <p class="sidebar-heading">PEOPLE & CLIENTS</p>
+  <a class="sidebar-link" href="team.html"><i class="bi bi-people"></i><span>Team</span></a>
+  <a class="sidebar-link" href="clients.html"><i class="bi bi-person-badge"></i><span>Clients</span></a>
+  <a class="sidebar-link" href="leads.html"><i class="bi bi-person-lines-fill"></i><span>Leads</span></a>
+  
+  <p class="sidebar-heading">TASKS & COMMUNICATION</p>
+  <a class="sidebar-link" href="task-board.html"><i class="bi bi-kanban"></i><span>Task Manager</span></a>
+  <a class="sidebar-link" href="messaging.html"><i class="bi bi-chat-dots"></i><span>Messaging</span></a>
+  
+  <p class="sidebar-heading">AI TOOLS</p>
+  <a class="sidebar-link" href="Aiphone.html"><i class="bi bi-telephone"></i><span>AI Phone</span></a>
+  <a class="sidebar-link" href="Aiassistant.html"><i class="bi bi-robot"></i><span>AI Assistant</span></a>
+  
+  <p class="sidebar-heading">BUSINESS TOOLS</p>
+  <a class="sidebar-link" href="billing.html"><i class="bi bi-credit-card-2-front"></i><span>Billing</span></a>
+  <a class="sidebar-link" href="settings.html"><i class="bi bi-gear"></i><span>Settings</span></a>
+  <a class="sidebar-link" href="training.html"><i class="bi bi-mortarboard"></i><span>Training</span></a>
+  
+  <p class="sidebar-heading">DEV/UTILITY</p>
+  <a class="sidebar-link" href="wizard.html"><i class="bi bi-tools"></i><span>Wizard (Dev)</span></a>
+  <a class="sidebar-link" href="wizard-step2.html"><i class="bi bi-tools"></i><span>Wizard Step 2</span></a>
+  <a class="sidebar-link" href="wizard-step3.html"><i class="bi bi-tools"></i><span>Wizard Step 3</span></a>
+  
+  <button class="btn btn-warning btn-logout" onclick="logout()"><i class="bi bi-box-arrow-left"></i> Logout</button>
+</nav>
+
+
+<!--  MAIN  -->
+<main class="main">
+  <div class="dashboard-greeting">
+    <h2>Good morning, Sarah!</h2>
+    <div id="dashboard-date"></div>
+  </div>
+  <header>
+    <div class="left">
+      <button id="toggleSidebar" class="btn btn-outline-light btn-sm"><i class="bi bi-list"></i></button>
+      <h1>Welcome Back, Sarah</h1>
+    </div>
+    <div class="right d-flex align-items-center gap-3" style="position:relative;">
+      <!-- Avatar+greeting dropdown -->
+      <button class="user-pill-dropdown" id="userDropdownBtn">
+        <img src="https://randomuser.me/api/portraits/women/44.jpg" class="avatar-img" alt="Sarah" />
+        Sarah (Virtual Manager)
+        <span class="dropdown-caret"><i class="bi bi-chevron-down"></i></span>
+      </button>
+      <div class="user-menu-dropdown" id="userDropdownMenu">
+        <a href="profile.html"><i class="bi bi-person-circle"></i> Profile</a>
+        <a href="settings.html"><i class="bi bi-gear"></i> Settings</a>
+        <button onclick="logout()"><i class="bi bi-box-arrow-right"></i> Logout</button>
+      </div>
+      <!-- Notification -->
+      <button class="notification-btn" id="notifBtn" aria-label="Notifications">
+        <i class="bi bi-bell"></i><span class="badge">3</span>
+      </button>
+      <div class="notif-dropdown" id="notifDropdown">
+        <ul>
+          <li><i class="bi bi-credit-card-2-front"></i> Payment from John Doe <span class="notif-time">1 min ago</span></li>
+          <li><i class="bi bi-person-plus"></i> New user registered <span class="notif-time">6 mins ago</span></li>
+          <li><i class="bi bi-kanban"></i> Task assigned to you <span class="notif-time">14 mins ago</span></li>
+        </ul>
+      </div>
+      <button class="darkmode-btn" id="darkModeBtn" title="Toggle light/dark"><i class="bi bi-brightness-high"></i></button>
+    </div>
+  </header>
+  <h2 id="dashboard-message">Loading...</h2>
+
+
+  <!-- biz insights (staff-focused only) -->
+  <section class="card-section">
+    <h2>Business Insights</h2>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <i class="bi bi-person-plus"></i>
+        <div class="desc">New Customers Today</div>
+        <div class="value">5</div>
+      </div>
+      <div class="stat-card">
+        <i class="bi bi-people"></i>
+        <div class="desc">Total Customers</div>
+        <div class="value">218</div>
+      </div>
+      <!-- task widget -->
+      <div class="task-widget">
+        <h3>Today's Tasks</h3>
+        <ul class="task-list">
+          <li>Follow-up Client B <span class="badge due">Due</span></li>
+          <li>Send invoice #452 <i class="bi bi-check2-circle check"></i></li>
+          <li>Assign new lead <span class="badge new">New</span></li>
+        </ul>
+        <button onclick="location='task-board.html'">Go to Task Board</button>
+      </div>
+    </div>
+    <!-- Progress bars and activity feed -->
+    <div class="progress-widgets">
+      <div class="progress-bars-col">
+        <div class="progress-bar-widget">
+          <div class="progress-bar-label">
+            <span><i class="bi bi-check-circle"></i>Tasks Completed Today</span>
+            <span id="tasksPercentLabel">70%</span>
+          </div>
+          <div class="custom-progress">
+            <div class="custom-progress-bar" id="tasksBar"></div>
+          </div>
+        </div>
+        <div class="progress-bar-widget">
+          <div class="progress-bar-label">
+            <span><i class="bi bi-flag"></i>Goal Reached</span>
+            <span id="goalPercentLabel">50%</span>
+          </div>
+          <div class="custom-progress">
+            <div class="custom-progress-bar" id="goalBar"></div>
+          </div>
+        </div>
+      </div>
+      <div class="activity-feed">
+        <h4><i class="bi bi-clock-history"></i> Recent Activity</h4>
+        <ul>
+          <li><i class="bi bi-door-open"></i> Sarah logged in <span class="notif-time">now</span></li>
+          <li><i class="bi bi-cash-coin"></i> Payment received <span class="notif-time">2 min ago</span></li>
+          <li><i class="bi bi-pencil"></i> Profile updated <span class="notif-time">12 min ago</span></li>
+          <li><i class="bi bi-envelope"></i> New message sent <span class="notif-time">18 min ago</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// Sidebar collapse toggle
+document.getElementById('toggleSidebar').onclick = () => {
+  const sidebar = document.getElementById('sidebar');
+  const btnIcon = document.querySelector('#toggleSidebar i');
+  if (window.innerWidth <= 768) {
+    sidebar.classList.toggle('open');
+  } else {
+    sidebar.classList.toggle('collapsed');
+  }
+  // Switch icon: list <-> x
+  if (sidebar.classList.contains('collapsed') || sidebar.classList.contains('open')) {
+    btnIcon.classList.remove('bi-list');
+    btnIcon.classList.add('bi-x');
+  } else {
+    btnIcon.classList.remove('bi-x');
+    btnIcon.classList.add('bi-list');
+  }
+};
+
+// User dropdown
+const userBtn = document.getElementById('userDropdownBtn');
+const userMenu = document.getElementById('userDropdownMenu');
+userBtn.onclick = function(e){
+  e.stopPropagation();
+  userMenu.classList.toggle('show');
+  notifDropdown.classList.remove('show');
+};
+userMenu.addEventListener('click', function(e){ e.stopPropagation(); });
+
+// Notification dropdown
+const notifBtn = document.getElementById('notifBtn');
+const notifDropdown = document.getElementById('notifDropdown');
+notifBtn.onclick = function(e){
+  e.stopPropagation();
+  notifDropdown.classList.toggle('show');
+  userMenu.classList.remove('show');
+};
+notifDropdown.addEventListener('click', function(e){ e.stopPropagation(); });
+
+// Hide dropdowns when clicking outside
+document.body.addEventListener('click', function(){
+  userMenu.classList.remove('show');
+  notifDropdown.classList.remove('show');
+});
+
+// Dark mode toggle
+const darkModeBtn = document.getElementById('darkModeBtn');
+darkModeBtn.onclick = function(){
+  const isLightTheme = document.documentElement.getAttribute('data-theme') === 'light';
+  if(isLightTheme) document.documentElement.removeAttribute('data-theme');
+  else document.documentElement.setAttribute('data-theme','light');
+};
+
+// Progress Bars Animate
+window.addEventListener('DOMContentLoaded', function(){
+  setTimeout(function(){
+    document.getElementById('tasksBar').style.width = '70%';
+    document.getElementById('goalBar').style.width = '50%';
+  }, 300);
+});
+
+// Logs out the user by redirecting to the login page
+function logout(){location='login.html';}
+</script>
+
+
+
+<script>
+  document.addEventListener('DOMContentLoaded', async () => {
+    const token = localStorage.getItem('vbmsToken');
+
+    if (!token) {
+      // No token found – redirect to login
+      window.location.href = 'login.html';
+      return;
+    }
+
+    try {
+      const response = await fetch('https://vbms-backend.onrender.com/api/dashboard', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        // Token invalid or expired – redirect to login
+        window.location.href = 'login.html';
+        return;
+      }
+
+      // ✅ Authorized — display welcome message or data
+      document.getElementById('dashboard-message').innerText = data.message;
+
+    } catch (err) {
+      console.error('Dashboard fetch error:', err);
+      window.location.href = 'login.html';
+    }
+  });
+</script>
+
+</body>
+<script>
+  // Update date/time in the greeting area
+  function updateDateTime() {
+    const now = new Date();
+    const opts = { weekday: 'long', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+    document.getElementById('dashboard-date').textContent = now.toLocaleString('en-US', opts);
+  }
+  updateDateTime();
+  setInterval(updateDateTime, 30000);
+</script>
+</html>
+

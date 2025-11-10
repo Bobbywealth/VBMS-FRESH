@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Checkout – VBMS</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+  <script src="https://js.stripe.com/v3/"></script>
+  <script src="config.js"></script>
+  <style>
+    :root {
+      --accent: #f0b90b;
+      --bg: #121212;
+      --card-bg: #1a1a1a;
+      --border: rgba(240,185,11,.15);
+      --text: #ffffff;
+      --text-muted: #999;
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', Arial, sans-serif;
+      padding: 2rem 1rem;
+    }
+    .checkout-container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .order-summary-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+    .plan-name {
+      color: var(--accent);
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+    }
+    .plan-price {
+      font-size: 2.5rem;
+      font-weight: bold;
+      color: var(--text);
+    }
+    .plan-price small {
+      font-size: 1rem;
+      color: var(--text-muted);
+    }
+    .feature-item {
+      padding: 0.5rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .feature-item:last-child {
+      border-bottom: none;
+    }
+    .payment-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 2rem;
+    }
+    .payment-form label {
+      color: var(--text);
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+    }
+    #card-element {
+      background: var(--bg);
+      padding: 1rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+    }
+    #card-element:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    #card-errors {
+      color: #ff4c4c;
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
+    }
+    .btn-checkout {
+      background: var(--accent);
+      color: #191919;
+      font-weight: 700;
+      padding: 1rem 2rem;
+      border: none;
+      border-radius: 8px;
+      width: 100%;
+      font-size: 1.1rem;
+      transition: all 0.3s;
+    }
+    .btn-checkout:hover {
+      background: #ffc107;
+      transform: translateY(-2px);
+    }
+    .btn-checkout:disabled {
+      background: #666;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .loading-spinner {
+      display: inline-block;
+      margin-right: 0.5rem;
+    }
+    .secure-badge {
+      text-align: center;
+      margin-top: 1rem;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+    .secure-badge i {
+      color: var(--accent);
+    }
+  </style>
+</head>
+<body>
+  <div class="checkout-container">
+    <!-- Header -->
+    <div class="text-center mb-4">
+      <img src="https://iili.io/F7bM6Jt.md.png" alt="VBMS Logo" style="max-width: 200px;" />
+      <h2 class="mt-3">Complete Your Purchase</h2>
+      <p class="text-muted">Securely powered by Stripe</p>
+    </div>
+
+    <div class="row">
+      <!-- Order Summary -->
+      <div class="col-lg-5 mb-4">
+        <div class="order-summary-card">
+          <h5 class="mb-3">Order Summary</h5>
+          <div class="plan-name" id="planName">Loading...</div>
+          <div class="plan-price">
+            $<span id="planPrice">0.00</span>
+            <small>/month</small>
+          </div>
+          <div id="perCallCharge" class="mt-2 text-muted" style="display: none;">
+            + $0.30 per call
+          </div>
+          <hr class="my-3" />
+          <h6 class="mb-3">What's included:</h6>
+          <div id="planFeatures"></div>
+          <hr class="my-3" />
+          <div class="d-flex justify-content-between">
+            <strong>Total:</strong>
+            <strong>$<span id="totalAmount">0.00</span>/month</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Payment Form -->
+      <div class="col-lg-7">
+        <div class="payment-card">
+          <h5 class="mb-3">Payment Details</h5>
+          
+          <form id="payment-form">
+            <!-- Stripe Card Element -->
+            <div class="mb-3">
+              <label>Card Information</label>
+              <div id="card-element"></div>
+              <div id="card-errors" role="alert"></div>
+            </div>
+
+            <!-- Email -->
+            <div class="mb-3">
+              <label for="billing-email">Email Address</label>
+              <input type="email" id="billing-email" class="form-control bg-dark text-white border-secondary" 
+                     placeholder="your@email.com" required />
+            </div>
+
+            <!-- Billing Address -->
+            <div class="mb-3">
+              <label for="billing-name">Cardholder Name</label>
+              <input type="text" id="billing-name" class="form-control bg-dark text-white border-secondary" 
+                     placeholder="John Doe" required />
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" id="submit-button" class="btn-checkout">
+              <span id="button-text">
+                <i class="bi bi-lock-fill"></i> Complete Subscription
+              </span>
+              <span id="button-loading" style="display: none;">
+                <span class="loading-spinner">
+                  <i class="bi bi-arrow-clockwise" style="animation: spin 1s linear infinite;"></i>
+                </span>
+                Processing...
+              </span>
+            </button>
+
+            <div class="secure-badge">
+              <i class="bi bi-shield-check"></i> Secured by Stripe
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Return Link -->
+    <div class="text-center mt-4">
+      <a href="index.html" class="text-muted"><i class="bi bi-arrow-left"></i> Return to homepage</a>
+    </div>
+  </div>
+
+  <script src="auth.js"></script>
+  <script>
+    // Get plan from URL params
+    const urlParams = new URLSearchParams(window.location.search);
+    const planType = urlParams.get('plan') || 'start';
+
+    // API Configuration
+    const API_BASE = window.VBMS_API_BASE || (
+      window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+        ? 'http://localhost:5050'
+        : 'https://vbms-fresh-offical-website-launch.onrender.com'
+    );
+
+    // Check authentication
+    if (!vbmsAuth.getToken()) {
+      alert('Please log in to continue');
+      window.location.href = 'customer-login.html?redirect=checkout.html?plan=' + planType;
+    }
+
+    // Load plan details and initialize Stripe
+    let selectedPlan = null;
+    let stripe = null;
+    let cardElement = null;
+    
+    async function loadPlanDetails() {
+      try {
+        // Fetch Stripe public key
+        const keyResponse = await fetch(`${API_BASE}/api/stripe/public-key`);
+        const { publicKey } = await keyResponse.json();
+        stripe = Stripe(publicKey);
+        
+        const response = await fetch(`${API_BASE}/api/stripe/plans`);
+        const plans = await response.json();
+        selectedPlan = plans[planType];
+        
+        if (!selectedPlan) {
+          alert('Invalid plan selected');
+          window.location.href = 'index.html';
+          return;
+        }
+
+        // Display plan details
+        document.getElementById('planName').textContent = selectedPlan.name;
+        document.getElementById('planPrice').textContent = selectedPlan.price.toFixed(2);
+        
+        if (selectedPlan.perCall) {
+          document.getElementById('perCallCharge').style.display = 'block';
+        }
+
+        // Display features
+        const featuresList = document.getElementById('planFeatures');
+        const features = Object.entries(selectedPlan.features)
+          .filter(([key, value]) => value)
+          .map(([key]) => {
+            const featureNames = {
+              liveMonitoring: 'Live Monitoring',
+              orderManagement: 'Order Management',
+              phoneSupport: 'Phone Support',
+              aiPhone: 'AI Phone System',
+              inventoryTracker: 'Inventory Tracker',
+              prioritySupport: 'Priority Support',
+              customDashboard: 'Custom Dashboard',
+              advancedAnalytics: 'Advanced Analytics'
+            };
+            return `<div class="feature-item"><i class="bi bi-check-circle-fill text-success"></i> ${featureNames[key] || key}</div>`;
+          });
+        featuresList.innerHTML = features.join('');
+
+        // Now initialize Stripe elements
+        await initializeStripe();
+
+      } catch (error) {
+        console.error('Error loading plan details:', error);
+        alert('Failed to load plan details');
+      }
+    }
+
+    // Initialize Stripe Elements
+    async function initializeStripe() {
+      try {
+        // Create Stripe customer
+        const customerResponse = await fetch(`${API_BASE}/api/stripe/create-customer`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${vbmsAuth.getToken()}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        // Create payment method
+        cardElement = stripe.elements().create('card', {
+          style: {
+            base: {
+              color: '#ffffff',
+              fontFamily: 'Inter, Arial, sans-serif',
+              fontSize: '16px',
+              '::placeholder': {
+                color: '#666'
+              }
+            }
+          }
+        });
+        cardElement.mount('#card-element');
+
+        // Handle card validation
+        cardElement.on('change', function(event) {
+          const displayError = document.getElementById('card-errors');
+          if (event.error) {
+            displayError.textContent = event.error.message;
+          } else {
+            displayError.textContent = '';
+          }
+        });
+
+      } catch (error) {
+        console.error('Error initializing Stripe:', error);
+      }
+    }
+
+    // Handle form submission
+    document.getElementById('payment-form').addEventListener('submit', async function(event) {
+      event.preventDefault();
+
+      const submitButton = document.getElementById('submit-button');
+      const buttonText = document.getElementById('button-text');
+      const buttonLoading = document.getElementById('button-loading');
+
+      // Disable button
+      submitButton.disabled = true;
+      buttonText.style.display = 'none';
+      buttonLoading.style.display = 'inline';
+
+      try {
+        // Create payment method
+        const billingName = document.getElementById('billing-name').value;
+        const billingEmail = document.getElementById('billing-email').value;
+
+        const { paymentMethod, error: pmError } = await stripe.createPaymentMethod({
+          type: 'card',
+          card: cardElement,
+          billing_details: {
+            name: billingName,
+            email: billingEmail
+          }
+        });
+
+        if (pmError) {
+          throw new Error(pmError.message);
+        }
+
+        // Create subscription
+        const subscriptionResponse = await fetch(`${API_BASE}/api/stripe/create-subscription`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${vbmsAuth.getToken()}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            packageType: planType,
+            paymentMethodId: paymentMethod.id
+          })
+        });
+
+        const subscriptionData = await subscriptionResponse.json();
+
+        if (!subscriptionResponse.ok) {
+          throw new Error(subscriptionData.error || 'Failed to create subscription');
+        }
+
+        // Handle payment confirmation if needed
+        if (subscriptionData.clientSecret) {
+          const { error: confirmError } = await stripe.confirmCardPayment(subscriptionData.clientSecret);
+          
+          if (confirmError) {
+            throw new Error(confirmError.message);
+          }
+        }
+
+        // Success! Redirect to success page
+        window.location.href = `payment-success.html?subscription=${subscriptionData.subscriptionId}&plan=${planType}`;
+
+      } catch (error) {
+        console.error('Error processing payment:', error);
+        document.getElementById('card-errors').textContent = error.message;
+        
+        // Re-enable button
+        submitButton.disabled = false;
+        buttonText.style.display = 'inline';
+        buttonLoading.style.display = 'none';
+      }
+    });
+
+    // Initialize
+    loadPlanDetails();
+  </script>
+</body>
+</html>
+

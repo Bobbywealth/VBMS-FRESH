@@ -1,0 +1,520 @@
+
+<!-- BOOTSTRAP & ICONS (required, keep in your <head> OR in sidebar.html if using fetch) -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+<style>
+    :root {
+        --accent: #f0b90b;
+        --accent-light: #ffd700;
+        --accent-glow: rgba(240, 185, 11, 0.4);
+        --primary-dark: #d4a109;
+        --secondary: #2c3e50;
+        --success: #22c55e;
+        --danger: #ef4444;
+        --warning: #f59e0b;
+        --info: #3b82f6;
+        --purple: #a855f7;
+        --cyan: #06b6d4;
+        --light: #f8f9fa;
+        --dark: #212529;
+        --glass: rgba(255,255,255,0.95);
+        --glass-glow: rgba(240, 185, 11, 0.15);
+        --border: #e9ecef;
+        --text: #212529;
+        --text-muted: #6c757d;
+        --card-bg: #ffffff;
+        --card-shadow: 0 8px 32px rgba(240, 185, 11, 0.1);
+        --bg: linear-gradient(135deg, #f8f9fa 0%, #f0f8ff 50%, #f8f4ff 100%);
+        --sidebar-bg: rgba(255,255,255,0.98);
+        --sidebar-link: #333;
+        --sidebar-link-active: #000;
+    }
+
+    /* Dark theme - Modern Black/Gray with Energy */
+    [data-theme="dark"] {
+        --bg: linear-gradient(135deg, #000000 0%, #0a0a0a 25%, #1a1a1a 50%, #0f0f0f 100%);
+        --light: #ffffff;
+        --dark: #000000;
+        --text: #ffffff;
+        --text-muted: #a1a1aa;
+        --card-bg: rgba(20, 20, 20, 0.95);
+        --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.8), 0 0 20px rgba(240, 185, 11, 0.15);
+        --border: rgba(64, 64, 64, 0.4);
+        --glass: rgba(18, 18, 18, 0.95);
+        --glass-glow: rgba(240, 185, 11, 0.2);
+        --sidebar-bg: rgba(12, 12, 12, 0.98);
+        --sidebar-link: #d4d4d8;
+        --sidebar-link-active: #ffffff;
+        --accent: #f0b90b;
+        --accent-light: #ffd700;
+        --success: #22c55e;
+        --danger: #ef4444;
+        --warning: #f59e0b;
+        --info: #3b82f6;
+        --purple: #a855f7;
+        --cyan: #06b6d4;
+    }
+    .sidebar {
+        width: 320px;
+        background: var(--sidebar-bg);
+        backdrop-filter: blur(20px);
+        border-right: 1px solid var(--border);
+        padding: 20px;
+        position: fixed;
+        height: 100vh;
+        overflow-y: auto;
+        box-shadow: 
+            2px 0 30px rgba(240, 185, 11, 0.15),
+            inset 1px 0 0 rgba(255, 255, 255, 0.1);
+        z-index: 1000;
+        transition: all 0.35s ease;
+        font-family: 'Segoe UI', sans-serif;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+        top: 0;
+        left: 0;
+    }
+    .sidebar::-webkit-scrollbar { display: none; }
+    
+    /* Mobile hamburger menu button */
+    .mobile-menu-btn {
+        display: none;
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        z-index: 1001;
+        background: var(--accent);
+        border: none;
+        border-radius: 8px;
+        padding: 10px;
+        color: #000;
+        font-size: 1.5rem;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(240, 185, 11, 0.3);
+        transition: all 0.3s ease;
+    }
+    
+    .mobile-menu-btn:hover {
+        transform: scale(1.05);
+        box-shadow: 0 6px 20px rgba(240, 185, 11, 0.4);
+    }
+    
+    /* Mobile overlay */
+    .mobile-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    
+    .mobile-overlay.active {
+        opacity: 1;
+    }
+    .logo { text-align: center; margin-bottom: 30px; }
+    .logo img { max-width: 150px; height: auto; }
+    .sidebar-heading {
+        color: var(--accent);
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin: 20px 0 10px 0;
+        opacity: 0.8;
+    }
+    .sidebar-link {
+        display: block;
+        padding: 12px 15px;
+        color: var(--text);
+        text-decoration: none;
+        border-radius: 8px;
+        margin-bottom: 5px;
+        transition: all 0.3s ease;
+        border-left: 3px solid transparent;
+        position: relative;
+        overflow: hidden;
+        font-size: 0.95rem;
+        white-space: nowrap;
+    }
+    .sidebar-link::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(240, 185, 11, 0.2), transparent);
+        transition: left 0.5s ease;
+    }
+    .sidebar-link:hover, .sidebar-link.active {
+        background: var(--glass-glow);
+        color: var(--accent);
+        border-left-color: var(--accent);
+        transform: translateX(8px);
+        box-shadow: 0 4px 15px rgba(240, 185, 11, 0.3);
+        font-weight: 600;
+    }
+    .sidebar-link:hover::before { left: 100%; }
+    .sidebar-link i { margin-right: 10px; width: 20px; }
+    
+    /* Dark theme sidebar enhancements */
+    [data-theme="dark"] .sidebar-link:hover,
+    [data-theme="dark"] .sidebar-link.active {
+        background: linear-gradient(90deg, rgba(240, 185, 11, 0.15), rgba(255, 215, 0, 0.1));
+        color: var(--accent-light) !important;
+        border-left-color: var(--accent);
+        box-shadow: 
+            0 4px 15px rgba(240, 185, 11, 0.3),
+            inset 0 1px 0 rgba(240, 185, 11, 0.2),
+            0 0 20px rgba(240, 185, 11, 0.1);
+        text-shadow: 0 0 8px rgba(240, 185, 11, 0.4);
+    }
+    .btn-logout {
+        width: 100%;
+        margin-top: 30px;
+        background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+        border: none;
+        padding: 12px;
+        border-radius: 8px;
+        color: white;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    .btn-logout:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+    }
+    /* Mobile Responsive Styles */
+    @media (max-width: 1024px) {
+        .sidebar {
+            width: 280px;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .mobile-menu-btn {
+            display: block;
+        }
+        
+        .mobile-overlay {
+            display: block;
+        }
+        
+        .sidebar {
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+            width: 90%;
+            max-width: 320px;
+            border-radius: 0 15px 15px 0;
+        }
+        
+        .sidebar.active {
+            transform: translateX(0);
+        }
+        
+        .logo img {
+            max-width: 120px;
+        }
+        
+        .sidebar-heading {
+            font-size: 0.75rem;
+            margin: 15px 0 8px 0;
+        }
+        
+        .sidebar-link {
+            padding: 14px 15px;
+            font-size: 0.9rem;
+        }
+        
+        .sidebar-link i {
+            margin-right: 12px;
+            width: 22px;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .sidebar {
+            width: 85%;
+            padding: 15px;
+        }
+        
+        .logo {
+            margin-bottom: 20px;
+        }
+        
+        .logo img {
+            max-width: 100px;
+        }
+        
+        .sidebar-link {
+            padding: 12px 12px;
+            margin-bottom: 3px;
+        }
+        
+        .btn-logout {
+            margin-top: 20px;
+            padding: 10px;
+        }
+    }
+    
+    @media (max-width: 320px) {
+        .sidebar {
+            width: 95%;
+            padding: 12px;
+        }
+        
+        .sidebar-link {
+            padding: 10px;
+            font-size: 0.85rem;
+        }
+    }
+
+    /* Navigation in progress styling */
+    .sidebar-link.navigating {
+        opacity: 0.6 !important;
+        pointer-events: none !important;
+        position: relative;
+    }
+
+    .sidebar-link.navigating::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        right: 10px;
+        width: 16px;
+        height: 16px;
+        border: 2px solid var(--accent);
+        border-top: 2px solid transparent;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+        transform: translateY(-50%);
+    }
+
+    @keyframes spin {
+        0% { transform: translateY(-50%) rotate(0deg); }
+        100% { transform: translateY(-50%) rotate(360deg); }
+    }
+
+</style>
+
+<!-- Mobile Menu Button -->
+<button class="mobile-menu-btn" id="mobileMenuBtn" onclick="toggleMobileMenu()">
+    <i class="bi bi-list"></i>
+</button>
+
+<!-- Mobile Overlay -->
+<div class="mobile-overlay" id="mobileOverlay" onclick="closeMobileMenu()"></div>
+
+<nav class="sidebar" id="sidebar">
+    <div class="logo">
+        <img src="https://iili.io/F7bM6Jt.md.png" alt="VBMS">
+    </div>
+    
+    <!-- Main Admin Only Section -->
+    <div id="mainAdminSection" style="display: none;">
+        <p class="sidebar-heading">MAIN ADMIN</p>
+        <a class="sidebar-link" href="admin-create-admin.html"><i class="bi bi-person-plus"></i> Create Admin</a>
+        <a class="sidebar-link" href="admin-system-settings.html"><i class="bi bi-gear-wide-connected"></i> System Settings</a>
+        <a class="sidebar-link" href="admin-pricing.html"><i class="bi bi-tags"></i> Pricing Plans</a>
+    </div>
+
+    <p class="sidebar-heading">CORE</p>
+    <a class="sidebar-link" href="dashboard.html"><i class="bi bi-speedometer2"></i> Admin Dashboard</a>
+    <a class="sidebar-link" href="reports.html"><i class="bi bi-bar-chart-line"></i> Reports</a>
+
+    <p class="sidebar-heading">CUSTOMER MANAGEMENT</p>
+    <a class="sidebar-link" href="admin-customers.html"><i class="bi bi-people"></i> All Customers</a>
+    <a class="sidebar-link" href="admin-customer-analytics.html"><i class="bi bi-graph-up"></i> Customer Analytics</a>
+
+    <p class="sidebar-heading">SALES &amp; MARKETING</p>
+    <a class="sidebar-link" href="admin-affiliates.html"><i class="bi bi-share"></i> Affiliate Program</a>
+    <a class="sidebar-link" href="leads.html"><i class="bi bi-person-lines-fill"></i> Leads</a>
+    <a class="sidebar-link" href="admin-ai-phone.html"><i class="bi bi-telephone-plus"></i> AI Phone (Leads)</a>
+
+    <p class="sidebar-heading">OPERATIONS</p>
+    <a class="sidebar-link" href="admin-orders.html"><i class="bi bi-box"></i> Order Management</a>
+    <a class="sidebar-link" href="inventory.html"><i class="bi bi-stack"></i> Inventory</a>
+    <a class="sidebar-link" href="monitoring.html"><i class="bi bi-camera-video"></i> System Monitoring</a>
+    <a class="sidebar-link" href="admin-calendar.html"><i class="bi bi-calendar3"></i> Calendar Management</a>
+
+    <p class="sidebar-heading">PEOPLE & STAFF</p>
+    <a class="sidebar-link" href="team.html"><i class="bi bi-people"></i> Team Management</a>
+    <a class="sidebar-link" href="admin-training.html"><i class="bi bi-mortarboard"></i> Training Center</a>
+
+    <p class="sidebar-heading">COMMUNICATION</p>
+            <a class="sidebar-link" href="admin-messaging.html"><i class="bi bi-chat-dots"></i> Messaging</a>
+
+    <p class="sidebar-heading">FINANCIAL</p>
+    <a class="sidebar-link" href="billing.html"><i class="bi bi-credit-card-2-front"></i> Billing & Payments</a>
+
+    <p class="sidebar-heading">SYSTEM</p>
+    <a class="sidebar-link" href="settings.html"><i class="bi bi-gear"></i> System Settings</a>
+    <a class="sidebar-link" href="help.html"><i class="bi bi-question-circle"></i> Help & Support</a>
+    <a class="sidebar-link" href="support.html"><i class="bi bi-headset"></i> Contact Support</a>
+
+    
+    <button class="btn btn-logout" onclick="logout()"><i class="bi bi-box-arrow-left"></i> Logout</button>
+</nav>
+
+<script src="auth.js"></script>
+<script>
+// Mobile Menu Functions
+function toggleMobileMenu() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('mobileOverlay');
+    const menuBtn = document.getElementById('mobileMenuBtn');
+    const icon = menuBtn.querySelector('i');
+    
+    sidebar.classList.toggle('active');
+    overlay.classList.toggle('active');
+    
+    // Toggle icon
+    if (sidebar.classList.contains('active')) {
+        icon.classList.remove('bi-list');
+        icon.classList.add('bi-x');
+    } else {
+        icon.classList.remove('bi-x');
+        icon.classList.add('bi-list');
+    }
+}
+
+function closeMobileMenu() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('mobileOverlay');
+    const menuBtn = document.getElementById('mobileMenuBtn');
+    const icon = menuBtn.querySelector('i');
+    
+    sidebar.classList.remove('active');
+    overlay.classList.remove('active');
+    icon.classList.remove('bi-x');
+    icon.classList.add('bi-list');
+}
+
+// Close mobile menu when clicking on links and prevent double-clicks
+document.addEventListener('DOMContentLoaded', function() {
+    let navigationInProgress = false;
+    let lastClickTime = 0;
+    const sidebarLinks = document.querySelectorAll('.sidebar-link');
+    
+    sidebarLinks.forEach(link => {
+        // Remove any existing onclick handlers to prevent conflicts
+        link.removeAttribute('onclick');
+        
+        link.addEventListener('click', function(e) {
+            const currentTime = Date.now();
+            const timeSinceLastClick = currentTime - lastClickTime;
+            
+            // Prevent double-clicks within 300ms (standard double-click threshold)
+            if (timeSinceLastClick < 300) {
+                console.log('Double-click detected, preventing navigation');
+                e.preventDefault();
+                e.stopPropagation();
+                return false;
+            }
+            
+            // Prevent rapid navigation
+            if (navigationInProgress) {
+                console.log('Navigation already in progress, preventing duplicate navigation');
+                e.preventDefault();
+                e.stopPropagation();
+                return false;
+            }
+            
+            // Update last click time
+            lastClickTime = currentTime;
+            
+            // Set flag to prevent rapid clicks
+            navigationInProgress = true;
+            
+            // Add visual feedback with CSS class
+            this.classList.add('navigating');
+            
+            // Reset flag and visual state after navigation completes or times out
+            setTimeout(() => {
+                navigationInProgress = false;
+                this.classList.remove('navigating');
+            }, 1500); // 1.5 second cooldown to ensure auth checks complete
+            
+            // Close mobile menu on smaller screens
+            if (window.innerWidth <= 768) {
+                closeMobileMenu();
+            }
+        });
+        
+        // Also prevent double-click events from triggering at all
+        link.addEventListener('dblclick', function(e) {
+            console.log('Double-click event blocked on admin navigation');
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
+        });
+    });
+});
+
+
+// Show/hide sidebar sections based on admin level and set active links
+document.addEventListener('DOMContentLoaded', function() {
+    // Set active sidebar link based on current page
+    setActiveSidebarLink();
+    
+    if (window.vbmsAuth && vbmsAuth.isAuthenticated()) {
+        // Show main admin section only for main admin
+        if (vbmsAuth.isMainAdmin()) {
+            document.getElementById('mainAdminSection').style.display = 'block';
+        }
+        
+        // Hide certain features for sub-admins without permissions
+        const permissions = vbmsAuth.getAdminPermissions();
+        if (permissions && !permissions.canManageCustomers) {
+            const customerLinks = document.querySelectorAll('a[href*="admin-customer"]');
+            customerLinks.forEach(link => {
+                link.style.opacity = '0.5';
+                link.onclick = (e) => {
+                    e.preventDefault();
+                    alert('Access Denied: You do not have permission to manage customers');
+                };
+            });
+        }
+        
+        if (permissions && !permissions.canViewAnalytics) {
+            const analyticsLinks = document.querySelectorAll('a[href*="analytics"], a[href*="reports"]');
+            analyticsLinks.forEach(link => {
+                link.style.opacity = '0.5';
+                link.onclick = (e) => {
+                    e.preventDefault();
+                    alert('Access Denied: You do not have permission to view analytics');
+                };
+            });
+        }
+    }
+});
+
+function setActiveSidebarLink() {
+    // Get current page filename
+    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+    
+    // Remove active class from all sidebar links
+    const allLinks = document.querySelectorAll('.sidebar-link');
+    allLinks.forEach(link => {
+        link.classList.remove('active');
+    });
+    
+    // Find and activate the current page link
+    const currentLink = document.querySelector(`.sidebar-link[href="${currentPage}"]`);
+    if (currentLink) {
+        currentLink.classList.add('active');
+    } else {
+        // Fallback: if no exact match, try to match dashboard for admin pages
+        const dashboardLink = document.querySelector('.sidebar-link[href="dashboard.html"]');
+        if (dashboardLink && currentPage.includes('admin') || currentPage === 'dashboard.html') {
+            dashboardLink.classList.add('active');
+        }
+    }
+}
+</script>
