@@ -1,6 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script>
+    // Redirect logged-in users to their dashboard
+    (function() {
+      const vbmsToken = localStorage.getItem('vbmsToken');
+      const vbmsRole = localStorage.getItem('vbmsRole');
+      
+      if (vbmsToken && vbmsRole) {
+        if (vbmsRole === 'customer' || vbmsRole === 'client') {
+          window.location.href = '/customer-dashboard.html';
+        } else if (vbmsRole === 'admin' || vbmsRole === 'main_admin') {
+          window.location.href = '/admin-main-dashboard.html';
+        }
+      }
+    })();
+  </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>VBMS - Virtual Business Management System | Complete Business Solution</title>
