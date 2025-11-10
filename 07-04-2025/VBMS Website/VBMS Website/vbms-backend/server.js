@@ -1,5 +1,18 @@
 require('dotenv').config(); // Always at the very top
 
+// Global error handlers to catch ANY crash
+process.on('uncaughtException', (error) => {
+  console.error('💥 UNCAUGHT EXCEPTION:', error);
+  console.error('Stack:', error.stack);
+  process.exit(1);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('💥 UNHANDLED REJECTION at:', promise);
+  console.error('Reason:', reason);
+  process.exit(1);
+});
+
   const express = require('express');
   const cors = require('cors');
   const fs = require('fs');
