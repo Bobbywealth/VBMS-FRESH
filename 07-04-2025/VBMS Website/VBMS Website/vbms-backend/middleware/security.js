@@ -1,6 +1,7 @@
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
-const mongoSanitize = require('express-mongo-sanitize');
+// REMOVED: MongoDB dependencies - PostgreSQL only
+// const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
 const compression = require('compression');
@@ -139,13 +140,12 @@ class SecurityMiddleware {
   }
 
   // Input sanitization middleware
+  // REMOVED: MongoDB sanitizer - PostgreSQL only
   static getMongoSanitizer() {
-    return mongoSanitize({
-      replaceWith: '_',
-      onSanitize: ({ req, key }) => {
-        console.warn(`⚠️  Potential NoSQL injection attempt blocked: ${key} from IP: ${req.ip}`);
-      }
-    });
+    return (req, res, next) => {
+      // PostgreSQL doesn't need NoSQL injection protection
+      next();
+    };
   }
 
   // XSS protection (using custom implementation since xss-clean is deprecated)

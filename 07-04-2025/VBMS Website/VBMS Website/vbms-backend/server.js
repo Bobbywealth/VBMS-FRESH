@@ -68,7 +68,8 @@ const openai = new OpenAI({
   app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
   // Input sanitization and validation
-  app.use(SecurityMiddleware.getMongoSanitizer());
+  // REMOVED: MongoDB sanitizer - PostgreSQL only
+  // app.use(SecurityMiddleware.getMongoSanitizer());
   app.use(SecurityMiddleware.getXSSProtection());
   app.use(SecurityMiddleware.getHPPProtection());
 
@@ -96,14 +97,14 @@ const openai = new OpenAI({
   const uberEatsRoutes = require('./routes/uber-eats');
   const stripeRoutes = require('./routes/stripe');
   const onboardingRoutes = require('./routes/onboarding');
-  const healthRoutes = require('./routes/health');
+  // const healthRoutes = require('./routes/health'); // REMOVED: MongoDB dependent
   const vapiRoutes = require('./routes/vapi');
   const inventoryRoutes = require('./routes/inventory');
   // const reportRoutes = require('./routes/reports');
   const monitoringRoutes = require('./routes/monitoring');
   const pricingRoutes = require('./routes/pricing');
   // const aiAgentRoutes = require('./routes/ai-agent');
-  const emailRoutes = require('./routes/email');
+  // const emailRoutes = require('./routes/email'); // REMOVED: MongoDB dependent
   const emailSyncRoutes = require('./routes/email-sync');
   const emailManagementRoutes = require('./routes/email-management');
   const affiliateRoutes = require('./routes/affiliates');
@@ -126,15 +127,15 @@ const openai = new OpenAI({
   app.use('/api/monitoring', monitoringRoutes);
   app.use('/api/pricing', pricingRoutes);
   // app.use('/api/ai-agent', aiAgentRoutes);
-  app.use('/api/email', emailRoutes);
+  // app.use('/api/email', emailRoutes); // REMOVED: MongoDB dependent
   app.use('/api/email-sync', emailSyncRoutes);
   app.use('/api/email-management', emailManagementRoutes);
   app.use('/api/affiliates', affiliateRoutes);
   app.use('/api/calendar', calendarRoutes);
   app.use('/api/notifications', notificationRoutes);
   app.use('/api/payments', paymentRoutes);
-  app.use('/api/health', healthRoutes);
-  app.use('/health', healthRoutes); // Alternative path for load balancers
+  // app.use('/api/health', healthRoutes); // REMOVED: MongoDB dependent
+  // app.use('/health', healthRoutes); // REMOVED: MongoDB dependent
 
   // Task scheduler endpoints
   const { authenticateToken } = require('./middleware/auth');
@@ -205,7 +206,7 @@ const openai = new OpenAI({
   });
 
   // --- ONBOARDING ROUTE ---
-  // DISABLED: MongoDB onboarding route - use /api/onboarding instead
+  // DISABLED: Old registration route - use PostgreSQL /api/auth routes instead
   // app.post('/api/onboard', async (req, res) => {
   //   try {
   //     const data = req.body;
@@ -219,7 +220,7 @@ const openai = new OpenAI({
   // });
 
 // --- REGISTER ROUTE ---
-// DISABLED: MongoDB registration route - use /api/auth routes instead
+// DISABLED: Old registration route - use PostgreSQL /api/auth routes instead
 // app.post('/api/auth/register', 
 //   ValidationMiddleware.validateUserRegistration(),
 //   async (req, res) => {
@@ -252,7 +253,7 @@ const openai = new OpenAI({
 // );
 
 // --- LOGIN ROUTE ---
-// DISABLED: MongoDB login route - use /api/auth routes instead
+// DISABLED: Old login route - use PostgreSQL /api/auth routes instead
 // app.post('/api/auth/login',
 //   ValidationMiddleware.validateUserLogin(),
 //   async (req, res) => {
@@ -418,7 +419,7 @@ async function handlePaymentSucceeded(paymentIntent) {
       metadata: paymentIntent.metadata || {},
     });
     
-    console.log('Payment saved to MongoDB:', paymentIntent.id);
+    console.log('Payment saved to PostgreSQL:', paymentIntent.id);
 
     // Send payment confirmation email if user email is available
     if (paymentIntent.metadata?.userId) {

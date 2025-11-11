@@ -1,15 +1,22 @@
 const express = require('express');
 const router = express.Router();
-const User = require('../models/User');
 const { authenticateToken } = require('../middleware/auth');
+const { Pool } = require('pg');
+
+// PostgreSQL connection
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+});
 
 // Get ALL users (requires authentication)
 router.get('/', authenticateToken, async (req, res) => {
   try {
-    const users = await User.findAll({ isActive: true });
-    // Remove passwords from response
-    const safeUsers = users.map(user => user.toJSON());
-    res.json(safeUsers);
+    const client = await pool.connect();
+    const result = await client.query('SELECT id, email, first_name, last_name, role, is_active, created_at FROM users WHERE is_active = true ORDER BY created_at DESC');
+    client.release();
+    
+    res.json(result.rows);
   } catch (err) {
     console.error('Error fetching users:', err);
     res.status(500).json({ message: "Failed to fetch users", error: err.message });
@@ -19,9 +26,12 @@ router.get('/', authenticateToken, async (req, res) => {
 // Create a NEW user (requires main_admin authentication)
 router.post('/create-user', authenticateToken, async (req, res) => {
   try {
+    const client = await pool.connect();
+    
     // Check if the requesting user is a main admin
-    const requestingUser = await User.findById(req.user.id);
-    if (!requestingUser || requestingUser.role !== 'main_admin') {
+    const requestingUserResult = await client.query('SELECT role FROM users WHERE id = $1', [req.user.id]);
+    if (!requestingUserResult.rows[0] || requestingUserResult.rows[0].role !== 'main_admin') {
+      client.release();
       return res.status(403).json({ message: 'Only main administrators can create new users.' });
     }
 
@@ -38,157 +48,131 @@ router.post('/create-user', authenticateToken, async (req, res) => {
 
     // Validate required fields
     if (!name || !email || !password) {
+      client.release();
       return res.status(400).json({ message: 'Name, email, and password are required.' });
     }
 
     // Check if user already exists
-    const existingUser = await User.findByEmail(email);
-    if (existingUser) {
+    const existingUserResult = await client.query('SELECT id FROM users WHERE email = $1', [email]);
+    if (existingUserResult.rows.length > 0) {
+      client.release();
       return res.status(400).json({ message: 'User with this email already exists.' });
     }
 
     // Create new user
-    const newUser = await User.create({
-      firstName: name.split(' ')[0] || name,
-      lastName: name.split(' ').slice(1).join(' ') || '',
-      email,
-      password,
-      role: role || 'customer',
-      phone,
-      isActive: true,
-      emailVerified: false
-    });
-
+    const bcrypt = require('bcryptjs');
+    const hashedPassword = await bcrypt.hash(password, 10);
+    
+    const newUserResult = await client.query(`
+      INSERT INTO users (email, password, first_name, last_name, role, is_active, phone)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
+      RETURNING id, email, first_name, last_name, role, is_active, created_at
+    `, [email, hashedPassword, name.split(' ')[0], name.split(' ')[1] || '', role || 'customer', true, phone]);
+    
+    client.release();
+    
     res.status(201).json({
-      success: true,
       message: 'User created successfully',
-      user: newUser.toJSON()
+      user: newUserResult.rows[0]
     });
-
   } catch (err) {
     console.error('Error creating user:', err);
-    res.status(500).json({ 
-      success: false,
-      message: 'Failed to create user', 
-      error: err.message 
-    });
+    res.status(500).json({ message: "Failed to create user", error: err.message });
   }
 });
 
 // Get user by ID
 router.get('/:id', authenticateToken, async (req, res) => {
   try {
-    const user = await User.findById(req.params.id);
+    const client = await pool.connect();
+    const result = await client.query('SELECT id, email, first_name, last_name, role, is_active, created_at FROM users WHERE id = $1', [req.params.id]);
+    client.release();
     
-    if (!user) {
+    if (result.rows.length === 0) {
       return res.status(404).json({ message: 'User not found' });
     }
-
-    res.json(user.toJSON());
+    
+    res.json(result.rows[0]);
   } catch (err) {
     console.error('Error fetching user:', err);
-    res.status(500).json({ message: 'Failed to fetch user', error: err.message });
+    res.status(500).json({ message: "Failed to fetch user", error: err.message });
   }
 });
 
 // Update user
 router.put('/:id', authenticateToken, async (req, res) => {
   try {
-    const user = await User.findById(req.params.id);
+    const client = await pool.connect();
     
-    if (!user) {
+    // Check permissions
+    const requestingUserResult = await client.query('SELECT role FROM users WHERE id = $1', [req.user.id]);
+    if (!requestingUserResult.rows[0] || (requestingUserResult.rows[0].role !== 'main_admin' && req.user.id !== parseInt(req.params.id))) {
+      client.release();
+      return res.status(403).json({ message: 'Insufficient permissions.' });
+    }
+
+    const { first_name, last_name, email, role, phone } = req.body;
+    
+    const result = await client.query(`
+      UPDATE users 
+      SET first_name = COALESCE($1, first_name), 
+          last_name = COALESCE($2, last_name),
+          email = COALESCE($3, email),
+          role = COALESCE($4, role),
+          phone = COALESCE($5, phone),
+          updated_at = CURRENT_TIMESTAMP
+      WHERE id = $6
+      RETURNING id, email, first_name, last_name, role, is_active
+    `, [first_name, last_name, email, role, phone, req.params.id]);
+    
+    client.release();
+    
+    if (result.rows.length === 0) {
       return res.status(404).json({ message: 'User not found' });
     }
-
-    // Check permissions - users can only update themselves unless they're admin
-    const requestingUser = await User.findById(req.user.id);
-    if (req.user.id !== parseInt(req.params.id) && 
-        !['admin', 'main_admin'].includes(requestingUser?.role)) {
-      return res.status(403).json({ message: 'Permission denied' });
-    }
-
-    const updateData = {};
-    const { firstName, lastName, email, phone, role } = req.body;
-
-    if (firstName) updateData.firstName = firstName;
-    if (lastName) updateData.lastName = lastName;
-    if (email) updateData.email = email;
-    if (phone) updateData.phone = phone;
     
-    // Only admins can change roles
-    if (role && ['admin', 'main_admin'].includes(requestingUser?.role)) {
-      updateData.role = role;
-    }
-
-    await user.update(updateData);
-
     res.json({
-      success: true,
       message: 'User updated successfully',
-      user: user.toJSON()
+      user: result.rows[0]
     });
-
   } catch (err) {
     console.error('Error updating user:', err);
-    res.status(500).json({ message: 'Failed to update user', error: err.message });
+    res.status(500).json({ message: "Failed to update user", error: err.message });
   }
 });
 
-// Delete user (soft delete)
+// Delete user (deactivate)
 router.delete('/:id', authenticateToken, async (req, res) => {
   try {
-    const requestingUser = await User.findById(req.user.id);
-    if (!['admin', 'main_admin'].includes(requestingUser?.role)) {
-      return res.status(403).json({ message: 'Only administrators can delete users' });
+    const client = await pool.connect();
+    
+    // Check permissions
+    const requestingUserResult = await client.query('SELECT role FROM users WHERE id = $1', [req.user.id]);
+    if (!requestingUserResult.rows[0] || requestingUserResult.rows[0].role !== 'main_admin') {
+      client.release();
+      return res.status(403).json({ message: 'Only main administrators can delete users.' });
     }
 
-    const user = await User.findById(req.params.id);
+    const result = await client.query(`
+      UPDATE users 
+      SET is_active = false, updated_at = CURRENT_TIMESTAMP
+      WHERE id = $1
+      RETURNING id, email
+    `, [req.params.id]);
     
-    if (!user) {
+    client.release();
+    
+    if (result.rows.length === 0) {
       return res.status(404).json({ message: 'User not found' });
     }
-
-    await user.delete(); // Soft delete
-
+    
     res.json({
-      success: true,
-      message: 'User deleted successfully'
+      message: 'User deactivated successfully',
+      user: result.rows[0]
     });
-
   } catch (err) {
     console.error('Error deleting user:', err);
-    res.status(500).json({ message: 'Failed to delete user', error: err.message });
-  }
-});
-
-// Get user statistics
-router.get('/stats/overview', authenticateToken, async (req, res) => {
-  try {
-    const requestingUser = await User.findById(req.user.id);
-    if (!['admin', 'main_admin'].includes(requestingUser?.role)) {
-      return res.status(403).json({ message: 'Only administrators can view user statistics' });
-    }
-
-    const totalUsers = await User.getCount();
-    const activeUsers = await User.getCount({ isActive: true });
-    const adminUsers = await User.getCount({ role: 'admin' });
-    const customerUsers = await User.getCount({ role: 'customer' });
-
-    res.json({
-      success: true,
-      data: {
-        totalUsers,
-        activeUsers,
-        inactiveUsers: totalUsers - activeUsers,
-        adminUsers,
-        customerUsers,
-        mainAdminUsers: await User.getCount({ role: 'main_admin' })
-      }
-    });
-
-  } catch (err) {
-    console.error('Error fetching user statistics:', err);
-    res.status(500).json({ message: 'Failed to fetch user statistics', error: err.message });
+    res.status(500).json({ message: "Failed to delete user", error: err.message });
   }
 });
 

@@ -1,26 +1,43 @@
 const express = require('express');
 const router = express.Router();
-const inventoryService = require('../services/inventoryService');
-const InventoryItem = require('../models/InventoryItem');
-const InventoryTransaction = require('../models/InventoryTransaction');
 const { authenticateToken } = require('../middleware/auth');
-const ValidationMiddleware = require('../middleware/validation');
-const multer = require('multer');
-const csv = require('csv-parser');
-const fs = require('fs');
+const { Pool } = require('pg');
 
-// Configure multer for CSV uploads
-const upload = multer({ dest: 'uploads/temp/' });
+// PostgreSQL connection
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+});
 
-// Get all inventory items with filtering and pagination
+// Get all inventory items with basic pagination
 router.get('/', authenticateToken, async (req, res) => {
   try {
-    const result = await inventoryService.getItems(req.user.id, req.query);
+    const client = await pool.connect();
+    const { page = 1, limit = 50 } = req.query;
+    const offset = (page - 1) * limit;
+    
+    const result = await client.query(`
+      SELECT * FROM inventory 
+      ORDER BY created_at DESC 
+      LIMIT $1 OFFSET $2
+    `, [limit, offset]);
+    
+    const countResult = await client.query('SELECT COUNT(*) FROM inventory');
+    
+    client.release();
+    
     res.json({
       success: true,
-      ...result
+      items: result.rows,
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total: parseInt(countResult.rows[0].count),
+        pages: Math.ceil(countResult.rows[0].count / limit)
+      }
     });
   } catch (error) {
+    console.error('Error fetching inventory:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to fetch inventory items',
@@ -30,14 +47,25 @@ router.get('/', authenticateToken, async (req, res) => {
 });
 
 // Get single inventory item
-router.get('/:id', authenticateToken, ValidationMiddleware.validateMongoId('id'), async (req, res) => {
+router.get('/:id', authenticateToken, async (req, res) => {
   try {
-    const item = await inventoryService.getItem(req.user.id, req.params.id);
+    const client = await pool.connect();
+    const result = await client.query('SELECT * FROM inventory WHERE id = $1', [req.params.id]);
+    client.release();
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: 'Item not found'
+      });
+    }
+    
     res.json({
       success: true,
-      item: item
+      item: result.rows[0]
     });
   } catch (error) {
+    console.error('Error fetching inventory item:', error);
     res.status(404).json({
       success: false,
       error: 'Item not found',
@@ -47,188 +75,109 @@ router.get('/:id', authenticateToken, ValidationMiddleware.validateMongoId('id')
 });
 
 // Create new inventory item
-router.post('/',
-  authenticateToken,
-  [
-    ValidationMiddleware.sanitizeHTML(),
-    ValidationMiddleware.handleValidationErrors()
-  ],
-  async (req, res) => {
-    try {
-      // Check if user has inventory tracking feature
-      if (req.user.role !== 'admin' && !req.user.subscription?.features?.inventoryTracker) {
-        return res.status(403).json({
-          error: 'Inventory tracking feature not available in your subscription'
-        });
-      }
-
-      const item = await inventoryService.createItem(req.user.id, req.body);
-      
-      res.status(201).json({
-        success: true,
-        item: item,
-        message: 'Inventory item created successfully'
-      });
-    } catch (error) {
-      res.status(400).json({
-        success: false,
-        error: 'Failed to create inventory item',
-        details: error.message
-      });
-    }
-  }
-);
-
-// Update inventory item
-router.put('/:id',
-  authenticateToken,
-  ValidationMiddleware.validateMongoId('id'),
-  [
-    ValidationMiddleware.sanitizeHTML(),
-    ValidationMiddleware.handleValidationErrors()
-  ],
-  async (req, res) => {
-    try {
-      const item = await inventoryService.updateItem(req.user.id, req.params.id, req.body);
-      
-      res.json({
-        success: true,
-        item: item,
-        message: 'Inventory item updated successfully'
-      });
-    } catch (error) {
-      res.status(400).json({
-        success: false,
-        error: 'Failed to update inventory item',
-        details: error.message
-      });
-    }
-  }
-);
-
-// Delete inventory item
-router.delete('/:id', authenticateToken, ValidationMiddleware.validateMongoId('id'), async (req, res) => {
+router.post('/', authenticateToken, async (req, res) => {
   try {
-    const result = await inventoryService.deleteItem(req.user.id, req.params.id);
+    const client = await pool.connect();
+    const { name, description, category, quantity, price, sku } = req.body;
     
-    res.json({
+    if (!name || quantity === undefined) {
+      client.release();
+      return res.status(400).json({
+        success: false,
+        error: 'Name and quantity are required'
+      });
+    }
+    
+    const result = await client.query(`
+      INSERT INTO inventory (name, description, category, quantity, price, sku, created_at, updated_at)
+      VALUES ($1, $2, $3, $4, $5, $6, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+      RETURNING *
+    `, [name, description || '', category || 'General', quantity, price || 0, sku]);
+    
+    client.release();
+    
+    res.status(201).json({
       success: true,
-      message: result.message
+      message: 'Inventory item created successfully',
+      item: result.rows[0]
     });
   } catch (error) {
-    res.status(400).json({
+    console.error('Error creating inventory item:', error);
+    res.status(500).json({
       success: false,
-      error: 'Failed to delete inventory item',
+      error: 'Failed to create inventory item',
       details: error.message
     });
   }
 });
 
-// Adjust item quantity
-router.post('/:id/adjust',
-  authenticateToken,
-  ValidationMiddleware.validateMongoId('id'),
-  [
-    ValidationMiddleware.sanitizeHTML(),
-    ValidationMiddleware.handleValidationErrors()
-  ],
-  async (req, res) => {
-    try {
-      const { adjustment, reason } = req.body;
-      
-      if (!adjustment || !reason) {
-        return res.status(400).json({
-          error: 'Adjustment amount and reason are required'
-        });
-      }
-      
-      if (typeof adjustment !== 'number') {
-        return res.status(400).json({
-          error: 'Adjustment must be a number'
-        });
-      }
-      
-      const result = await inventoryService.adjustQuantity(
-        req.user.id,
-        req.params.id,
-        adjustment,
-        reason,
-        req.user.id
-      );
-      
-      res.json({
-        success: true,
-        item: result.item,
-        transaction: result.transaction,
-        message: 'Quantity adjusted successfully'
-      });
-    } catch (error) {
-      res.status(400).json({
-        success: false,
-        error: 'Failed to adjust quantity',
-        details: error.message
-      });
-    }
-  }
-);
-
-// Transfer stock between locations
-router.post('/:id/transfer',
-  authenticateToken,
-  ValidationMiddleware.validateMongoId('id'),
-  [
-    ValidationMiddleware.sanitizeHTML(),
-    ValidationMiddleware.handleValidationErrors()
-  ],
-  async (req, res) => {
-    try {
-      const { fromLocation, toLocation, quantity, reason } = req.body;
-      
-      if (!fromLocation || !toLocation || !quantity || !reason) {
-        return res.status(400).json({
-          error: 'From location, to location, quantity, and reason are required'
-        });
-      }
-      
-      const result = await inventoryService.transferStock(
-        req.user.id,
-        req.params.id,
-        fromLocation,
-        toLocation,
-        quantity,
-        reason
-      );
-      
-      res.json({
-        success: true,
-        item: result.item,
-        transaction: result.transaction,
-        message: 'Stock transferred successfully'
-      });
-    } catch (error) {
-      res.status(400).json({
-        success: false,
-        error: 'Failed to transfer stock',
-        details: error.message
-      });
-    }
-  }
-);
-
-// Get inventory analytics
-router.get('/analytics/summary', authenticateToken, async (req, res) => {
+// Update inventory item
+router.put('/:id', authenticateToken, async (req, res) => {
   try {
-    const { startDate, endDate } = req.query;
-    const analytics = await inventoryService.getAnalytics(req.user.id, startDate, endDate);
+    const client = await pool.connect();
+    const { name, description, category, quantity, price, sku } = req.body;
+    
+    const result = await client.query(`
+      UPDATE inventory 
+      SET name = COALESCE($1, name),
+          description = COALESCE($2, description),
+          category = COALESCE($3, category),
+          quantity = COALESCE($4, quantity),
+          price = COALESCE($5, price),
+          sku = COALESCE($6, sku),
+          updated_at = CURRENT_TIMESTAMP
+      WHERE id = $7
+      RETURNING *
+    `, [name, description, category, quantity, price, sku, req.params.id]);
+    
+    client.release();
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: 'Item not found'
+      });
+    }
     
     res.json({
       success: true,
-      analytics: analytics
+      message: 'Inventory item updated successfully',
+      item: result.rows[0]
     });
   } catch (error) {
+    console.error('Error updating inventory item:', error);
     res.status(500).json({
       success: false,
-      error: 'Failed to get inventory analytics',
+      error: 'Failed to update inventory item',
+      details: error.message
+    });
+  }
+});
+
+// Delete inventory item
+router.delete('/:id', authenticateToken, async (req, res) => {
+  try {
+    const client = await pool.connect();
+    const result = await client.query('DELETE FROM inventory WHERE id = $1 RETURNING id, name', [req.params.id]);
+    client.release();
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: 'Item not found'
+      });
+    }
+    
+    res.json({
+      success: true,
+      message: 'Inventory item deleted successfully',
+      item: result.rows[0]
+    });
+  } catch (error) {
+    console.error('Error deleting inventory item:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to delete inventory item',
       details: error.message
     });
   }
@@ -237,21 +186,27 @@ router.get('/analytics/summary', authenticateToken, async (req, res) => {
 // Get low stock items
 router.get('/alerts/low-stock', authenticateToken, async (req, res) => {
   try {
-    const lowStockItems = await InventoryItem.find({
-      customerId: req.user.id,
-      status: 'active',
-      $expr: { $lte: ['$quantity.current', '$stockLevels.reorderPoint'] }
-    }).sort({ 'quantity.current': 1 });
+    const client = await pool.connect();
+    const threshold = req.query.threshold || 10;
+    
+    const result = await client.query(`
+      SELECT * FROM inventory 
+      WHERE quantity < $1 AND quantity >= 0
+      ORDER BY quantity ASC
+    `, [threshold]);
+    
+    client.release();
     
     res.json({
       success: true,
-      items: lowStockItems,
-      count: lowStockItems.length
+      items: result.rows,
+      count: result.rows.length
     });
   } catch (error) {
+    console.error('Error fetching low stock items:', error);
     res.status(500).json({
       success: false,
-      error: 'Failed to get low stock items',
+      error: 'Failed to fetch low stock items',
       details: error.message
     });
   }
@@ -260,247 +215,26 @@ router.get('/alerts/low-stock', authenticateToken, async (req, res) => {
 // Get out of stock items
 router.get('/alerts/out-of-stock', authenticateToken, async (req, res) => {
   try {
-    const outOfStockItems = await InventoryItem.find({
-      customerId: req.user.id,
-      'quantity.current': 0,
-      status: 'active'
-    }).sort({ updatedAt: -1 });
+    const client = await pool.connect();
+    
+    const result = await client.query(`
+      SELECT * FROM inventory 
+      WHERE quantity = 0
+      ORDER BY name ASC
+    `);
+    
+    client.release();
     
     res.json({
       success: true,
-      items: outOfStockItems,
-      count: outOfStockItems.length
+      items: result.rows,
+      count: result.rows.length
     });
   } catch (error) {
+    console.error('Error fetching out of stock items:', error);
     res.status(500).json({
       success: false,
-      error: 'Failed to get out of stock items',
-      details: error.message
-    });
-  }
-});
-
-// Get inventory transactions
-router.get('/transactions', authenticateToken, async (req, res) => {
-  try {
-    const {
-      itemId,
-      type,
-      startDate,
-      endDate,
-      page = 1,
-      limit = 20
-    } = req.query;
-    
-    const query = { customerId: req.user.id };
-    
-    if (itemId) query.itemId = itemId;
-    if (type) query.type = type;
-    if (startDate || endDate) {
-      query.createdAt = {};
-      if (startDate) query.createdAt.$gte = new Date(startDate);
-      if (endDate) query.createdAt.$lte = new Date(endDate);
-    }
-    
-    const skip = (parseInt(page) - 1) * parseInt(limit);
-    
-    const transactions = await InventoryTransaction.find(query)
-      .populate('itemId', 'name sku category')
-      .populate('performedBy', 'name email')
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(parseInt(limit));
-    
-    const total = await InventoryTransaction.countDocuments(query);
-    
-    res.json({
-      success: true,
-      transactions: transactions,
-      pagination: {
-        current: parseInt(page),
-        pages: Math.ceil(total / parseInt(limit)),
-        total: total,
-        limit: parseInt(limit)
-      }
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: 'Failed to get transactions',
-      details: error.message
-    });
-  }
-});
-
-// Get item transaction history
-router.get('/:id/transactions', authenticateToken, ValidationMiddleware.validateMongoId('id'), async (req, res) => {
-  try {
-    const { page = 1, limit = 10 } = req.query;
-    const skip = (parseInt(page) - 1) * parseInt(limit);
-    
-    // Verify item ownership
-    const item = await InventoryItem.findOne({
-      _id: req.params.id,
-      customerId: req.user.id
-    });
-    
-    if (!item) {
-      return res.status(404).json({
-        success: false,
-        error: 'Item not found'
-      });
-    }
-    
-    const transactions = await InventoryTransaction.find({
-      itemId: req.params.id
-    })
-      .populate('performedBy', 'name email')
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(parseInt(limit));
-    
-    const total = await InventoryTransaction.countDocuments({
-      itemId: req.params.id
-    });
-    
-    res.json({
-      success: true,
-      item: {
-        name: item.name,
-        sku: item.sku
-      },
-      transactions: transactions,
-      pagination: {
-        current: parseInt(page),
-        pages: Math.ceil(total / parseInt(limit)),
-        total: total,
-        limit: parseInt(limit)
-      }
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: 'Failed to get item transaction history',
-      details: error.message
-    });
-  }
-});
-
-// Bulk import from CSV
-router.post('/import',
-  authenticateToken,
-  upload.single('csvFile'),
-  async (req, res) => {
-    try {
-      if (!req.file) {
-        return res.status(400).json({
-          error: 'CSV file is required'
-        });
-      }
-      
-      // Check if user has inventory tracking feature
-      if (req.user.role !== 'admin' && !req.user.subscription?.features?.inventoryTracker) {
-        return res.status(403).json({
-          error: 'Inventory tracking feature not available in your subscription'
-        });
-      }
-      
-      const csvData = [];
-      
-      // Parse CSV file
-      await new Promise((resolve, reject) => {
-        fs.createReadStream(req.file.path)
-          .pipe(csv())
-          .on('data', (row) => {
-            csvData.push(row);
-          })
-          .on('end', resolve)
-          .on('error', reject);
-      });
-      
-      // Clean up uploaded file
-      fs.unlinkSync(req.file.path);
-      
-      if (csvData.length === 0) {
-        return res.status(400).json({
-          error: 'CSV file is empty or invalid'
-        });
-      }
-      
-      // Process bulk import
-      const results = await inventoryService.bulkImport(req.user.id, csvData, req.user.id);
-      
-      res.json({
-        success: true,
-        results: results,
-        message: `Import completed: ${results.success.length} items imported, ${results.errors.length} errors`
-      });
-    } catch (error) {
-      // Clean up file if it exists
-      if (req.file && req.file.path) {
-        try {
-          fs.unlinkSync(req.file.path);
-        } catch (cleanupError) {
-          console.error('Error cleaning up file:', cleanupError);
-        }
-      }
-      
-      res.status(500).json({
-        success: false,
-        error: 'Failed to import CSV',
-        details: error.message
-      });
-    }
-  }
-);
-
-// Get inventory categories
-router.get('/categories/list', authenticateToken, async (req, res) => {
-  try {
-    const categories = await InventoryItem.distinct('category', {
-      customerId: req.user.id,
-      status: 'active'
-    });
-    
-    res.json({
-      success: true,
-      categories: categories
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: 'Failed to get categories',
-      details: error.message
-    });
-  }
-});
-
-// Search items by barcode
-router.get('/search/barcode/:barcode', authenticateToken, async (req, res) => {
-  try {
-    const { barcode } = req.params;
-    
-    const item = await InventoryItem.findOne({
-      customerId: req.user.id,
-      barcode: barcode,
-      status: 'active'
-    });
-    
-    if (!item) {
-      return res.status(404).json({
-        success: false,
-        error: 'Item not found with this barcode'
-      });
-    }
-    
-    res.json({
-      success: true,
-      item: item
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: 'Failed to search by barcode',
+      error: 'Failed to fetch out of stock items',
       details: error.message
     });
   }
