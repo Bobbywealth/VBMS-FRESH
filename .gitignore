@@ -1,86 +1,56 @@
-# macOS
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-
-# Node modules
+# Dependencies
 node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+package-lock.json
+yarn.lock
 
 # Environment variables
 .env
 .env.local
-.env.production
-.env.backup
-.env.email
+.env.*.local
 
-# Logs
-logs/
-*.log
-
-# Runtime data
-pids
-*.pid
-*.seed
-*.pid.lock
-
-# Coverage directory used by tools like istanbul
-coverage/
-
-# Dependency directories
-node_modules/
-jspm_packages/
-
-# Optional npm cache directory
-.npm
-
-# Optional REPL history
-.node_repl_history
-
-# Output of 'npm pack'
-*.tgz
-
-# Yarn Integrity file
-.yarn-integrity
-
-# dotenv environment variables file
-.env
-
-# Uploads (keep structure but ignore content)
-uploads/*
-!uploads/.gitkeep
-
-# IDE files
+# IDE & Editor
 .vscode/
 .idea/
 *.swp
 *.swo
+*~
+.DS_Store
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
 # Build outputs
 dist/
 build/
+out/
 
-# PM2 logs
-.pm2/
+# OS files
+Thumbs.db
+.DS_Store
 
 # Temporary files
 *.tmp
 *.temp
+~$*
 
-# OS generated files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-# Dev tooling
-.cursor/
-attached_assets/
+# Uploads (if they're generated)
+uploads/*
+!uploads/.gitkeep
+
+# Old/obsolete files
+old/
+backup/
+deprecated/
+
+# Test artifacts
+.nyc_output/
+coverage/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
