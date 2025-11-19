@@ -1,31 +1,45 @@
 const express = require('express');
 const router = express.Router();
-const User = require('../models/User');
+const { pgPool } = require('../config/database');
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs'); // Changed from 'bcrypt' to 'bcryptjs' as it's in package.json
 
 // Registration Route
 router.post('/register', async (req, res) => {
   try {
     const { name, email, password, business, position, role } = req.body;
-    
-    // Check if user exists using PostgreSQL method
-    const exists = await User.findByEmail(email);
-    if (exists) return res.status(409).json({ message: 'Email already exists' });
 
-    // Create new user using PostgreSQL method
-    const newUser = await User.create({
-      firstName: name?.split(' ')[0] || name,
-      lastName: name?.split(' ').slice(1).join(' ') || '',
-      email,
-      password,
-      role: role || "customer"
-    });
+    const client = await pgPool.connect();
+
+    // Check if user exists
+    const userCheck = await client.query('SELECT * FROM users WHERE email = $1', [email]);
+    if (userCheck.rows.length > 0) {
+      client.release();
+      return res.status(409).json({ message: 'Email already exists' });
+    }
+
+    // Hash password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    // Create new user
+    const firstName = name?.split(' ')[0] || name;
+    const lastName = name?.split(' ').slice(1).join(' ') || '';
+    const userRole = role || "customer";
+
+    const newUserResult = await client.query(`
+      INSERT INTO users (first_name, last_name, email, password, role, created_at, updated_at)
+      VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+      RETURNING id, first_name, last_name, email, role
+    `, [firstName, lastName, email, hashedPassword, userRole]);
+
+    const newUser = newUserResult.rows[0];
+    client.release();
 
     // Generate JWT token
     const token = jwt.sign(
       { id: newUser.id, email: newUser.email, role: newUser.role },
-      process.env.JWT_SECRET,
+      process.env.JWT_SECRET || 'dev-secret-do-not-use-in-prod',
       { expiresIn: "1d" }
     );
 
@@ -33,11 +47,11 @@ router.post('/register', async (req, res) => {
       token,
       user: {
         id: newUser.id,
-        name: newUser.getFullName(),
+        name: `${newUser.first_name} ${newUser.last_name}`.trim(),
         email: newUser.email,
         role: newUser.role,
-        firstName: newUser.firstName,
-        lastName: newUser.lastName
+        firstName: newUser.first_name,
+        lastName: newUser.last_name
       }
     });
   } catch (err) {
@@ -54,37 +68,44 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ message: "Email and password required" });
     }
 
-    // Find user using PostgreSQL method
-    const user = await User.findByEmail(email);
+    const client = await pgPool.connect();
+
+    // Find user
+    const userResult = await client.query('SELECT * FROM users WHERE email = $1', [email]);
+    const user = userResult.rows[0];
+
     if (!user) {
+      client.release();
       return res.status(400).json({ message: "No user found" });
     }
 
-    // Verify password using PostgreSQL method
-    const isMatch = await user.verifyPassword(password);
+    // Verify password
+    const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
+      client.release();
       return res.status(400).json({ message: "Wrong password" });
     }
 
     // Update last login
-    await user.updateLastLogin();
+    await client.query('UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = $1', [user.id]);
+    client.release();
 
     const token = jwt.sign(
       { id: user.id, email: user.email, role: user.role },
-      process.env.JWT_SECRET,
+      process.env.JWT_SECRET || 'dev-secret-do-not-use-in-prod',
       { expiresIn: "1d" }
     );
-    
-    res.json({ 
-      token, 
-      user: { 
+
+    res.json({
+      token,
+      user: {
         id: user.id,
-        name: user.getFullName(),
-        email: user.email, 
+        name: `${user.first_name} ${user.last_name}`.trim(),
+        email: user.email,
         role: user.role,
-        firstName: user.firstName,
-        lastName: user.lastName
-      } 
+        firstName: user.first_name,
+        lastName: user.last_name
+      }
     });
   } catch (err) {
     console.error('Login error:', err);

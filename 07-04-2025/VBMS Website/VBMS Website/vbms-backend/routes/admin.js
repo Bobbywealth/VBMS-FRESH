@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const User = require('../models/User');
 const { authenticateToken, requireRole, requireAdminPermission } = require('../middleware/auth');
-const { query } = require('../config/database');
+const { pgPool } = require('../config/database');
+const bcrypt = require('bcryptjs');
 
 // Admin authentication middleware
 const requireAdmin = requireRole(['admin', 'main_admin']);
@@ -10,26 +10,37 @@ const requireAdmin = requireRole(['admin', 'main_admin']);
 // Dashboard Overview
 router.get('/dashboard', authenticateToken, requireAdmin, async (req, res) => {
   try {
+    const client = await pgPool.connect();
+
     // Get basic user statistics using PostgreSQL
-    const totalCustomers = await User.getCount({ role: 'customer' });
-    const totalAdmins = await User.getCount({ role: 'admin' });
-    const activeUsers = await User.getCount({ isActive: true });
-    
+    const totalCustomersResult = await client.query("SELECT COUNT(*) FROM users WHERE role = 'customer'");
+    const totalAdminsResult = await client.query("SELECT COUNT(*) FROM users WHERE role = 'admin'");
+    const activeUsersResult = await client.query("SELECT COUNT(*) FROM users WHERE is_active = true");
+    const totalUsersResult = await client.query("SELECT COUNT(*) FROM users");
+
+    const totalCustomers = parseInt(totalCustomersResult.rows[0].count);
+    const totalAdmins = parseInt(totalAdminsResult.rows[0].count);
+    const activeUsers = parseInt(activeUsersResult.rows[0].count);
+    const totalUsers = parseInt(totalUsersResult.rows[0].count);
+
     // Get recent customers
-    const recentCustomers = await User.findAll({ 
-      role: 'customer',
-      limit: 5,
-      sortBy: 'created_at',
-      sortOrder: 'desc'
-    });
+    const recentCustomersResult = await client.query(`
+      SELECT id, first_name, last_name, email, created_at 
+      FROM users 
+      WHERE role = 'customer' 
+      ORDER BY created_at DESC 
+      LIMIT 5
+    `);
+
+    client.release();
 
     const stats = {
       totalCustomers,
       totalAdmins,
       activeUsers,
-      inactiveUsers: (await User.getCount()) - activeUsers,
-      totalUsers: await User.getCount(),
-      recentCustomers: recentCustomers.map(user => user.toJSON())
+      inactiveUsers: totalUsers - activeUsers,
+      totalUsers,
+      recentCustomers: recentCustomersResult.rows
     };
 
     res.json({
@@ -52,18 +63,43 @@ router.get('/dashboard', authenticateToken, requireAdmin, async (req, res) => {
 router.get('/customers', authenticateToken, requireAdmin, async (req, res) => {
   try {
     const { page = 1, limit = 50, search = '', status = '' } = req.query;
-    
-    const filters = { role: 'customer' };
-    if (status) filters.isActive = status === 'active';
-    if (search) filters.search = search;
+    const offset = (page - 1) * limit;
 
-    const customers = await User.findAll(filters);
-    const total = await User.getCount(filters);
+    const client = await pgPool.connect();
+
+    let query = "SELECT id, first_name, last_name, email, role, is_active, created_at FROM users WHERE role = 'customer'";
+    let countQuery = "SELECT COUNT(*) FROM users WHERE role = 'customer'";
+    const params = [];
+    let paramIndex = 1;
+
+    if (status) {
+      query += ` AND is_active = $${paramIndex}`;
+      countQuery += ` AND is_active = $${paramIndex}`;
+      params.push(status === 'active');
+      paramIndex++;
+    }
+
+    if (search) {
+      query += ` AND (email ILIKE $${paramIndex} OR first_name ILIKE $${paramIndex} OR last_name ILIKE $${paramIndex})`;
+      countQuery += ` AND (email ILIKE $${paramIndex} OR first_name ILIKE $${paramIndex} OR last_name ILIKE $${paramIndex})`;
+      params.push(`%${search}%`);
+      paramIndex++;
+    }
+
+    query += ` ORDER BY created_at DESC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`;
+    const queryParams = [...params, limit, offset];
+
+    const customersResult = await client.query(query, queryParams);
+    const totalResult = await client.query(countQuery, params);
+
+    client.release();
+
+    const total = parseInt(totalResult.rows[0].count);
 
     res.json({
       success: true,
       data: {
-        customers: customers.map(user => user.toJSON()),
+        customers: customersResult.rows,
         pagination: {
           currentPage: parseInt(page),
           totalPages: Math.ceil(total / limit),
@@ -95,30 +131,38 @@ router.post('/create-admin', authenticateToken, requireAdminPermission, async (r
       });
     }
 
+    const client = await pgPool.connect();
+
     // Check if user already exists
-    const existingUser = await User.findByEmail(email);
-    if (existingUser) {
+    const existingUserResult = await client.query('SELECT * FROM users WHERE email = $1', [email]);
+    if (existingUserResult.rows.length > 0) {
+      client.release();
       return res.status(400).json({
         success: false,
         message: 'User with this email already exists'
       });
     }
 
+    // Hash password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
     // Create new admin user
-    const newAdmin = await User.create({
-      firstName: name.split(' ')[0] || name,
-      lastName: name.split(' ').slice(1).join(' ') || '',
-      email,
-      password,
-      role,
-      isActive: true,
-      emailVerified: true
-    });
+    const firstName = name.split(' ')[0] || name;
+    const lastName = name.split(' ').slice(1).join(' ') || '';
+
+    const newAdminResult = await client.query(`
+      INSERT INTO users (first_name, last_name, email, password, role, is_active, email_verified, created_at, updated_at)
+      VALUES ($1, $2, $3, $4, $5, true, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+      RETURNING id, first_name, last_name, email, role, is_active, created_at
+    `, [firstName, lastName, email, hashedPassword, role]);
+
+    client.release();
 
     res.status(201).json({
       success: true,
       message: 'Admin user created successfully',
-      data: newAdmin.toJSON()
+      data: newAdminResult.rows[0]
     });
 
   } catch (error) {
@@ -137,20 +181,28 @@ router.put('/users/:id/status', authenticateToken, requireAdmin, async (req, res
     const { id } = req.params;
     const { isActive } = req.body;
 
-    const user = await User.findById(id);
-    if (!user) {
+    const client = await pgPool.connect();
+
+    const result = await client.query(`
+      UPDATE users 
+      SET is_active = $1, updated_at = CURRENT_TIMESTAMP 
+      WHERE id = $2 
+      RETURNING id, first_name, last_name, email, is_active
+    `, [isActive, id]);
+
+    client.release();
+
+    if (result.rows.length === 0) {
       return res.status(404).json({
         success: false,
         message: 'User not found'
       });
     }
 
-    await user.update({ isActive });
-
     res.json({
       success: true,
       message: `User ${isActive ? 'activated' : 'deactivated'} successfully`,
-      data: user.toJSON()
+      data: result.rows[0]
     });
 
   } catch (error) {
@@ -167,24 +219,35 @@ router.put('/users/:id/status', authenticateToken, requireAdmin, async (req, res
 router.delete('/users/:id', authenticateToken, requireAdminPermission, async (req, res) => {
   try {
     const { id } = req.params;
+    const client = await pgPool.connect();
 
-    const user = await User.findById(id);
-    if (!user) {
+    // Check user role before deletion
+    const userResult = await client.query('SELECT role FROM users WHERE id = $1', [id]);
+
+    if (userResult.rows.length === 0) {
+      client.release();
       return res.status(404).json({
         success: false,
         message: 'User not found'
       });
     }
 
+    const user = userResult.rows[0];
+
     // Prevent deletion of main_admin users
     if (user.role === 'main_admin') {
+      client.release();
       return res.status(403).json({
         success: false,
         message: 'Cannot delete main admin users'
       });
     }
 
-    await user.delete(); // Soft delete
+    // Delete user (Hard delete for now, or we could add a deleted_at column for soft delete)
+    // Assuming hard delete based on "await user.delete()" in original code which usually means remove document
+    await client.query('DELETE FROM users WHERE id = $1', [id]);
+
+    client.release();
 
     res.json({
       success: true,
@@ -204,13 +267,23 @@ router.delete('/users/:id', authenticateToken, requireAdminPermission, async (re
 // Get system statistics
 router.get('/stats', authenticateToken, requireAdmin, async (req, res) => {
   try {
+    const client = await pgPool.connect();
+
+    const totalUsersResult = await client.query("SELECT COUNT(*) FROM users");
+    const activeUsersResult = await client.query("SELECT COUNT(*) FROM users WHERE is_active = true");
+    const customersResult = await client.query("SELECT COUNT(*) FROM users WHERE role = 'customer'");
+    const adminsResult = await client.query("SELECT COUNT(*) FROM users WHERE role = 'admin'");
+    const mainAdminsResult = await client.query("SELECT COUNT(*) FROM users WHERE role = 'main_admin'");
+
+    client.release();
+
     const stats = {
       users: {
-        total: await User.getCount(),
-        active: await User.getCount({ isActive: true }),
-        customers: await User.getCount({ role: 'customer' }),
-        admins: await User.getCount({ role: 'admin' }),
-        mainAdmins: await User.getCount({ role: 'main_admin' })
+        total: parseInt(totalUsersResult.rows[0].count),
+        active: parseInt(activeUsersResult.rows[0].count),
+        customers: parseInt(customersResult.rows[0].count),
+        admins: parseInt(adminsResult.rows[0].count),
+        mainAdmins: parseInt(mainAdminsResult.rows[0].count)
       },
       system: {
         database: 'PostgreSQL',
@@ -247,15 +320,28 @@ router.get('/search/users', authenticateToken, requireAdmin, async (req, res) =>
       });
     }
 
-    const filters = { search: searchQuery, limit: parseInt(limit) };
-    if (role) filters.role = role;
+    const client = await pgPool.connect();
 
-    const users = await User.findAll(filters);
+    let query = "SELECT id, first_name, last_name, email, role, is_active, created_at FROM users WHERE (email ILIKE $1 OR first_name ILIKE $1 OR last_name ILIKE $1)";
+    const params = [`%${searchQuery}%`];
+    let paramIndex = 2;
+
+    if (role) {
+      query += ` AND role = $${paramIndex}`;
+      params.push(role);
+      paramIndex++;
+    }
+
+    query += ` LIMIT $${paramIndex}`;
+    params.push(parseInt(limit));
+
+    const usersResult = await client.query(query, params);
+    client.release();
 
     res.json({
       success: true,
-      data: users.map(user => user.toJSON()),
-      count: users.length
+      data: usersResult.rows,
+      count: usersResult.rows.length
     });
 
   } catch (error) {

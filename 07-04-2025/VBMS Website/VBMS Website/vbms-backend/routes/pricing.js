@@ -2,9 +2,9 @@ const express = require('express');
 const router = express.Router();
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const { authenticateToken } = require('../middleware/auth');
-const User = require('../models/User');
+const { pgPool } = require('../config/database');
 
-// In-memory storage for pricing plans (you might want to create a proper model)
+// In-memory storage for pricing plans (Temporary solution until DB table is created)
 let pricingPlans = [
   {
     id: 'start',
@@ -133,7 +133,11 @@ let pricingPlans = [
 // Middleware to check if user is main admin
 const requireMainAdmin = async (req, res, next) => {
   try {
-    const user = await User.findById(req.user.id);
+    const client = await pgPool.connect();
+    const result = await client.query('SELECT role FROM users WHERE id = $1', [req.user.id]);
+    client.release();
+
+    const user = result.rows[0];
     if (!user || user.role !== 'main_admin') {
       return res.status(403).json({ message: 'Main admin access required' });
     }
@@ -147,7 +151,7 @@ const requireMainAdmin = async (req, res, next) => {
 router.get('/public/plans', async (req, res) => {
   try {
     console.log('📦 Public API: Fetching active pricing plans for frontend...');
-    
+
     // Filter only active plans and remove admin-only fields
     const publicPlans = pricingPlans
       .filter(plan => plan.status === 'active')
@@ -164,10 +168,10 @@ router.get('/public/plans', async (req, res) => {
         stripeProductId: plan.stripeProductId // Needed for Stripe checkout
       }))
       .sort((a, b) => a.price - b.price); // Sort by price ascending
-    
+
     console.log(`✅ Returning ${publicPlans.length} active plans for frontend`);
     res.json(publicPlans);
-    
+
   } catch (error) {
     console.error('❌ Error fetching public pricing plans:', error);
     res.status(500).json({ message: 'Failed to fetch pricing plans', error: error.message });
@@ -178,10 +182,10 @@ router.get('/public/plans', async (req, res) => {
 router.get('/plans', authenticateToken, requireMainAdmin, async (req, res) => {
   try {
     console.log('📦 Fetching all pricing plans...');
-    
+
     // Sort by creation date
     const sortedPlans = pricingPlans.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
-    
+
     res.json(sortedPlans);
   } catch (error) {
     console.error('❌ Error fetching pricing plans:', error);
@@ -194,11 +198,11 @@ router.get('/plans/:id', authenticateToken, requireMainAdmin, async (req, res) =
   try {
     const planId = req.params.id;
     const plan = pricingPlans.find(p => p.id === planId || p._id === planId);
-    
+
     if (!plan) {
       return res.status(404).json({ message: 'Pricing plan not found' });
     }
-    
+
     res.json(plan);
   } catch (error) {
     console.error('❌ Error fetching pricing plan:', error);
@@ -209,9 +213,15 @@ router.get('/plans/:id', authenticateToken, requireMainAdmin, async (req, res) =
 // Create new pricing plan
 router.post('/plans', authenticateToken, requireMainAdmin, async (req, res) => {
   try {
-    const user = await User.findById(req.user.id);
-    console.log(`👑 Main admin ${user.name} creating new pricing plan`);
-    
+    const client = await pgPool.connect();
+    const result = await client.query('SELECT first_name, last_name FROM users WHERE id = $1', [req.user.id]);
+    client.release();
+
+    const user = result.rows[0];
+    const userName = user ? `${user.first_name} ${user.last_name}` : 'Admin';
+
+    console.log(`👑 Main admin ${userName} creating new pricing plan`);
+
     const {
       name,
       displayName,
@@ -247,11 +257,11 @@ router.post('/plans', authenticateToken, requireMainAdmin, async (req, res) => {
       featured,
       createdAt: new Date(),
       updatedAt: new Date(),
-      createdBy: user._id
+      createdBy: req.user.id
     };
 
     pricingPlans.push(newPlan);
-    
+
     console.log('✅ Pricing plan created:', newPlan.name);
     res.status(201).json(newPlan);
 
@@ -266,7 +276,7 @@ router.put('/plans/:id', authenticateToken, requireMainAdmin, async (req, res) =
   try {
     const planId = req.params.id;
     const planIndex = pricingPlans.findIndex(p => p.id === planId || p._id === planId);
-    
+
     if (planIndex === -1) {
       return res.status(404).json({ message: 'Pricing plan not found' });
     }
@@ -297,7 +307,7 @@ router.put('/plans/:id', authenticateToken, requireMainAdmin, async (req, res) =
     };
 
     pricingPlans[planIndex] = updatedPlan;
-    
+
     console.log('✅ Pricing plan updated:', updatedPlan.name);
     res.json(updatedPlan);
 
@@ -312,22 +322,22 @@ router.delete('/plans/:id', authenticateToken, requireMainAdmin, async (req, res
   try {
     const planId = req.params.id;
     const planIndex = pricingPlans.findIndex(p => p.id === planId || p._id === planId);
-    
+
     if (planIndex === -1) {
       return res.status(404).json({ message: 'Pricing plan not found' });
     }
 
     const deletedPlan = pricingPlans[planIndex];
-    
+
     // Don't allow deletion of plans that have Stripe products
     if (deletedPlan.stripeProductId) {
-      return res.status(400).json({ 
-        message: 'Cannot delete plan that is synced with Stripe. Archive it instead.' 
+      return res.status(400).json({
+        message: 'Cannot delete plan that is synced with Stripe. Archive it instead.'
       });
     }
 
     pricingPlans.splice(planIndex, 1);
-    
+
     console.log('🗑️ Pricing plan deleted:', deletedPlan.name);
     res.json({ message: 'Pricing plan deleted successfully' });
 
@@ -341,25 +351,25 @@ router.delete('/plans/:id', authenticateToken, requireMainAdmin, async (req, res
 router.post('/sync-stripe', authenticateToken, requireMainAdmin, async (req, res) => {
   try {
     console.log('🔄 Syncing pricing plans with Stripe...');
-    
+
     // Fetch all products from Stripe
     const products = await stripe.products.list({ limit: 100 });
     const prices = await stripe.prices.list({ limit: 100 });
-    
+
     let syncedCount = 0;
-    
+
     for (const product of products.data) {
       // Find associated price
       const productPrices = prices.data.filter(price => price.product === product.id);
-      
+
       if (productPrices.length === 0) continue;
-      
+
       // Use the first active price
       const price = productPrices.find(p => p.active) || productPrices[0];
-      
+
       // Check if we already have this plan
       const existingPlan = pricingPlans.find(p => p.stripeProductId === product.id);
-      
+
       if (!existingPlan) {
         // Create new plan from Stripe data
         const newPlan = {
@@ -377,10 +387,10 @@ router.post('/sync-stripe', authenticateToken, requireMainAdmin, async (req, res
           updatedAt: new Date(),
           syncedFromStripe: true
         };
-        
+
         pricingPlans.push(newPlan);
         syncedCount++;
-        
+
         console.log('📦 Synced plan from Stripe:', newPlan.displayName);
       } else {
         // Update existing plan with Stripe data
@@ -395,16 +405,16 @@ router.post('/sync-stripe', authenticateToken, requireMainAdmin, async (req, res
           stripePriceId: price.id,
           updatedAt: new Date()
         };
-        
+
         console.log('🔄 Updated plan from Stripe:', product.name);
       }
     }
-    
+
     console.log(`✅ Stripe sync completed. Synced ${syncedCount} new plans.`);
-    res.json({ 
-      message: 'Successfully synced with Stripe', 
+    res.json({
+      message: 'Successfully synced with Stripe',
       synced: syncedCount,
-      total: pricingPlans.length 
+      total: pricingPlans.length
     });
 
   } catch (error) {
@@ -418,7 +428,7 @@ router.post('/plans/:id/create-stripe', authenticateToken, requireMainAdmin, asy
   try {
     const planId = req.params.id;
     const plan = pricingPlans.find(p => p.id === planId || p._id === planId);
-    
+
     if (!plan) {
       return res.status(404).json({ message: 'Pricing plan not found' });
     }
@@ -460,7 +470,7 @@ router.post('/plans/:id/create-stripe', authenticateToken, requireMainAdmin, asy
     };
 
     console.log('✅ Plan created in Stripe:', product.id);
-    res.json({ 
+    res.json({
       message: 'Plan successfully created in Stripe',
       stripeProductId: product.id,
       stripePriceId: price.id
@@ -486,7 +496,7 @@ function parseStripeMetadata(metadata) {
   } catch (error) {
     console.warn('Could not parse Stripe metadata features:', error);
   }
-  
+
   // Return default features based on common plan patterns
   return {
     liveMonitoring: true,

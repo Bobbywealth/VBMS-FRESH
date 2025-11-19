@@ -5,15 +5,14 @@
 
 const Imap = require('imap');
 const { simpleParser } = require('mailparser');
-const Email = require('../models/Email');
-const User = require('../models/User');
+const { pgPool } = require('../config/database');
 
 class OutlookSyncService {
   constructor() {
     this.imap = null;
     this.isConnected = false;
     this.syncInProgress = false;
-    
+
     // IMAP configuration for GoDaddy Outlook
     this.imapConfig = {
       user: process.env.SMTP_USER, // business@wolfpaqmarketing.com
@@ -34,7 +33,7 @@ class OutlookSyncService {
     return new Promise((resolve, reject) => {
       try {
         this.imap = new Imap(this.imapConfig);
-        
+
         this.imap.once('ready', () => {
           console.log('✅ Connected to Outlook IMAP');
           this.isConnected = true;
@@ -105,7 +104,7 @@ class OutlookSyncService {
 
         fetch.on('message', (msg, seqno) => {
           let buffer = '';
-          
+
           msg.on('body', (stream, info) => {
             stream.on('data', (chunk) => {
               buffer += chunk.toString('utf8');
@@ -116,7 +115,7 @@ class OutlookSyncService {
             msg.once('end', async () => {
               try {
                 const parsed = await simpleParser(buffer);
-                
+
                 const emailData = {
                   messageId: parsed.messageId,
                   from: parsed.from?.text || parsed.from?.value?.[0]?.address || 'unknown',
@@ -169,20 +168,20 @@ class OutlookSyncService {
       status: 'delivered',
       type: 'custom',
       priority: 'normal',
-      
+
       // Set sender/recipient based on direction
       sender: isFromUser ? {
-        userId: vbmsUser._id,
-        name: vbmsUser.name,
+        userId: vbmsUser.id,
+        name: `${vbmsUser.first_name} ${vbmsUser.last_name}`,
         role: vbmsUser.role === 'client' ? 'customer' : vbmsUser.role
       } : {
         name: emailData.from,
         role: 'customer'
       },
-      
+
       recipient: isToUser ? {
-        userId: vbmsUser._id,
-        name: vbmsUser.name,
+        userId: vbmsUser.id,
+        name: `${vbmsUser.first_name} ${vbmsUser.last_name}`,
         role: vbmsUser.role === 'client' ? 'customer' : vbmsUser.role
       } : {
         name: emailData.to,
@@ -216,13 +215,22 @@ class OutlookSyncService {
    * Check if email already exists in database
    */
   async emailExists(messageId, uid) {
-    const existing = await Email.findOne({
-      $or: [
-        { 'metadata.originalMessageId': messageId },
-        { 'metadata.outlookUID': uid }
-      ]
-    });
-    return !!existing;
+    try {
+      const client = await pgPool.connect();
+      const result = await client.query(`
+        SELECT id FROM emails 
+        WHERE metadata->>'originalMessageId' = $1 
+        OR metadata->>'outlookUID' = $2
+      `, [messageId, uid.toString()]);
+
+      client.release();
+      return result.rows.length > 0;
+    } catch (error) {
+      // If table doesn't exist, assume false but log error
+      if (error.code === '42P01') return false;
+      console.error('Error checking email existence:', error);
+      return false;
+    }
   }
 
   /**
@@ -231,15 +239,19 @@ class OutlookSyncService {
   async syncEmailsForUser(userEmail, limit = 100) {
     try {
       console.log(`🔄 Starting email sync for ${userEmail}`);
-      
+
       if (this.syncInProgress) {
         throw new Error('Sync already in progress');
       }
-      
+
       this.syncInProgress = true;
 
       // Find the VBMS user
-      const vbmsUser = await User.findOne({ email: userEmail });
+      const client = await pgPool.connect();
+      const userResult = await client.query('SELECT * FROM users WHERE email = $1', [userEmail]);
+      const vbmsUser = userResult.rows[0];
+      client.release();
+
       if (!vbmsUser) {
         throw new Error(`VBMS user not found: ${userEmail}`);
       }
@@ -269,10 +281,33 @@ class OutlookSyncService {
 
             // Convert to VBMS format
             const vbmsEmailData = await this.convertToVBMSFormat(emailData, vbmsUser, 'inbox');
-            
+
             // Save to database
-            const email = new Email(vbmsEmailData);
-            await email.save();
+            const saveClient = await pgPool.connect();
+            await saveClient.query(`
+              INSERT INTO emails (
+                user_id, "to", "from", subject, content, status, type, priority, 
+                sender, recipient, category, flags, metadata, created_at, updated_at
+              ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+            `, [
+              vbmsUser.id,
+              vbmsEmailData.to,
+              vbmsEmailData.from,
+              vbmsEmailData.subject,
+              vbmsEmailData.content,
+              vbmsEmailData.status,
+              vbmsEmailData.type,
+              vbmsEmailData.priority,
+              vbmsEmailData.sender,
+              vbmsEmailData.recipient,
+              vbmsEmailData.category,
+              vbmsEmailData.flags,
+              vbmsEmailData.metadata,
+              vbmsEmailData.createdAt,
+              vbmsEmailData.updatedAt
+            ]);
+            saveClient.release();
+
             syncResults.inbox.saved++;
 
           } catch (emailError) {
@@ -299,10 +334,33 @@ class OutlookSyncService {
 
             // Convert to VBMS format
             const vbmsEmailData = await this.convertToVBMSFormat(emailData, vbmsUser, 'sent');
-            
+
             // Save to database
-            const email = new Email(vbmsEmailData);
-            await email.save();
+            const saveClient = await pgPool.connect();
+            await saveClient.query(`
+              INSERT INTO emails (
+                user_id, "to", "from", subject, content, status, type, priority, 
+                sender, recipient, category, flags, metadata, created_at, updated_at
+              ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+            `, [
+              vbmsUser.id,
+              vbmsEmailData.to,
+              vbmsEmailData.from,
+              vbmsEmailData.subject,
+              vbmsEmailData.content,
+              vbmsEmailData.status,
+              vbmsEmailData.type,
+              vbmsEmailData.priority,
+              vbmsEmailData.sender,
+              vbmsEmailData.recipient,
+              vbmsEmailData.category,
+              vbmsEmailData.flags,
+              vbmsEmailData.metadata,
+              vbmsEmailData.createdAt,
+              vbmsEmailData.updatedAt
+            ]);
+            saveClient.release();
+
             syncResults.sent.saved++;
 
           } catch (emailError) {

@@ -1,21 +1,15 @@
 const express = require('express');
 const router = express.Router();
 const { authenticateToken } = require('../middleware/auth');
-const { Pool } = require('pg');
-
-// PostgreSQL connection
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
-});
+const { pgPool } = require('../config/database');
 
 // Get ALL users (requires authentication)
 router.get('/', authenticateToken, async (req, res) => {
   try {
-    const client = await pool.connect();
+    const client = await pgPool.connect();
     const result = await client.query('SELECT id, email, first_name, last_name, role, is_active, created_at FROM users WHERE is_active = true ORDER BY created_at DESC');
     client.release();
-    
+
     res.json(result.rows);
   } catch (err) {
     console.error('Error fetching users:', err);
@@ -26,8 +20,8 @@ router.get('/', authenticateToken, async (req, res) => {
 // Create a NEW user (requires main_admin authentication)
 router.post('/create-user', authenticateToken, async (req, res) => {
   try {
-    const client = await pool.connect();
-    
+    const client = await pgPool.connect();
+
     // Check if the requesting user is a main admin
     const requestingUserResult = await client.query('SELECT role FROM users WHERE id = $1', [req.user.id]);
     if (!requestingUserResult.rows[0] || requestingUserResult.rows[0].role !== 'main_admin') {
@@ -35,12 +29,12 @@ router.post('/create-user', authenticateToken, async (req, res) => {
       return res.status(403).json({ message: 'Only main administrators can create new users.' });
     }
 
-    const { 
-      name, 
-      email, 
-      password, 
-      role, 
-      department, 
+    const {
+      name,
+      email,
+      password,
+      role,
+      department,
       position,
       phone,
       address
@@ -62,15 +56,15 @@ router.post('/create-user', authenticateToken, async (req, res) => {
     // Create new user
     const bcrypt = require('bcryptjs');
     const hashedPassword = await bcrypt.hash(password, 10);
-    
+
     const newUserResult = await client.query(`
       INSERT INTO users (email, password, first_name, last_name, role, is_active, phone)
       VALUES ($1, $2, $3, $4, $5, $6, $7)
       RETURNING id, email, first_name, last_name, role, is_active, created_at
     `, [email, hashedPassword, name.split(' ')[0], name.split(' ')[1] || '', role || 'customer', true, phone]);
-    
+
     client.release();
-    
+
     res.status(201).json({
       message: 'User created successfully',
       user: newUserResult.rows[0]
@@ -84,14 +78,14 @@ router.post('/create-user', authenticateToken, async (req, res) => {
 // Get user by ID
 router.get('/:id', authenticateToken, async (req, res) => {
   try {
-    const client = await pool.connect();
+    const client = await pgPool.connect();
     const result = await client.query('SELECT id, email, first_name, last_name, role, is_active, created_at FROM users WHERE id = $1', [req.params.id]);
     client.release();
-    
+
     if (result.rows.length === 0) {
       return res.status(404).json({ message: 'User not found' });
     }
-    
+
     res.json(result.rows[0]);
   } catch (err) {
     console.error('Error fetching user:', err);
@@ -102,8 +96,8 @@ router.get('/:id', authenticateToken, async (req, res) => {
 // Update user
 router.put('/:id', authenticateToken, async (req, res) => {
   try {
-    const client = await pool.connect();
-    
+    const client = await pgPool.connect();
+
     // Check permissions
     const requestingUserResult = await client.query('SELECT role FROM users WHERE id = $1', [req.user.id]);
     if (!requestingUserResult.rows[0] || (requestingUserResult.rows[0].role !== 'main_admin' && req.user.id !== parseInt(req.params.id))) {
@@ -112,7 +106,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
     }
 
     const { first_name, last_name, email, role, phone } = req.body;
-    
+
     const result = await client.query(`
       UPDATE users 
       SET first_name = COALESCE($1, first_name), 
@@ -124,13 +118,13 @@ router.put('/:id', authenticateToken, async (req, res) => {
       WHERE id = $6
       RETURNING id, email, first_name, last_name, role, is_active
     `, [first_name, last_name, email, role, phone, req.params.id]);
-    
+
     client.release();
-    
+
     if (result.rows.length === 0) {
       return res.status(404).json({ message: 'User not found' });
     }
-    
+
     res.json({
       message: 'User updated successfully',
       user: result.rows[0]
@@ -144,8 +138,8 @@ router.put('/:id', authenticateToken, async (req, res) => {
 // Delete user (deactivate)
 router.delete('/:id', authenticateToken, async (req, res) => {
   try {
-    const client = await pool.connect();
-    
+    const client = await pgPool.connect();
+
     // Check permissions
     const requestingUserResult = await client.query('SELECT role FROM users WHERE id = $1', [req.user.id]);
     if (!requestingUserResult.rows[0] || requestingUserResult.rows[0].role !== 'main_admin') {
@@ -159,13 +153,13 @@ router.delete('/:id', authenticateToken, async (req, res) => {
       WHERE id = $1
       RETURNING id, email
     `, [req.params.id]);
-    
+
     client.release();
-    
+
     if (result.rows.length === 0) {
       return res.status(404).json({ message: 'User not found' });
     }
-    
+
     res.json({
       message: 'User deactivated successfully',
       user: result.rows[0]

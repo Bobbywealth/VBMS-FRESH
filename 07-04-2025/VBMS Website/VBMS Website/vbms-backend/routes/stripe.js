@@ -2,13 +2,7 @@ const express = require('express');
 const router = express.Router();
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const { authenticateToken } = require('../middleware/auth');
-const { Pool } = require('pg');
-
-// PostgreSQL connection
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
-});
+const { pgPool } = require('../config/database');
 
 // VBMS Pricing Plans
 const PRICING_PLANS = {
@@ -22,7 +16,7 @@ const PRICING_PLANS = {
   },
   grow: {
     id: 'grow',
-    name: 'Grow Plan', 
+    name: 'Grow Plan',
     price: 997,
     currency: 'usd',
     features: ['Advanced Features', 'Priority Support', '50 Users'],
@@ -32,7 +26,7 @@ const PRICING_PLANS = {
     id: 'scale',
     name: 'Scale Plan',
     price: 1997,
-    currency: 'usd', 
+    currency: 'usd',
     features: ['Enterprise Features', '24/7 Support', 'Unlimited Users'],
     stripePriceId: 'price_scale_1997'
   }
@@ -58,7 +52,7 @@ router.get('/plans', async (req, res) => {
 router.post('/create-payment-intent', authenticateToken, async (req, res) => {
   try {
     const { planId } = req.body;
-    
+
     if (!PRICING_PLANS[planId]) {
       return res.status(400).json({
         success: false,
@@ -67,8 +61,8 @@ router.post('/create-payment-intent', authenticateToken, async (req, res) => {
     }
 
     const plan = PRICING_PLANS[planId];
-    const client = await pool.connect();
-    
+    const client = await pgPool.connect();
+
     // Get user info
     const userResult = await client.query('SELECT email FROM users WHERE id = $1', [req.user.id]);
     if (!userResult.rows[0]) {
@@ -95,7 +89,7 @@ router.post('/create-payment-intent', authenticateToken, async (req, res) => {
       INSERT INTO payments (user_id, stripe_payment_intent_id, amount, currency, plan_id, status, created_at)
       VALUES ($1, $2, $3, $4, $5, $6, CURRENT_TIMESTAMP)
     `, [req.user.id, paymentIntent.id, plan.price, plan.currency, planId, 'pending']);
-    
+
     client.release();
 
     res.json({
@@ -119,7 +113,7 @@ router.post('/create-payment-intent', authenticateToken, async (req, res) => {
 router.post('/confirm-payment', authenticateToken, async (req, res) => {
   try {
     const { paymentIntentId } = req.body;
-    
+
     if (!paymentIntentId) {
       return res.status(400).json({
         success: false,
@@ -129,7 +123,7 @@ router.post('/confirm-payment', authenticateToken, async (req, res) => {
 
     // Retrieve payment intent from Stripe
     const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
-    
+
     if (paymentIntent.status !== 'succeeded') {
       return res.status(400).json({
         success: false,
@@ -137,8 +131,8 @@ router.post('/confirm-payment', authenticateToken, async (req, res) => {
       });
     }
 
-    const client = await pool.connect();
-    
+    const client = await pgPool.connect();
+
     // Update payment status in database
     await client.query(`
       UPDATE payments 
@@ -153,7 +147,7 @@ router.post('/confirm-payment', authenticateToken, async (req, res) => {
       SET subscription_plan = $1, subscription_status = 'active', updated_at = CURRENT_TIMESTAMP
       WHERE id = $2
     `, [planId, req.user.id]);
-    
+
     client.release();
 
     res.json({
@@ -178,15 +172,15 @@ router.post('/confirm-payment', authenticateToken, async (req, res) => {
 // Get user subscription status
 router.get('/subscription', authenticateToken, async (req, res) => {
   try {
-    const client = await pool.connect();
+    const client = await pgPool.connect();
     const result = await client.query(`
       SELECT subscription_plan, subscription_status, created_at 
       FROM users 
       WHERE id = $1
     `, [req.user.id]);
-    
+
     client.release();
-    
+
     if (result.rows.length === 0) {
       return res.status(404).json({
         success: false,
@@ -218,14 +212,14 @@ router.get('/subscription', authenticateToken, async (req, res) => {
 // Get payment history
 router.get('/payments', authenticateToken, async (req, res) => {
   try {
-    const client = await pool.connect();
+    const client = await pgPool.connect();
     const result = await client.query(`
       SELECT stripe_payment_intent_id, amount, currency, plan_id, status, created_at
       FROM payments 
       WHERE user_id = $1 
       ORDER BY created_at DESC
     `, [req.user.id]);
-    
+
     client.release();
 
     res.json({
