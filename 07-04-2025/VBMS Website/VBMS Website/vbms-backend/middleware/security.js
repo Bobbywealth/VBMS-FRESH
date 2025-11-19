@@ -90,22 +90,23 @@ class SecurityMiddleware {
         directives: {
           defaultSrc: ["'self'"],
           styleSrc: [
-            "'self'", 
-            "'unsafe-inline'", 
+            "'self'",
+            "'unsafe-inline'",
             "https://cdn.jsdelivr.net",
+            "https://unpkg.com",
             "https://fonts.googleapis.com",
             "https://cdnjs.cloudflare.com"
           ],
           scriptSrc: [
-            "'self'", 
+            "'self'",
             "'unsafe-inline'",
             "https://js.stripe.com",
             "https://cdn.jsdelivr.net",
             "https://cdnjs.cloudflare.com"
           ],
           imgSrc: [
-            "'self'", 
-            "data:", 
+            "'self'",
+            "data:",
             "https:",
             "blob:",
             `https://${process.env.AWS_S3_BUCKET}.s3.${process.env.AWS_REGION || 'us-east-1'}.amazonaws.com`
@@ -119,7 +120,10 @@ class SecurityMiddleware {
           fontSrc: [
             "'self'",
             "https://fonts.gstatic.com",
-            "https://cdnjs.cloudflare.com"
+            "https://cdn.jsdelivr.net",
+            "https://unpkg.com",
+            "https://cdnjs.cloudflare.com",
+            "data:"
           ],
           objectSrc: ["'none'"],
           mediaSrc: ["'self'", "https:", "blob:"],
@@ -154,7 +158,7 @@ class SecurityMiddleware {
       // Simple XSS protection - sanitize common XSS patterns
       const sanitizeObject = (obj) => {
         if (!obj || typeof obj !== 'object') return obj;
-        
+
         for (const key in obj) {
           if (typeof obj[key] === 'string') {
             // Remove script tags and javascript: protocols
@@ -195,14 +199,14 @@ class SecurityMiddleware {
       filter: (req, res) => {
         const contentType = res.getHeader('content-type');
         if (!contentType) return false;
-        
+
         // Don't compress images, videos, or already compressed files
         const skipTypes = [
           'image/', 'video/', 'audio/',
           'application/zip', 'application/gzip',
           'application/pdf'
         ];
-        
+
         return !skipTypes.some(type => contentType.includes(type));
       }
     });
@@ -212,7 +216,7 @@ class SecurityMiddleware {
   static getSecurityLogger() {
     return (req, res, next) => {
       const startTime = Date.now();
-      
+
       // Log suspicious activities
       const suspiciousPatterns = [
         /\.\.\//g, // Directory traversal
@@ -256,9 +260,9 @@ class SecurityMiddleware {
         const duration = Date.now() - startTime;
         const logLevel = res.statusCode >= 400 ? 'ERROR' : 'INFO';
         const statusEmoji = res.statusCode >= 500 ? '🔴' : res.statusCode >= 400 ? '🟡' : '🟢';
-        
+
         console.log(`${statusEmoji} [${logLevel}] ${req.method} ${req.originalUrl} - ${res.statusCode} - ${duration}ms - ${req.ip}`);
-        
+
         // Log failed auth attempts
         if (req.originalUrl.includes('/auth/') && res.statusCode === 401) {
           console.warn(`🔐 Failed authentication attempt from IP: ${req.ip}`);
