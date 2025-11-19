@@ -8,27 +8,49 @@ const { pgPool } = require('../config/database');
 const PRICING_PLANS = {
   start: {
     id: 'start',
-    name: 'Start Plan',
-    price: 497,
+    name: 'Starter',
+    price: 79.99,
     currency: 'usd',
-    features: ['Basic Features', 'Email Support', '10 Users'],
-    stripePriceId: 'price_start_497'
+    interval: 'month',
+    features: ['Essential monitoring', 'Basic order management', 'Phone support', 'Weekly reporting', 'Setup assistance'],
+    stripePriceId: 'price_starter'
   },
-  grow: {
-    id: 'grow',
-    name: 'Grow Plan',
-    price: 997,
+  starter: { // Alias for 'start'
+    id: 'starter',
+    name: 'Starter',
+    price: 79.99,
     currency: 'usd',
-    features: ['Advanced Features', 'Priority Support', '50 Users'],
-    stripePriceId: 'price_grow_997'
+    interval: 'month',
+    features: ['Essential monitoring', 'Basic order management', 'Phone support', 'Weekly reporting', 'Setup assistance'],
+    stripePriceId: 'price_starter'
   },
-  scale: {
-    id: 'scale',
-    name: 'Scale Plan',
-    price: 1997,
+  professional: {
+    id: 'professional',
+    name: 'Professional',
+    price: 199.99,
     currency: 'usd',
-    features: ['Enterprise Features', '24/7 Support', 'Unlimited Users'],
-    stripePriceId: 'price_scale_1997'
+    interval: 'month',
+    features: ['Live monitoring', 'Order & task management', 'Advanced analytics', 'Daily reporting', 'Priority support'],
+    stripePriceId: 'price_professional'
+  },
+  premium: {
+    id: 'premium',
+    name: 'Premium',
+    price: 499,
+    currency: 'usd',
+    interval: 'month',
+    features: ['Everything in Professional', 'AI Phone System FREE', 'Unlimited AI calls', 'Custom dashboard', 'Dedicated support'],
+    stripePriceId: 'price_premium'
+  },
+  ai_phone: {
+    id: 'ai_phone',
+    name: 'AI Phone System Add-On',
+    price: 149,
+    currency: 'usd',
+    interval: 'month',
+    perCallPrice: 0.25,
+    features: ['Add to Starter or Professional', 'AI-powered calls', 'Reservation handling', 'Order confirmations', '24/7 availability', 'Call analytics'],
+    stripePriceId: 'price_ai_phone'
   }
 };
 
