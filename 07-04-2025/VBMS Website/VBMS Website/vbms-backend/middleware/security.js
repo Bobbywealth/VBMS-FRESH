@@ -115,6 +115,8 @@ class SecurityMiddleware {
             "'self'",
             "https://api.stripe.com",
             "https://api.openai.com",
+            "https://cdn.jsdelivr.net",
+            "https://unpkg.com",
             "wss://api.vapi.ai"
           ],
           fontSrc: [
