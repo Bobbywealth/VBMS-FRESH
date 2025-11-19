@@ -48,6 +48,22 @@ router.get('/plans', async (req, res) => {
   }
 });
 
+// Get Stripe publishable key
+router.get('/public-key', async (req, res) => {
+  try {
+    res.json({
+      success: true,
+      publishableKey: process.env.STRIPE_PUBLISHABLE_KEY || ''
+    });
+  } catch (error) {
+    console.error('Error fetching public key:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch public key'
+    });
+  }
+});
+
 // Create payment intent for subscription
 router.post('/create-payment-intent', authenticateToken, async (req, res) => {
   try {
