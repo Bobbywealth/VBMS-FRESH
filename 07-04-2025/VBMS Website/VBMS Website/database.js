@@ -1,5 +1,6 @@
 
 const { Pool } = require('pg');
+const bcrypt = require('bcryptjs');
 
 // Database configuration
 const pool = new Pool({
@@ -127,10 +128,11 @@ async function seedDefaultUsers() {
     const adminExists = await client.query('SELECT id FROM users WHERE email = $1', ['admin@vbms.com']);
     
     if (adminExists.rows.length === 0) {
+      const hashedPassword = await bcrypt.hash('admin123', 12);
       await client.query(`
         INSERT INTO users (name, email, password, role, status) 
         VALUES ($1, $2, $3, $4, $5)
-      `, ['Super Admin', 'admin@vbms.com', 'admin123', 'admin', 'Active']);
+      `, ['Super Admin', 'admin@vbms.com', hashedPassword, 'admin', 'Active']);
       console.log('✅ Default admin user created');
     }
 
@@ -138,10 +140,11 @@ async function seedDefaultUsers() {
     const customerExists = await client.query('SELECT id FROM users WHERE email = $1', ['customer@gmail.com']);
     
     if (customerExists.rows.length === 0) {
+      const hashedPassword = await bcrypt.hash('customer123', 12);
       await client.query(`
         INSERT INTO users (name, email, password, role, status) 
         VALUES ($1, $2, $3, $4, $5)
-      `, ['Gmail Customer', 'customer@gmail.com', 'customer123', 'client', 'Active']);
+      `, ['Gmail Customer', 'customer@gmail.com', hashedPassword, 'client', 'Active']);
       console.log('✅ Default customer user created');
     }
   } catch (err) {
