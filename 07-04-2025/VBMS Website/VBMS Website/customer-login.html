@@ -504,12 +504,17 @@
         }
         
         // Store authentication data
-        const storage = remember ? localStorage : sessionStorage;
         localStorage.setItem("vbmsToken", data.token);
         localStorage.setItem("vbmsUser", JSON.stringify(data.user));
         localStorage.setItem("vbmsRole", data.user.role);
         localStorage.setItem("vbmsLoggedIn", "true");
         localStorage.setItem("vbmsLoginTime", new Date().toISOString());
+
+        if (data.expiresAt) {
+          localStorage.setItem("vbmsTokenExpiry", data.expiresAt);
+        } else {
+          localStorage.removeItem("vbmsTokenExpiry");
+        }
         
         if (remember) {
           localStorage.setItem("vbmsRememberMe", "true");

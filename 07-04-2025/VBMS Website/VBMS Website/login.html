@@ -566,68 +566,10 @@
       setLoading(true);
 
       try {
-        // Temporary Main Admin bypass for testing
-        if (email.toLowerCase() === 'bobbyadmin@vbms.com' && password === 'YOUR_ADMIN_PASSWORD_HERE') {
-          console.log('🔧 Using temporary Main Admin authentication');
-          const data = {
-            success: true,
-            user: {
-              id: 'main_admin_1',
-              name: 'Bobby Admin',
-              email: 'BobbyAdmin@vbms.com',
-              role: 'main_admin',
-              position: 'Founder'
-            },
-            token: 'temp_main_admin_token'
-          };
-          
-          // Store auth data using the correct keys for vbmsAuth system
-          localStorage.setItem('vbmsToken', data.token);
-          localStorage.setItem('vbmsUser', JSON.stringify(data.user));
-          localStorage.setItem('vbmsRole', data.user.role);
-          localStorage.setItem('vbmsLoggedIn', 'true');
-          localStorage.setItem('vbmsLoginTime', new Date().toISOString());
-          localStorage.setItem('token', data.token);
-          
-          // Handle the response as if from API
-          handleLoginSuccess(data);
-          return;
-        }
+        const apiBase = (window.API_BASE || window.VBMS_API_BASE || '').replace(/\/$/, '');
+        const loginEndpoint = apiBase ? `${apiBase}/api/auth/login` : '/api/auth/login';
 
-        // Handle login success for both API and bypass authentication
-        function handleLoginSuccess(data) {
-          // Role-based redirect for admin login
-          if (data.user && data.user.role) {
-            const role = data.user.role.toLowerCase();
-            console.log("🔍 DEBUG: User role received:", role);
-            console.log("🔍 DEBUG: Raw user data:", data.user);
-            console.log("🔍 DEBUG: Is main_admin?", role === "main_admin");
-
-            // Success animation
-            document.getElementById("loginCard").classList.add('success');
-
-            setTimeout(() => {
-              if (role === "main_admin") {
-                console.log("🚀 Redirecting to Main Admin Dashboard");
-                window.location.href = "admin-main-dashboard.html";
-              } else if (role === "admin") {
-                window.location.href = "dashboard.html";
-              } else if (role === "editor" || role === "staff") {
-                window.location.href = "staffdashboard.html";
-              } else if (role === "client" || role === "customer") {
-                // Redirect customers to customer login
-                showError("Please use the customer login page for your account.");
-                return;
-              } else {
-                window.location.href = "customer-dashboard.html";
-              }
-            }, 600);
-          } else {
-            throw new Error("Invalid user data received.");
-          }
-        }
-
-        const response = await fetch(`${API_BASE}/api/auth/login`, {
+        const response = await fetch(loginEndpoint, {
           method: "POST",
           headers: { 
             "Content-Type": "application/json",
@@ -650,18 +592,44 @@
         localStorage.setItem("vbmsLoginTime", new Date().toISOString());
         localStorage.setItem("token", data.token);
 
+        if (data.expiresAt) {
+          localStorage.setItem("vbmsTokenExpiry", data.expiresAt);
+        } else {
+          localStorage.removeItem("vbmsTokenExpiry");
+        }
+
         if (remember) {
-          sessionStorage.setItem("vbmsToken", data.token);
-          sessionStorage.setItem("vbmsUser", JSON.stringify(data.user));
-          sessionStorage.setItem("vbmsRole", data.user.role);
-          sessionStorage.setItem("vbmsLoggedIn", "true");
-          sessionStorage.setItem("vbmsLoginTime", new Date().toISOString());
+          localStorage.setItem("vbmsAdminRememberedEmail", email);
           localStorage.setItem("vbmsRememberMe", "true");
+        } else {
+          localStorage.removeItem("vbmsRememberMe");
+        }
+
+        function handleLoginSuccess(payload) {
+          if (payload.user && payload.user.role) {
+            const role = payload.user.role.toLowerCase();
+
+            document.getElementById("loginCard").classList.add('success');
+
+            setTimeout(() => {
+              if (role === "main_admin") {
+                window.location.href = "admin-main-dashboard.html";
+              } else if (role === "admin") {
+                window.location.href = "dashboard.html";
+              } else if (role === "editor" || role === "staff") {
+                window.location.href = "staffdashboard.html";
+              } else if (role === "client" || role === "customer") {
+                showError("Please use the customer login page for your account.");
+              } else {
+                window.location.href = "customer-dashboard.html";
+              }
+            }, 600);
+          } else {
+            throw new Error("Invalid user data received.");
+          }
         }
 
         console.log('Login API response:', data);
-
-        // Use the unified login success handler
         handleLoginSuccess(data);
 
       } catch (err) {

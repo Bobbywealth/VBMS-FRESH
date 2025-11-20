@@ -112,7 +112,14 @@ app.post('/api/auth/login', async (req, res) => {
     }
 
     const token = generateToken(user);
-    res.json({ token, user: sanitizeUser(user) });
+    const decoded = jwt.decode(token);
+    const expiresAt = decoded && decoded.exp ? new Date(decoded.exp * 1000).toISOString() : null;
+
+    res.json({
+      token,
+      expiresAt,
+      user: sanitizeUser(user)
+    });
   } catch (err) {
     console.error('Login error:', err);
     res.status(500).json({ message: 'Server error during login' });
