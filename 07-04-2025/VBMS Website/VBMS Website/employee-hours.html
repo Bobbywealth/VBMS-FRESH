@@ -233,12 +233,20 @@
             e.preventDefault();
             const token = localStorage.getItem('vbmsToken');
 
+            if (!token) {
+                alert('You are not logged in! Please log in again.');
+                window.location.href = 'login.html';
+                return;
+            }
+
             const data = {
                 firstName: document.getElementById('empFirstName').value,
                 lastName: document.getElementById('empLastName').value,
                 email: document.getElementById('empEmail').value,
                 pin: document.getElementById('empPin').value
             };
+
+            console.log('Creating employee with data:', data);
 
             try {
                 const res = await fetch(`${API_BASE}/api/timesheet/employees`, {
@@ -251,15 +259,24 @@
                 });
 
                 const result = await res.json();
+                console.log('Server response:', result);
+
                 if (res.ok) {
-                    alert('Employee created! They can now use the Kiosk with PIN: ' + data.pin);
-                    bootstrap.Modal.getInstance(document.getElementById('addEmployeeModal')).hide();
+                    alert('✅ Employee created successfully!\n\nPIN: ' + data.pin + '\n\nThey can now use this PIN at the Kiosk.');
+
+                    // Close modal properly
+                    const modalEl = document.getElementById('addEmployeeModal');
+                    const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+                    modal.hide();
+
                     e.target.reset();
+                    fetchHours(); // Refresh list
                 } else {
-                    alert('Error: ' + result.message);
+                    alert('❌ Error: ' + (result.message || 'Unknown error'));
                 }
             } catch (err) {
-                alert('Server error');
+                console.error('Add Employee Error:', err);
+                alert('❌ Server connection error. Please try again.');
             }
         });
     </script>
