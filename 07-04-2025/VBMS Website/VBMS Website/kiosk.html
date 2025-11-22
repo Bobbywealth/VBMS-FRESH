@@ -142,120 +142,138 @@
         </div>
 
         <div class="pin-pad">
-            <button class="pin-btn" onclick="enterPin(1)">1</button>
-            <button class="pin-btn" onclick="enterPin(2)">2</button>
-            <button class="pin-btn" onclick="enterPin(3)">3</button>
-            <button class="pin-btn" onclick="enterPin(4)">4</button>
-            <button class="pin-btn" onclick="enterPin(5)">5</button>
-            <button class="pin-btn" onclick="enterPin(6)">6</button>
-            <button class="pin-btn" onclick="enterPin(7)">7</button>
-            <button class="pin-btn" onclick="enterPin(8)">8</button>
-            <button class="pin-btn" onclick="enterPin(9)">9</button>
-            <button class="pin-btn" onclick="clearPin()"><i class="bi bi-x-lg"></i></button>
-            <button class="pin-btn" onclick="enterPin(0)">0</button>
-            <button class="pin-btn" onclick="backspace()"><i class="bi bi-backspace"></i></button>
+            <button class="pin-btn" data-num="1">1</button>
+            <button class="pin-btn" data-num="2">2</button>
+            <button class="pin-btn" data-num="3">3</button>
+            <button class="pin-btn" data-num="4">4</button>
+            <button class="pin-btn" data-num="5">5</button>
+            <button class="pin-btn" data-num="6">6</button>
+            <button class="pin-btn" data-num="7">7</button>
+            <button class="pin-btn" data-num="8">8</button>
+            <button class="pin-btn" data-num="9">9</button>
+            <button class="pin-btn" id="btnClear"><i class="bi bi-x-lg"></i></button>
+            <button class="pin-btn" data-num="0">0</button>
+            <button class="pin-btn" id="btnBackspace"><i class="bi bi-backspace"></i></button>
         </div>
 
         <div class="action-buttons">
-            <button class="btn-action btn-in" onclick="clockAction('in')">Clock In</button>
-            <button class="btn-action btn-out" onclick="clockAction('out')">Clock Out</button>
-            <button class="btn-action btn-break-start" style="background: #e67e22; color: white;"
-                onclick="clockAction('break_start')">Start Break</button>
-            <button class="btn-action btn-break-end" style="background: #3498db; color: white;"
-                onclick="clockAction('break_end')">End Break</button>
+            <button class="btn-action btn-in" id="btnIn">Clock In</button>
+            <button class="btn-action btn-out" id="btnOut">Clock Out</button>
+            <button class="btn-action btn-break-start" id="btnBreakStart"
+                style="background: #e67e22; color: white;">Start Break</button>
+            <button class="btn-action btn-break-end" id="btnBreakEnd" style="background: #3498db; color: white;">End
+                Break</button>
         </div>
 
         <div class="status-msg text-warning" id="statusMsg"></div>
     </div>
 
     <script>
-        // Clock
-        function updateClock() {
-            const now = new Date();
-            document.getElementById('clock').textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            document.getElementById('date').textContent = now.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' });
-        }
-        setInterval(updateClock, 1000);
-        updateClock();
-
-        // PIN Logic
-        let currentPin = '';
-        const maxPin = 4;
-
-        function enterPin(num) {
-            if (currentPin.length < maxPin) {
-                currentPin += num;
-                updatePinDisplay();
+        document.addEventListener('DOMContentLoaded', () => {
+            // Clock
+            function updateClock() {
+                const now = new Date();
+                document.getElementById('clock').textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                document.getElementById('date').textContent = now.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' });
             }
-        }
+            setInterval(updateClock, 1000);
+            updateClock();
 
-        function backspace() {
-            currentPin = currentPin.slice(0, -1);
-            updatePinDisplay();
-        }
+            // PIN Logic
+            let currentPin = '';
+            const maxPin = 4;
 
-        function clearPin() {
-            currentPin = '';
-            updatePinDisplay();
-        }
-
-        function updatePinDisplay() {
-            const dots = document.querySelectorAll('.pin-dot');
-            dots.forEach((dot, index) => {
-                if (index < currentPin.length) {
-                    dot.classList.add('active');
-                } else {
-                    dot.classList.remove('active');
-                }
-            });
-        }
-
-        async function clockAction(type) {
-            if (currentPin.length !== 4) {
-                showStatus('Please enter your 4-digit PIN', 'text-danger');
-                return;
-            }
-
-            const btn = type === 'in' ? document.querySelector('.btn-in') : document.querySelector('.btn-out');
-            const originalText = btn.textContent;
-            btn.textContent = 'Processing...';
-            btn.disabled = true;
-
-            const API_BASE = window.location.hostname === 'localhost'
-                ? 'https://vbms-fresh-offical-website-launch.onrender.com'
-                : 'https://vbms-fresh-offical-website-launch.onrender.com';
-
-            try {
-                const res = await fetch(`${API_BASE}/api/timesheet/clock`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ pin: currentPin, type })
+            function updatePinDisplay() {
+                const dots = document.querySelectorAll('.pin-dot');
+                dots.forEach((dot, index) => {
+                    if (index < currentPin.length) {
+                        dot.classList.add('active');
+                    } else {
+                        dot.classList.remove('active');
+                    }
                 });
-
-                const data = await res.json();
-
-                if (res.ok) {
-                    showStatus(data.message, 'text-success');
-                    clearPin();
-                } else {
-                    showStatus(data.message || 'Error', 'text-danger');
-                }
-            } catch (err) {
-                showStatus('Error connecting to server', 'text-danger');
-            } finally {
-                btn.textContent = originalText;
-                btn.disabled = false;
             }
-        }
 
-        function showStatus(msg, className) {
-            const el = document.getElementById('statusMsg');
-            el.textContent = msg;
-            el.className = 'status-msg ' + className;
-            setTimeout(() => {
-                el.textContent = '';
-            }, 3000);
-        }
+            // Attach Number Listeners
+            document.querySelectorAll('.pin-btn[data-num]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    if (currentPin.length < maxPin) {
+                        currentPin += btn.dataset.num;
+                        updatePinDisplay();
+                    }
+                });
+            });
+
+            // Attach Control Listeners
+            document.getElementById('btnClear').addEventListener('click', () => {
+                currentPin = '';
+                updatePinDisplay();
+            });
+
+            document.getElementById('btnBackspace').addEventListener('click', () => {
+                currentPin = currentPin.slice(0, -1);
+                updatePinDisplay();
+            });
+
+            // Attach Action Listeners
+            document.getElementById('btnIn').addEventListener('click', () => clockAction('in'));
+            document.getElementById('btnOut').addEventListener('click', () => clockAction('out'));
+            document.getElementById('btnBreakStart').addEventListener('click', () => clockAction('break_start'));
+            document.getElementById('btnBreakEnd').addEventListener('click', () => clockAction('break_end'));
+
+            async function clockAction(type) {
+                if (currentPin.length !== 4) {
+                    showStatus('Please enter your 4-digit PIN', 'text-danger');
+                    return;
+                }
+
+                let btn;
+                if (type === 'in') btn = document.getElementById('btnIn');
+                else if (type === 'out') btn = document.getElementById('btnOut');
+                else if (type === 'break_start') btn = document.getElementById('btnBreakStart');
+                else if (type === 'break_end') btn = document.getElementById('btnBreakEnd');
+
+                const originalText = btn.textContent;
+                btn.textContent = 'Processing...';
+                btn.disabled = true;
+
+                const API_BASE = window.location.hostname === 'localhost'
+                    ? 'https://vbms-fresh-offical-website-launch.onrender.com'
+                    : 'https://vbms-fresh-offical-website-launch.onrender.com';
+
+                try {
+                    const res = await fetch(`${API_BASE}/api/timesheet/clock`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ pin: currentPin, type })
+                    });
+
+                    const data = await res.json();
+
+                    if (res.ok) {
+                        showStatus(data.message, 'text-success');
+                        currentPin = '';
+                        updatePinDisplay();
+                    } else {
+                        showStatus(data.message || 'Error', 'text-danger');
+                    }
+                } catch (err) {
+                    showStatus('Error connecting to server', 'text-danger');
+                } finally {
+                    btn.textContent = originalText;
+                    btn.disabled = false;
+                }
+            }
+
+            function showStatus(msg, className) {
+                const el = document.getElementById('statusMsg');
+                el.textContent = msg;
+                el.className = 'status-msg ' + className;
+                setTimeout(() => {
+                    el.textContent = '';
+                }, 3000);
+            }
+        });
     </script>
 </body>
 
