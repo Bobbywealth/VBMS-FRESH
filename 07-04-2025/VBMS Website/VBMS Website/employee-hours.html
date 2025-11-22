@@ -9,42 +9,68 @@
     <link rel="stylesheet" href="https://unpkg.com/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     <style>
         body {
-            background: #1a1a2e;
-            color: #fff;
-            font-family: 'Inter', sans-serif;
+            background: #f8f9fa;
+            color: #212529;
+            font-family: 'Segoe UI', sans-serif;
         }
 
-        .container {
-            max-width: 1000px;
-            margin-top: 50px;
+        [data-theme="dark"] body {
+            background: #121212;
+            color: #fff;
+        }
+
+        /* Sidebar Layout */
+        .main-content {
+            margin-left: 280px;
+            padding: 2rem;
+            transition: margin 0.3s;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+            }
         }
 
         .card {
-            background: #16213e;
-            border: 1px solid #333;
+            border: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
         }
 
-        .table {
+        [data-theme="dark"] .card {
+            background: #1e1e1e;
             color: #fff;
         }
 
         .table th {
-            background: #0f3460;
-            color: #f0b90b;
-            border-color: #333;
+            background: #f1f1f1;
+            color: #333;
         }
 
-        .table td {
-            border-color: #333;
+        [data-theme="dark"] .table th {
+            background: #2c2c2c;
+            color: #f0b90b;
+            border-color: #444;
+        }
+
+        [data-theme="dark"] .table td {
+            border-color: #444;
+            color: #ddd;
         }
 
         .badge-in {
             background: #2ecc71;
-            color: #000;
+            color: #fff;
         }
 
         .badge-out {
-            background: #e74c3c;
+            background: #95a5a6;
+            color: #fff;
+        }
+
+        .badge-break {
+            background: #e67e22;
             color: #fff;
         }
     </style>
@@ -52,21 +78,24 @@
 
 <body>
 
-    <div class="container">
+    <!-- Sidebar Container -->
+    <div id="sidebar-container"></div>
+
+    <main class="main-content">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2><i class="bi bi-clock-history text-warning"></i> Employee Hours</h2>
-            <a href="dashboard.html" class="btn btn-outline-light">Back to Dashboard</a>
+            <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#addEmployeeModal">
+                <i class="bi bi-person-plus"></i> Add Employee
+            </button>
         </div>
 
         <div class="card p-4">
             <div class="d-flex gap-3 mb-4">
-                <input type="date" class="form-control bg-dark text-white border-secondary" style="max-width: 200px;">
-                <select class="form-select bg-dark text-white border-secondary" style="max-width: 200px;">
+                <input type="date" class="form-control" style="max-width: 200px;">
+                <select class="form-select" style="max-width: 200px;">
                     <option>All Employees</option>
-                    <option>Sarah (Manager)</option>
-                    <option>John Doe</option>
                 </select>
-                <button class="btn btn-warning">Filter</button>
+                <button class="btn btn-outline-primary">Filter</button>
             </div>
 
             <div class="table-responsive">
@@ -77,12 +106,10 @@
                             <th>Date</th>
                             <th>Clock In</th>
                             <th>Clock Out</th>
-                            <th>Total Hours</th>
+                            <th>Breaks</th>
                             <th>Status</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr>
                     <tbody id="hoursBody">
                         <tr>
                             <td colspan="6" class="text-center">Loading...</td>
@@ -91,19 +118,83 @@
                 </table>
             </div>
         </div>
+    </main>
+
+    <!-- Add Employee Modal -->
+    <div class="modal fade" id="addEmployeeModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New Employee</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addEmployeeForm">
+                        <div class="mb-3">
+                            <label class="form-label">First Name</label>
+                            <input type="text" class="form-control" id="empFirstName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Last Name</label>
+                            <input type="text" class="form-control" id="empLastName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" id="empEmail" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Assign PIN Code (4 digits)</label>
+                            <input type="text" class="form-control" id="empPin" maxlength="4" pattern="\d{4}" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Create Employee</button>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="auth.js"></script> <!-- Ensure auth.js is loaded for token management -->
+
     <script>
+        // Load Sidebar
+        document.addEventListener('DOMContentLoaded', function () {
+            fetch('customer-sidebar.html')
+                .then(response => response.text())
+                .then(html => {
+                    document.getElementById('sidebar-container').innerHTML = html;
+                    // Re-execute scripts in sidebar
+                    const scripts = document.getElementById('sidebar-container').querySelectorAll('script');
+                    scripts.forEach(script => {
+                        const newScript = document.createElement('script');
+                        if (script.src) newScript.src = script.src;
+                        else newScript.textContent = script.textContent;
+                        document.body.appendChild(newScript);
+                    });
+                });
+
+            fetchHours();
+        });
+
         const API_BASE = window.location.hostname === 'localhost'
             ? 'https://vbms-fresh-offical-website-launch.onrender.com'
             : 'https://vbms-fresh-offical-website-launch.onrender.com';
 
         async function fetchHours() {
-            try {
-                const res = await fetch(`${API_BASE}/api/timesheet`);
-                const logs = await res.json();
+            const token = localStorage.getItem('vbmsToken'); // Get token from auth.js storage
+            if (!token) {
+                window.location.href = 'login.html';
+                return;
+            }
 
+            try {
+                const res = await fetch(`${API_BASE}/api/timesheet`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!res.ok) throw new Error('Failed to fetch');
+
+                const logs = await res.json();
                 const tbody = document.getElementById('hoursBody');
                 tbody.innerHTML = '';
 
@@ -113,39 +204,64 @@
                 }
 
                 logs.forEach(log => {
-                    const clockIn = new Date(log.clock_in).toLocaleString();
-                    const clockOut = log.clock_out ? new Date(log.clock_out).toLocaleString() : '--';
+                    const clockIn = new Date(log.clock_in).toLocaleTimeString();
+                    const clockOut = log.clock_out ? new Date(log.clock_out).toLocaleTimeString() : '--';
 
-                    // Calculate duration
-                    let duration = '--';
-                    if (log.clock_out) {
-                        const diff = new Date(log.clock_out) - new Date(log.clock_in);
-                        const hours = diff / (1000 * 60 * 60);
-                        duration = hours.toFixed(2) + ' hrs';
-                    }
-
-                    const statusBadge = log.status === 'active'
-                        ? '<span class="badge badge-in">Clocked In</span>'
-                        : '<span class="badge badge-out">Clocked Out</span>';
+                    let statusBadge = '<span class="badge badge-out">Clocked Out</span>';
+                    if (log.status === 'active') statusBadge = '<span class="badge badge-in">Clocked In</span>';
+                    if (log.status === 'on_break') statusBadge = '<span class="badge badge-break">On Break</span>';
 
                     tbody.innerHTML += `
-              <tr>
-                <td>${log.user_name}</td>
-                <td>${new Date(log.clock_in).toLocaleDateString()}</td>
-                <td>${new Date(log.clock_in).toLocaleTimeString()}</td>
-                <td>${log.clock_out ? new Date(log.clock_out).toLocaleTimeString() : '--'}</td>
-                <td>${duration}</td>
-                <td>${statusBadge}</td>
-              </tr>
-            `;
+            <tr>
+              <td>${log.user_name}</td>
+              <td>${new Date(log.clock_in).toLocaleDateString()}</td>
+              <td>${clockIn}</td>
+              <td>${clockOut}</td>
+              <td>${log.break_count || 0}</td>
+              <td>${statusBadge}</td>
+            </tr>
+          `;
                 });
             } catch (err) {
-                console.error('Error fetching hours:', err);
-                document.getElementById('hoursBody').innerHTML = '<tr><td colspan="6" class="text-center text-danger">Error loading data</td></tr>';
+                console.error('Error:', err);
+                document.getElementById('hoursBody').innerHTML = '<tr><td colspan="6" class="text-center text-danger">Error loading data. Please log in again.</td></tr>';
             }
         }
 
-        document.addEventListener('DOMContentLoaded', fetchHours);
+        // Handle Add Employee
+        document.getElementById('addEmployeeForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const token = localStorage.getItem('vbmsToken');
+
+            const data = {
+                firstName: document.getElementById('empFirstName').value,
+                lastName: document.getElementById('empLastName').value,
+                email: document.getElementById('empEmail').value,
+                pin: document.getElementById('empPin').value
+            };
+
+            try {
+                const res = await fetch(`${API_BASE}/api/timesheet/employees`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await res.json();
+                if (res.ok) {
+                    alert('Employee created! They can now use the Kiosk with PIN: ' + data.pin);
+                    bootstrap.Modal.getInstance(document.getElementById('addEmployeeModal')).hide();
+                    e.target.reset();
+                } else {
+                    alert('Error: ' + result.message);
+                }
+            } catch (err) {
+                alert('Server error');
+            }
+        });
     </script>
 </body>
 

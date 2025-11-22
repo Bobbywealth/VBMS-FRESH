@@ -138,9 +138,22 @@ const createTables = async () => {
       );
     `);
 
-    // Add pin_code to users if not exists
+    // Add pin_code and employer_id to users if not exists
     await client.query(`
-      ALTER TABLE users ADD COLUMN IF NOT EXISTS pin_code VARCHAR(10);
+      ALTER TABLE users 
+      ADD COLUMN IF NOT EXISTS pin_code VARCHAR(10),
+      ADD COLUMN IF NOT EXISTS employer_id INTEGER REFERENCES users(id);
+    `);
+
+    // Create breaks table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS breaks (
+        id SERIAL PRIMARY KEY,
+        time_log_id INTEGER REFERENCES time_logs(id),
+        start_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        end_time TIMESTAMP,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
     `);
 
     // --- SEED INITIAL USERS ---
