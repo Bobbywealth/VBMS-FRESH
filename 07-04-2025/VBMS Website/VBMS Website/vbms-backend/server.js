@@ -120,6 +120,22 @@ const aiChatRoutes = require('./routes/ai-chat');
 const taskSchedulerRoutes = require('./routes/tasks-scheduler');
 const webhookRoutes = require('./routes/webhooks');
 
+// Debug endpoint to check users (REMOVE IN PRODUCTION)
+app.get('/api/debug/users', async (req, res) => {
+  try {
+    const client = await pgPool.connect();
+    const result = await client.query('SELECT id, email, role, created_at FROM users');
+    client.release();
+    res.json({
+      count: result.rows.length,
+      users: result.rows,
+      db_url_masked: process.env.DATABASE_URL ? process.env.DATABASE_URL.split('@')[1] : 'NOT_SET'
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Mount routes
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);

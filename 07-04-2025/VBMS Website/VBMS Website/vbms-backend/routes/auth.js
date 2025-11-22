@@ -71,11 +71,14 @@ router.post('/login', async (req, res) => {
     const client = await pgPool.connect();
 
     // Find user
+    console.log(`Login attempt for: '${email}'`);
     const userResult = await client.query('SELECT * FROM users WHERE email = $1', [email]);
     const user = userResult.rows[0];
+    console.log(`User found: ${user ? 'YES' : 'NO'} (ID: ${user?.id})`);
 
     if (!user) {
       client.release();
+      console.log('❌ Login failed: No user found in DB');
       return res.status(400).json({ message: "No user found" });
     }
 
