@@ -19,7 +19,7 @@
         --cyan: #06b6d4;
         --light: #f8f9fa;
         --dark: #212529;
-        --glass: rgba(255,255,255,0.95);
+        --glass: rgba(255, 255, 255, 0.95);
         --glass-glow: rgba(240, 185, 11, 0.15);
         --border: #e9ecef;
         --text: #212529;
@@ -27,7 +27,7 @@
         --card-bg: #ffffff;
         --card-shadow: 0 8px 32px rgba(240, 185, 11, 0.1);
         --bg: linear-gradient(135deg, #f8f9fa 0%, #f0f8ff 50%, #f8f4ff 100%);
-        --sidebar-bg: rgba(255,255,255,0.98);
+        --sidebar-bg: rgba(255, 255, 255, 0.98);
         --sidebar-link: #333;
         --sidebar-link-active: #000;
     }
@@ -66,7 +66,7 @@
         position: fixed;
         height: 100vh;
         overflow-y: auto;
-        box-shadow: 
+        box-shadow:
             2px 0 30px rgba(240, 185, 11, 0.15),
             inset 1px 0 0 rgba(255, 255, 255, 0.1);
         z-index: 1000;
@@ -77,8 +77,11 @@
         top: 0;
         left: 0;
     }
-    .sidebar::-webkit-scrollbar { display: none; }
-    
+
+    .sidebar::-webkit-scrollbar {
+        display: none;
+    }
+
     /* Mobile hamburger menu button */
     .mobile-menu-btn {
         display: none;
@@ -96,12 +99,12 @@
         box-shadow: 0 4px 15px rgba(240, 185, 11, 0.3);
         transition: all 0.3s ease;
     }
-    
+
     .mobile-menu-btn:hover {
         transform: scale(1.05);
         box-shadow: 0 6px 20px rgba(240, 185, 11, 0.4);
     }
-    
+
     /* Mobile overlay */
     .mobile-overlay {
         display: none;
@@ -115,13 +118,21 @@
         opacity: 0;
         transition: opacity 0.3s ease;
     }
-    
+
     .mobile-overlay.active {
         opacity: 1;
     }
 
-    .logo { text-align: center; margin-bottom: 30px; }
-    .logo img { max-width: 150px; height: auto; }
+    .logo {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .logo img {
+        max-width: 150px;
+        height: auto;
+    }
+
     .sidebar-heading {
         color: var(--accent);
         font-size: 0.8rem;
@@ -131,6 +142,7 @@
         margin: 20px 0 10px 0;
         opacity: 0.8;
     }
+
     .sidebar-link {
         display: block;
         padding: 12px 15px;
@@ -145,6 +157,7 @@
         font-size: 0.95rem;
         white-space: nowrap;
     }
+
     .sidebar-link::before {
         content: '';
         position: absolute;
@@ -155,7 +168,9 @@
         background: linear-gradient(90deg, transparent, rgba(240, 185, 11, 0.2), transparent);
         transition: left 0.5s ease;
     }
-    .sidebar-link:hover, .sidebar-link.active {
+
+    .sidebar-link:hover,
+    .sidebar-link.active {
         background: var(--glass-glow);
         color: var(--accent);
         border-left-color: var(--accent);
@@ -163,16 +178,23 @@
         box-shadow: 0 4px 15px rgba(240, 185, 11, 0.3);
         font-weight: 600;
     }
-    .sidebar-link:hover::before { left: 100%; }
-    .sidebar-link i { margin-right: 10px; width: 20px; }
-    
+
+    .sidebar-link:hover::before {
+        left: 100%;
+    }
+
+    .sidebar-link i {
+        margin-right: 10px;
+        width: 20px;
+    }
+
     /* Dark theme sidebar enhancements */
     [data-theme="dark"] .sidebar-link:hover,
     [data-theme="dark"] .sidebar-link.active {
         background: linear-gradient(90deg, rgba(240, 185, 11, 0.15), rgba(255, 215, 0, 0.1));
         color: var(--accent-light) !important;
         border-left-color: var(--accent);
-        box-shadow: 
+        box-shadow:
             0 4px 15px rgba(240, 185, 11, 0.3),
             inset 0 1px 0 rgba(240, 185, 11, 0.2),
             0 0 20px rgba(240, 185, 11, 0.1);
@@ -195,7 +217,7 @@
         font-size: 0.95rem;
         text-align: left;
     }
-    
+
     .theme-toggle:hover {
         background: var(--glass-glow);
         color: var(--accent);
@@ -203,7 +225,7 @@
         transform: translateX(8px);
         box-shadow: 0 4px 15px rgba(240, 185, 11, 0.3);
     }
-    
+
     .theme-toggle i {
         margin-right: 10px;
         width: 20px;
@@ -220,6 +242,7 @@
         font-weight: 600;
         transition: all 0.3s ease;
     }
+
     .btn-logout:hover {
         transform: translateY(-2px);
         box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
@@ -231,16 +254,16 @@
             width: 280px;
         }
     }
-    
+
     @media (max-width: 768px) {
         .mobile-menu-btn {
             display: block;
         }
-        
+
         .mobile-overlay {
             display: block;
         }
-        
+
         .sidebar {
             transform: translateX(-100%);
             transition: transform 0.3s ease;
@@ -248,62 +271,62 @@
             max-width: 320px;
             border-radius: 0 15px 15px 0;
         }
-        
+
         .sidebar.active {
             transform: translateX(0);
         }
-        
+
         .logo img {
             max-width: 120px;
         }
-        
+
         .sidebar-heading {
             font-size: 0.75rem;
             margin: 15px 0 8px 0;
         }
-        
+
         .sidebar-link {
             padding: 14px 15px;
             font-size: 0.9rem;
         }
-        
+
         .sidebar-link i {
             margin-right: 12px;
             width: 22px;
         }
     }
-    
+
     @media (max-width: 480px) {
         .sidebar {
             width: 85%;
             padding: 15px;
         }
-        
+
         .logo {
             margin-bottom: 20px;
         }
-        
+
         .logo img {
             max-width: 100px;
         }
-        
+
         .sidebar-link {
             padding: 12px 12px;
             margin-bottom: 3px;
         }
-        
+
         .btn-logout {
             margin-top: 20px;
             padding: 10px;
         }
     }
-    
+
     @media (max-width: 320px) {
         .sidebar {
             width: 95%;
             padding: 12px;
         }
-        
+
         .sidebar-link {
             padding: 10px;
             font-size: 0.85rem;
@@ -332,8 +355,13 @@
     }
 
     @keyframes spin {
-        0% { transform: translateY(-50%) rotate(0deg); }
-        100% { transform: translateY(-50%) rotate(360deg); }
+        0% {
+            transform: translateY(-50%) rotate(0deg);
+        }
+
+        100% {
+            transform: translateY(-50%) rotate(360deg);
+        }
     }
 </style>
 
@@ -349,13 +377,14 @@
     <div class="logo">
         <img src="https://iili.io/F7bM6Jt.md.png" alt="VBMS">
     </div>
-    
+
     <p class="sidebar-heading">MY DASHBOARD</p>
     <a class="sidebar-link" href="customer-dashboard.html"><i class="bi bi-speedometer2"></i> Dashboard</a>
     <a class="sidebar-link" href="customer-orders.html"><i class="bi bi-box"></i> My Orders</a>
     <a class="sidebar-link" href="customer-inventory.html"><i class="bi bi-stack"></i> My Inventory</a>
     <a class="sidebar-link" href="customer-monitoring.html"><i class="bi bi-camera-video"></i> Monitoring</a>
     <a class="sidebar-link" href="customer-tasks.html"><i class="bi bi-kanban"></i> My Tasks</a>
+    <a class="sidebar-link" href="employee-hours.html"><i class="bi bi-clock-history"></i> Employee Hours</a>
     <a class="sidebar-link" href="customer-calendar.html"><i class="bi bi-calendar-event"></i> Calendar</a>
 
     <p class="sidebar-heading">SERVICES</p>
@@ -370,136 +399,136 @@
     <p class="sidebar-heading">SUPPORT</p>
     <a class="sidebar-link" href="support.html"><i class="bi bi-chat-dots"></i> Support</a>
     <a class="sidebar-link" href="help.html"><i class="bi bi-question-circle"></i> Help</a>
-    
+
     <!-- Theme Toggle Button -->
     <button class="theme-toggle" id="themeToggle">
         <i id="themeIcon" class="bi bi-moon-fill"></i> Dark Mode
     </button>
-    
+
     <button class="btn btn-logout" onclick="logout()"><i class="bi bi-box-arrow-left"></i> Logout</button>
 </nav>
 
 <script src="auth.js"></script>
 <script src="theme-manager.js"></script>
 <script>
-// Mobile Menu Functions
-function toggleMobileMenu() {
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('mobileOverlay');
-    const menuBtn = document.getElementById('mobileMenuBtn');
-    const icon = menuBtn.querySelector('i');
-    
-    sidebar.classList.toggle('active');
-    overlay.classList.toggle('active');
-    
-    // Toggle icon
-    if (sidebar.classList.contains('active')) {
-        icon.classList.remove('bi-list');
-        icon.classList.add('bi-x');
-    } else {
+    // Mobile Menu Functions
+    function toggleMobileMenu() {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('mobileOverlay');
+        const menuBtn = document.getElementById('mobileMenuBtn');
+        const icon = menuBtn.querySelector('i');
+
+        sidebar.classList.toggle('active');
+        overlay.classList.toggle('active');
+
+        // Toggle icon
+        if (sidebar.classList.contains('active')) {
+            icon.classList.remove('bi-list');
+            icon.classList.add('bi-x');
+        } else {
+            icon.classList.remove('bi-x');
+            icon.classList.add('bi-list');
+        }
+    }
+
+    function closeMobileMenu() {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('mobileOverlay');
+        const menuBtn = document.getElementById('mobileMenuBtn');
+        const icon = menuBtn.querySelector('i');
+
+        sidebar.classList.remove('active');
+        overlay.classList.remove('active');
         icon.classList.remove('bi-x');
         icon.classList.add('bi-list');
     }
-}
 
-function closeMobileMenu() {
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('mobileOverlay');
-    const menuBtn = document.getElementById('mobileMenuBtn');
-    const icon = menuBtn.querySelector('i');
-    
-    sidebar.classList.remove('active');
-    overlay.classList.remove('active');
-    icon.classList.remove('bi-x');
-    icon.classList.add('bi-list');
-}
+    // Close mobile menu when clicking on links and prevent double-clicks
+    document.addEventListener('DOMContentLoaded', function () {
+        let navigationInProgress = false;
+        let lastClickTime = 0;
+        const sidebarLinks = document.querySelectorAll('.sidebar-link');
 
-// Close mobile menu when clicking on links and prevent double-clicks
-document.addEventListener('DOMContentLoaded', function() {
-    let navigationInProgress = false;
-    let lastClickTime = 0;
-    const sidebarLinks = document.querySelectorAll('.sidebar-link');
-    
-    sidebarLinks.forEach(link => {
-        // Remove any existing onclick handlers to prevent conflicts
-        link.removeAttribute('onclick');
-        
-        link.addEventListener('click', function(e) {
-            const currentTime = Date.now();
-            const timeSinceLastClick = currentTime - lastClickTime;
-            
-            // Prevent double-clicks within 300ms (standard double-click threshold)
-            if (timeSinceLastClick < 300) {
-                console.log('Double-click detected, preventing navigation');
+        sidebarLinks.forEach(link => {
+            // Remove any existing onclick handlers to prevent conflicts
+            link.removeAttribute('onclick');
+
+            link.addEventListener('click', function (e) {
+                const currentTime = Date.now();
+                const timeSinceLastClick = currentTime - lastClickTime;
+
+                // Prevent double-clicks within 300ms (standard double-click threshold)
+                if (timeSinceLastClick < 300) {
+                    console.log('Double-click detected, preventing navigation');
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return false;
+                }
+
+                // Prevent rapid navigation
+                if (navigationInProgress) {
+                    console.log('Navigation already in progress, preventing duplicate navigation');
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return false;
+                }
+
+                // Update last click time
+                lastClickTime = currentTime;
+
+                // Set flag to prevent rapid clicks
+                navigationInProgress = true;
+
+                // Add visual feedback with CSS class
+                this.classList.add('navigating');
+
+                // Reset flag and visual state after navigation completes or times out
+                setTimeout(() => {
+                    navigationInProgress = false;
+                    this.classList.remove('navigating');
+                }, 1500); // 1.5 second cooldown to ensure any auth checks complete
+
+                // Close mobile menu on smaller screens
+                if (window.innerWidth <= 768) {
+                    closeMobileMenu();
+                }
+            });
+
+            // Also prevent double-click events from triggering at all
+            link.addEventListener('dblclick', function (e) {
+                console.log('Double-click event blocked on customer navigation');
                 e.preventDefault();
                 e.stopPropagation();
                 return false;
-            }
-            
-            // Prevent rapid navigation
-            if (navigationInProgress) {
-                console.log('Navigation already in progress, preventing duplicate navigation');
-                e.preventDefault();
-                e.stopPropagation();
-                return false;
-            }
-            
-            // Update last click time
-            lastClickTime = currentTime;
-            
-            // Set flag to prevent rapid clicks
-            navigationInProgress = true;
-            
-            // Add visual feedback with CSS class
-            this.classList.add('navigating');
-            
-            // Reset flag and visual state after navigation completes or times out
-            setTimeout(() => {
-                navigationInProgress = false;
-                this.classList.remove('navigating');
-            }, 1500); // 1.5 second cooldown to ensure any auth checks complete
-            
-            // Close mobile menu on smaller screens
-            if (window.innerWidth <= 768) {
-                closeMobileMenu();
-            }
-        });
-        
-        // Also prevent double-click events from triggering at all
-        link.addEventListener('dblclick', function(e) {
-            console.log('Double-click event blocked on customer navigation');
-            e.preventDefault();
-            e.stopPropagation();
-            return false;
+            });
         });
     });
-});
 
-// Set active sidebar link based on current page
-document.addEventListener('DOMContentLoaded', function() {
-    setActiveSidebarLink();
-});
-
-function setActiveSidebarLink() {
-    // Get current page filename
-    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
-    
-    // Remove active class from all sidebar links
-    const allLinks = document.querySelectorAll('.sidebar-link');
-    allLinks.forEach(link => {
-        link.classList.remove('active');
+    // Set active sidebar link based on current page
+    document.addEventListener('DOMContentLoaded', function () {
+        setActiveSidebarLink();
     });
-    
-    // Find and activate the current page link
-    const currentLink = document.querySelector(`.sidebar-link[href="${currentPage}"]`);
-    if (currentLink) {
-        currentLink.classList.add('active');
-    } else {
-        // Fallback: if no exact match, try to match dashboard for customer pages
-        const dashboardLink = document.querySelector('.sidebar-link[href="customer-dashboard.html"]');
-        if (dashboardLink && currentPage.includes('customer') || currentPage === 'customer-dashboard.html') {
-            dashboardLink.classList.add('active');
+
+    function setActiveSidebarLink() {
+        // Get current page filename
+        const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+
+        // Remove active class from all sidebar links
+        const allLinks = document.querySelectorAll('.sidebar-link');
+        allLinks.forEach(link => {
+            link.classList.remove('active');
+        });
+
+        // Find and activate the current page link
+        const currentLink = document.querySelector(`.sidebar-link[href="${currentPage}"]`);
+        if (currentLink) {
+            currentLink.classList.add('active');
+        } else {
+            // Fallback: if no exact match, try to match dashboard for customer pages
+            const dashboardLink = document.querySelector('.sidebar-link[href="customer-dashboard.html"]');
+            if (dashboardLink && currentPage.includes('customer') || currentPage === 'customer-dashboard.html') {
+                dashboardLink.classList.add('active');
+            }
         }
     }
-}
 </script>
