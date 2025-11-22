@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <title>VBMS Payment Portal</title>
@@ -19,72 +20,254 @@
       align-items: center;
       justify-content: flex-start;
     }
-    .vbms-logo { margin: 2.5rem auto 1rem auto; display: block; max-width: 110px; }
-    h2 { color: #f0b90b; font-weight: 900; font-size: 2rem; margin-bottom: 2rem; text-align: center; }
+
+    .vbms-logo {
+      margin: 2.5rem auto 1rem auto;
+      display: block;
+      max-width: 110px;
+    }
+
+    h2 {
+      color: #f0b90b;
+      font-weight: 900;
+      font-size: 2rem;
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+
     .packages-container {
-      display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center; margin-bottom: 2.5rem;
+      display: flex;
+      gap: 2rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 2.5rem;
     }
+
     .package-card {
-      background: #202026; border-radius: 22px; padding: 2rem 1.5rem; box-shadow: 0 6px 44px 0 #f0b90b22;
-      max-width: 320px; min-width: 270px; border: 2px solid transparent; transition: border 0.2s; position: relative;
+      background: #202026;
+      border-radius: 22px;
+      padding: 2rem 1.5rem;
+      box-shadow: 0 6px 44px 0 #f0b90b22;
+      max-width: 320px;
+      min-width: 270px;
+      border: 2px solid transparent;
+      transition: border 0.2s;
+      position: relative;
     }
-    .package-card.selected { border: 2.5px solid #f0b90b; box-shadow: 0 8px 48px 0 #f0b90b33; }
-    .package-card h3 { color: #f0b90b; font-size: 1.3rem; font-weight: 800; margin-bottom: 0.5rem; }
+
+    .package-card.selected {
+      border: 2.5px solid #f0b90b;
+      box-shadow: 0 8px 48px 0 #f0b90b33;
+    }
+
+    .package-card h3 {
+      color: #f0b90b;
+      font-size: 1.3rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+    }
+
     .package-card .badge-popular {
-      background: #f0b90b; color: #18181b; font-weight: 700; font-size: 0.93rem;
-      border-radius: 999px; padding: 0.21em 0.9em; margin-left: 0.6em;
+      background: #f0b90b;
+      color: #18181b;
+      font-weight: 700;
+      font-size: 0.93rem;
+      border-radius: 999px;
+      padding: 0.21em 0.9em;
+      margin-left: 0.6em;
     }
-    .package-card ul, .package-card p { color: #ffe066; margin-top: .7em; font-size: 1rem; text-align: left; padding-left: 1.2em; }
-    .package-card .price { color: #fff; font-size: 1.12rem; font-weight: 600; margin-top: 0.7em; margin-bottom: 0.8em; }
+
+    .package-card ul,
+    .package-card p {
+      color: #ffe066;
+      margin-top: .7em;
+      font-size: 1rem;
+      text-align: left;
+      padding-left: 1.2em;
+    }
+
+    .package-card .price {
+      color: #fff;
+      font-size: 1.12rem;
+      font-weight: 600;
+      margin-top: 0.7em;
+      margin-bottom: 0.8em;
+    }
+
     .package-card .select-btn {
-      display: block; width: 100%; background: linear-gradient(90deg, #f0b90b 0%, #ffdf74 100%);
-      color: #232323; font-weight: 900; font-size: 1.11rem; border: none; border-radius: 10px; padding: .7em 0;
-      margin-top: .3em; margin-bottom: .5em; box-shadow: 0 2px 18px 0 #ffe26785; transition: background .2s; cursor: pointer;
+      display: block;
+      width: 100%;
+      background: linear-gradient(90deg, #f0b90b 0%, #ffdf74 100%);
+      color: #232323;
+      font-weight: 900;
+      font-size: 1.11rem;
+      border: none;
+      border-radius: 10px;
+      padding: .7em 0;
+      margin-top: .3em;
+      margin-bottom: .5em;
+      box-shadow: 0 2px 18px 0 #ffe26785;
+      transition: background .2s;
+      cursor: pointer;
     }
-    .package-card .select-btn:hover { background: #ffe267; }
-    .addon-row { margin-top: 0.7em; }
-    .addon-checkbox { accent-color: #f0b90b; width: 1.2em; height: 1.2em; margin-right: 0.6em; }
-    .billing-toggle { margin: 2em auto 1.5em auto; text-align: center; }
-    .billing-toggle label { margin: 0 0.8em; font-weight: 600; color: #ffe066; }
+
+    .package-card .select-btn:hover {
+      background: #ffe267;
+    }
+
+    .addon-row {
+      margin-top: 0.7em;
+    }
+
+    .addon-checkbox {
+      accent-color: #f0b90b;
+      width: 1.2em;
+      height: 1.2em;
+      margin-right: 0.6em;
+    }
+
+    .billing-toggle {
+      margin: 2em auto 1.5em auto;
+      text-align: center;
+    }
+
+    .billing-toggle label {
+      margin: 0 0.8em;
+      font-weight: 600;
+      color: #ffe066;
+    }
+
     .vbms-pay-card {
-      background: #202020; border-radius: 22px; box-shadow: 0 6px 44px 0 #f0b90b40;
-      padding: 2rem 1.5rem 1.7rem 1.5rem; width: 100%; max-width: 400px; margin: 0 auto 2.5rem auto; display: none;
+      background: #202020;
+      border-radius: 22px;
+      box-shadow: 0 6px 44px 0 #f0b90b40;
+      padding: 2rem 1.5rem 1.7rem 1.5rem;
+      width: 100%;
+      max-width: 400px;
+      margin: 0 auto 2.5rem auto;
+      display: none;
     }
-    .vbms-pay-card.active { display: block; animation: fadeIn .7s cubic-bezier(.7,.3,.2,1); }
-    @keyframes fadeIn { from { opacity:0; transform:translateY(40px);} to { opacity:1; transform:translateY(0);} }
-    .vbms-pay-card label { color: #f0b90b; font-weight: 600; margin-bottom: 0.4rem; letter-spacing: .01em; }
+
+    .vbms-pay-card.active {
+      display: block;
+      animation: fadeIn .7s cubic-bezier(.7, .3, .2, 1);
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(40px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .vbms-pay-card label {
+      color: #f0b90b;
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+      letter-spacing: .01em;
+    }
+
     .StripeElement {
-      background: #222; padding: .9em .8em; border-radius: 10px; border: 1.5px solid #f0b90b;
-      color: #fff; font-size: 1.08em; margin-bottom: .5em;
+      background: #222;
+      padding: .9em .8em;
+      border-radius: 10px;
+      border: 1.5px solid #f0b90b;
+      color: #fff;
+      font-size: 1.08em;
+      margin-bottom: .5em;
     }
-    #card-errors { color: #ff5757; font-size: .98em; margin: 0.2em 0 1em 0; min-height: 1.5em; text-align: center; }
-    .vbms-btn { width: 100%; background: linear-gradient(90deg, #f0b90b 0%, #ffdf74 100%); color: #232323; font-weight: 900; font-size: 1.16rem; border: none; border-radius: 10px; padding: .7em 0; margin-top: .3em; margin-bottom: .7em; box-shadow: 0 2px 18px 0 #ffe26785; transition: background .2s;}
-    .vbms-btn:hover { background: #ffe267; }
-    .vbms-success { background: #262; color: #fff; padding: 1.1em; border-radius: 9px; text-align: center; font-size: 1.13em; margin-top: .8em; font-weight: 600; box-shadow: 0 2px 10px #359e355a; }
-    .vbms-fail { background: #922; color: #fff; padding: 1.1em; border-radius: 9px; text-align: center; font-size: 1.11em; margin-top: .8em; font-weight: 600; box-shadow: 0 2px 10px #ed51517a; }
-    .trial-msg { color: #0fd48d; font-weight: 600; text-align: center; margin: 1.1em 0 .2em 0; }
+
+    #card-errors {
+      color: #ff5757;
+      font-size: .98em;
+      margin: 0.2em 0 1em 0;
+      min-height: 1.5em;
+      text-align: center;
+    }
+
+    .vbms-btn {
+      width: 100%;
+      background: linear-gradient(90deg, #f0b90b 0%, #ffdf74 100%);
+      color: #232323;
+      font-weight: 900;
+      font-size: 1.16rem;
+      border: none;
+      border-radius: 10px;
+      padding: .7em 0;
+      margin-top: .3em;
+      margin-bottom: .7em;
+      box-shadow: 0 2px 18px 0 #ffe26785;
+      transition: background .2s;
+    }
+
+    .vbms-btn:hover {
+      background: #ffe267;
+    }
+
+    .vbms-success {
+      background: #262;
+      color: #fff;
+      padding: 1.1em;
+      border-radius: 9px;
+      text-align: center;
+      font-size: 1.13em;
+      margin-top: .8em;
+      font-weight: 600;
+      box-shadow: 0 2px 10px #359e355a;
+    }
+
+    .vbms-fail {
+      background: #922;
+      color: #fff;
+      padding: 1.1em;
+      border-radius: 9px;
+      text-align: center;
+      font-size: 1.11em;
+      margin-top: .8em;
+      font-weight: 600;
+      box-shadow: 0 2px 10px #ed51517a;
+    }
+
+    .trial-msg {
+      color: #0fd48d;
+      font-weight: 600;
+      text-align: center;
+      margin: 1.1em 0 .2em 0;
+    }
   </style>
 </head>
+
 <body>
   <img src="https://iili.io/F7bM6Jt.md.png" class="vbms-logo" alt="VBMS Logo" />
   <h2>Select Your VBMS Package</h2>
   <div class="billing-toggle">
     <label><input type="radio" name="billing" value="monthly" checked>Monthly</label>
-    <label><input type="radio" name="billing" value="annual">Annual <span style="color:#0fd48d;font-size:.95em;font-weight:600;">(10% OFF)</span></label>
+    <label><input type="radio" name="billing" value="annual">Annual <span
+        style="color:#0fd48d;font-size:.95em;font-weight:600;">(10% OFF)</span></label>
   </div>
   <div class="packages-container">
     <!-- Package 1 -->
     <div class="package-card" data-base="250" data-name="VBMS Core">
       <h3>VBMS Core</h3>
-      <div class="price"><strong>$6.25/hr</strong> <span style="color:#ffe066;font-weight:500;">(min 40 hrs/mo = $250/mo)</span></div>
-      <ul><li>Live monitoring, order/task management, calls, daily reporting</li></ul>
+      <div class="price"><strong>$6.25/hr</strong> <span style="color:#ffe066;font-weight:500;">(min 40 hrs/mo =
+          $250/mo)</span></div>
+      <ul>
+        <li>Live monitoring, order/task management, calls, daily reporting</li>
+      </ul>
       <button class="select-btn">Select Core</button>
     </div>
     <!-- Package 2 -->
     <div class="package-card" data-base="99" data-name="AI Phone System">
       <h3>AI Phone System</h3>
       <div class="price"><strong>$99/mo</strong> + <strong>$0.30/call</strong></div>
-      <ul><li>AI-powered phone assistant for calls, reservations, confirmations & more</li></ul>
+      <ul>
+        <li>AI-powered phone assistant for calls, reservations, confirmations & more</li>
+      </ul>
       <button class="select-btn">Select AI Phone</button>
       <div class="trial-msg" style="display:none;">Get a <b>7-day free trial</b>! You won’t be charged today.</div>
     </div>
@@ -107,13 +290,16 @@
   <div class="addon-row" style="margin-bottom:1.6em;">
     <label style="color:#ffe066;font-size:1.04em;font-weight:700;">Add-ons:</label>
     <div>
-      <label><input type="checkbox" class="addon-checkbox" value="Tablet Setup" data-price="45"> Tablet Setup ($45 one-time)</label>
+      <label><input type="checkbox" class="addon-checkbox" value="Tablet Setup" data-price="45"> Tablet Setup ($45
+        one-time)</label>
     </div>
     <div>
-      <label><input type="checkbox" class="addon-checkbox" value="PC/Monitor Setup" data-price="489"> PC/Monitor Setup ($489 one-time)</label>
+      <label><input type="checkbox" class="addon-checkbox" value="PC/Monitor Setup" data-price="489"> PC/Monitor Setup
+        ($489 one-time)</label>
     </div>
     <div>
-      <label><input type="checkbox" class="addon-checkbox" value="Inventory Tracker" data-price="49"> Inventory Tracker ($49/mo, Free in Premium Plus)</label>
+      <label><input type="checkbox" class="addon-checkbox" value="Inventory Tracker" data-price="49"> Inventory Tracker
+        ($49/mo, Free in Premium Plus)</label>
     </div>
   </div>
 
@@ -138,175 +324,177 @@
     <div id="payment-message"></div>
   </div>
 
-<!-- Stripe Checkout Button -->
-<div style="width:100%;max-width:390px;margin:2em auto 0 auto;text-align:center;">
-  <button id="stripeCheckoutBtn" class="vbms-btn" style="font-size:1.2em;">Pay Now with Card</button>
-  <div id="checkout-error" style="color:#ff5757;margin-top:1em;"></div>
-</div>
+  <!-- Stripe Checkout Button -->
+  <div style="width:100%;max-width:390px;margin:2em auto 0 auto;text-align:center;">
+    <button id="stripeCheckoutBtn" class="vbms-btn" style="font-size:1.2em;">Pay Now with Card</button>
+    <div id="checkout-error" style="color:#ff5757;margin-top:1em;"></div>
+  </div>
 
-<!-- VBMS Pricing Integration -->
-<script src="pricing-integration.js"></script>
+  <!-- VBMS Pricing Integration -->
+  <script src="pricing-integration.js"></script>
 
-<script>
-  // Stripe
-  const stripe = Stripe('YOUR_STRIPE_PUBLISHABLE_KEY_HERE');
-  const elements = stripe.elements();
-  const card = elements.create('card', {
-    style: {
-      base: {
-        color: '#fff', fontFamily: 'Inter, Arial, sans-serif', fontWeight: '600', fontSize: '17px',
-        '::placeholder': { color: '#f0b90b' }, backgroundColor: '#222',
-      },
-      invalid: { color: '#ff5757' }
-    }
-  });
-  card.mount('#card-element');
-
-  // UI logic
-  let selectedName = "", selectedBase = 0, selectedAmount = 0, selectedAddOns = [], isTrial = false, billingType = "monthly";
-  const payCard = document.getElementById('pay-card');
-  const packageInput = document.getElementById('package');
-  const amountInput = document.getElementById('amount');
-  const billingRadios = document.querySelectorAll('input[name="billing"]');
-  const packageCards = document.querySelectorAll('.package-card');
-  const addonCheckboxes = document.querySelectorAll('.addon-checkbox');
-  const trialMsg = document.querySelector('.package-card[data-name="AI Phone System"] .trial-msg');
-  let trialEligible = false;
-
-  function recalcAmount() {
-    // Package base price
-    let base = selectedBase;
-    // 10% off annual
-    if (billingType === "annual") base = base * 12 * 0.9;
-    else base = base * 1;
-    // Add-ons
-    let addOnTotal = 0;
-    selectedAddOns = [];
-    addonCheckboxes.forEach(cb => {
-      if (cb.checked) {
-        if (cb.value === "Inventory Tracker" && selectedName === "Premium Plus") return; // free in Premium Plus
-        addOnTotal += (cb.value === "Tablet Setup" ? 45 : cb.value === "PC/Monitor Setup" ? 489 : cb.value === "Inventory Tracker" ? (billingType === "annual" ? 49*12*0.9 : 49) : 0);
-        selectedAddOns.push(cb.value);
+  <script>
+    // Stripe
+    const stripe = Stripe('YOUR_STRIPE_PUBLISHABLE_KEY_HERE');
+    const elements = stripe.elements();
+    const card = elements.create('card', {
+      style: {
+        base: {
+          color: '#fff', fontFamily: 'Inter, Arial, sans-serif', fontWeight: '600', fontSize: '17px',
+          '::placeholder': { color: '#f0b90b' }, backgroundColor: '#222',
+        },
+        invalid: { color: '#ff5757' }
       }
     });
-    // 7-day trial for AI Phone
-    if (selectedName === "AI Phone System" && isTrial) {
-      amountInput.value = 0;
-      trialMsg.style.display = 'block';
-    } else {
-      trialMsg.style.display = 'none';
-      amountInput.value = Math.round(base + addOnTotal);
-    }
-    selectedAmount = parseFloat(amountInput.value);
-  }
+    card.mount('#card-element');
 
-  packageCards.forEach(card => {
-    card.querySelector('.select-btn').addEventListener('click', function() {
-      packageCards.forEach(c => c.classList.remove('selected'));
-      card.classList.add('selected');
-      selectedName = card.getAttribute('data-name');
-      selectedBase = parseFloat(card.getAttribute('data-base'));
-      isTrial = false;
-      if (selectedName === "AI Phone System") {
-        isTrial = true; // always allow trial, could add limit here!
+    // UI logic
+    let selectedName = "", selectedBase = 0, selectedAmount = 0, selectedAddOns = [], isTrial = false, billingType = "monthly";
+    const payCard = document.getElementById('pay-card');
+    const packageInput = document.getElementById('package');
+    const amountInput = document.getElementById('amount');
+    const billingRadios = document.querySelectorAll('input[name="billing"]');
+    const packageCards = document.querySelectorAll('.package-card');
+    const addonCheckboxes = document.querySelectorAll('.addon-checkbox');
+    const trialMsg = document.querySelector('.package-card[data-name="AI Phone System"] .trial-msg');
+    let trialEligible = false;
+
+    function recalcAmount() {
+      // Package base price
+      let base = selectedBase;
+      // 10% off annual
+      if (billingType === "annual") base = base * 12 * 0.9;
+      else base = base * 1;
+      // Add-ons
+      let addOnTotal = 0;
+      selectedAddOns = [];
+      addonCheckboxes.forEach(cb => {
+        if (cb.checked) {
+          if (cb.value === "Inventory Tracker" && selectedName === "Premium Plus") return; // free in Premium Plus
+          addOnTotal += (cb.value === "Tablet Setup" ? 45 : cb.value === "PC/Monitor Setup" ? 489 : cb.value === "Inventory Tracker" ? (billingType === "annual" ? 49 * 12 * 0.9 : 49) : 0);
+          selectedAddOns.push(cb.value);
+        }
+      });
+      // 7-day trial for AI Phone
+      if (selectedName === "AI Phone System" && isTrial) {
+        amountInput.value = 0;
         trialMsg.style.display = 'block';
       } else {
         trialMsg.style.display = 'none';
+        amountInput.value = Math.round(base + addOnTotal);
       }
-      packageInput.value = selectedName;
+      selectedAmount = parseFloat(amountInput.value);
+    }
+
+    packageCards.forEach(card => {
+      card.querySelector('.select-btn').addEventListener('click', function () {
+        packageCards.forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        selectedName = card.getAttribute('data-name');
+        selectedBase = parseFloat(card.getAttribute('data-base'));
+        isTrial = false;
+        if (selectedName === "AI Phone System") {
+          isTrial = true; // always allow trial, could add limit here!
+          trialMsg.style.display = 'block';
+        } else {
+          trialMsg.style.display = 'none';
+        }
+        packageInput.value = selectedName;
+        recalcAmount();
+        payCard.classList.add('active');
+        window.scrollTo({ top: payCard.offsetTop - 40, behavior: 'smooth' });
+      });
+    });
+
+    billingRadios.forEach(r => r.addEventListener('change', function () {
+      billingType = this.value;
       recalcAmount();
-      payCard.classList.add('active');
-      window.scrollTo({top: payCard.offsetTop - 40, behavior: 'smooth'});
-    });
-  });
+    }));
+    addonCheckboxes.forEach(cb => cb.addEventListener('change', recalcAmount));
 
-  billingRadios.forEach(r => r.addEventListener('change', function() {
-    billingType = this.value;
-    recalcAmount();
-  }));
-  addonCheckboxes.forEach(cb => cb.addEventListener('change', recalcAmount));
-
-  // Stripe Payment
-  const form = document.getElementById('payment-form');
-  const errorDiv = document.getElementById('card-errors');
-  const msgDiv = document.getElementById('payment-message');
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    errorDiv.textContent = '';
-    msgDiv.innerHTML = '';
-
-    // Validation
-    let amount = parseFloat(amountInput.value) * 100;
-    const email = document.getElementById('customerEmail').value.trim();
-    const affiliate = document.getElementById('affiliateCode').value.trim();
-    if (!email) { errorDiv.textContent = "Email is required."; return; }
-    if (isNaN(amount) || amount < 0) { errorDiv.textContent = "Amount must be at least $0.00"; return; }
-
-    // Backend call
-    const res = await fetch('https://vbms-backend.onrender.com/api/create-payment-intent', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        amount: Math.round(amount),
-        package: selectedName,
-        addOns: selectedAddOns,
-        affiliate,
-        email,
-        isTrial,
-        billingType
-      })
-    });
-
-    const data = await res.json();
-    if (!data.clientSecret) {
-      errorDiv.textContent = data.error?.message || "Could not create payment intent";
-      return;
-    }
-
-    // Stripe confirm payment
-    const result = await stripe.confirmCardPayment(data.clientSecret, {
-      payment_method: { card }
-    });
-
-    if (result.error) {
-      errorDiv.textContent = result.error.message;
-      msgDiv.innerHTML = `<div class="vbms-fail">❌ Payment failed.<br>${result.error.message}</div>`;
-    } else if (result.paymentIntent && result.paymentIntent.status === 'succeeded') {
+    // Stripe Payment
+    const form = document.getElementById('payment-form');
+    const errorDiv = document.getElementById('card-errors');
+    const msgDiv = document.getElementById('payment-message');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
       errorDiv.textContent = '';
-      msgDiv.innerHTML = `<div class="vbms-success">✅ Payment successful!<br>Thank you for your payment.</div>`;
-      setTimeout(()=>window.location.href='wizard.html', 2300);
-    }
-  });
+      msgDiv.innerHTML = '';
 
-// Hide the old embedded payment form
-if (payCard) payCard.style.display = 'none';
+      // Validation
+      let amount = parseFloat(amountInput.value) * 100;
+      const email = document.getElementById('customerEmail').value.trim();
+      const affiliate = document.getElementById('affiliateCode').value.trim();
+      if (!email) { errorDiv.textContent = "Email is required."; return; }
+      if (isNaN(amount) || amount < 0) { errorDiv.textContent = "Amount must be at least $0.00"; return; }
 
-// Stripe Checkout logic
-const checkoutBtn = document.getElementById('stripeCheckoutBtn');
-checkoutBtn.onclick = async function() {
-  const email = document.getElementById('customerEmail').value.trim();
-  if (!email) {
-    document.getElementById('checkout-error').textContent = 'Please enter your email.';
-    return;
-  }
-  checkoutBtn.disabled = true;
-  checkoutBtn.textContent = 'Redirecting...';
-  document.getElementById('checkout-error').textContent = '';
-  try {
-    const res = await fetch('http://localhost:5050/api/create-checkout-session', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email })
+      // Backend call
+      const res = await fetch('https://vbms-backend.onrender.com/api/create-payment-intent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          amount: Math.round(amount),
+          package: selectedName,
+          addOns: selectedAddOns,
+          affiliate,
+          email,
+          isTrial,
+          billingType
+        })
+      });
+
+      const data = await res.json();
+      if (!data.clientSecret) {
+        errorDiv.textContent = data.error?.message || "Could not create payment intent";
+        return;
+      }
+
+      // Stripe confirm payment
+      const result = await stripe.confirmCardPayment(data.clientSecret, {
+        payment_method: { card }
+      });
+
+      if (result.error) {
+        errorDiv.textContent = result.error.message;
+        msgDiv.innerHTML = `<div class="vbms-fail">❌ Payment failed.<br>${result.error.message}</div>`;
+      } else if (result.paymentIntent && result.paymentIntent.status === 'succeeded') {
+        errorDiv.textContent = '';
+        msgDiv.innerHTML = `<div class="vbms-success">✅ Payment successful!<br>Thank you for your payment.</div>`;
+        setTimeout(() => window.location.href = 'wizard.html', 2300);
+      }
     });
-    const data = await res.json();
-    if (!res.ok || !data.url) throw new Error(data.error || 'Could not start payment.');
-    window.location.href = data.url;
-  } catch (err) {
-    document.getElementById('checkout-error').textContent = err.message || 'Payment error.';
-    checkoutBtn.disabled = false;
-    checkoutBtn.textContent = 'Pay Now with Card';
-  }
-};
-</script>
+
+    // Hide the old embedded payment form
+    if (payCard) payCard.style.display = 'none';
+
+    // Stripe Checkout logic
+    const checkoutBtn = document.getElementById('stripeCheckoutBtn');
+    checkoutBtn.onclick = async function () {
+      const email = document.getElementById('customerEmail').value.trim();
+      if (!email) {
+        document.getElementById('checkout-error').textContent = 'Please enter your email.';
+        return;
+      }
+      checkoutBtn.disabled = true;
+      checkoutBtn.textContent = 'Redirecting...';
+      document.getElementById('checkout-error').textContent = '';
+      try {
+        const API_BASE = window.vbmsConfig?.apiBase || window.API_BASE || '/api';
+        const res = await fetch(`${API_BASE}/create-checkout-session`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+        const data = await res.json();
+        if (!res.ok || !data.url) throw new Error(data.error || 'Could not start payment.');
+        window.location.href = data.url;
+      } catch (err) {
+        document.getElementById('checkout-error').textContent = err.message || 'Payment error.';
+        checkoutBtn.disabled = false;
+        checkoutBtn.textContent = 'Pay Now with Card';
+      }
+    };
+  </script>
 </body>
+
 </html>

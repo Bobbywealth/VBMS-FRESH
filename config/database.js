@@ -25,28 +25,28 @@ pgPool.on('error', (err) => {
 // Database initialization
 const initializeDatabase = async () => {
     console.log('🔄 Initializing PostgreSQL database...');
-    
+
     try {
         const client = await pgPool.connect();
         await client.query('SELECT NOW()');
         client.release();
         console.log('✅ PostgreSQL connection successful');
-        
+
         // Create tables
         await createTables();
-        
+
     } catch (error) {
         console.error('❌ PostgreSQL initialization error:', error);
         throw error;
     }
-    
+
     console.log('🎯 PostgreSQL database initialization complete');
 };
 
 // Create tables if they don't exist
 const createTables = async () => {
     const client = await pgPool.connect();
-    
+
     try {
         // Users table
         await client.query(`
@@ -103,7 +103,7 @@ const createTables = async () => {
         `);
 
         console.log('✅ PostgreSQL tables created successfully');
-        
+
     } catch (error) {
         console.error('❌ Error creating tables:', error);
         throw error;

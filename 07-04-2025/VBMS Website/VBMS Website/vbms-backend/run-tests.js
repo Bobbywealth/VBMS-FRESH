@@ -3,7 +3,7 @@ const VBMSTestSuite = require('./tests/test-suite');
 
 async function runTests() {
   console.log('🚀 Starting VBMS Test Suite');
-  console.log('Please ensure the server is running on http://localhost:5050');
+  console.log('Please ensure the server is running on https://vbms-fresh-offical-website-launch.onrender.com');
   console.log('Press Ctrl+C to cancel or wait 5 seconds to continue...\n');
 
   // Wait 5 seconds to allow user to cancel

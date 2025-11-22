@@ -20,7 +20,7 @@ services:
     networks:
       - vbms-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5050/api/test"]
+      test: ["CMD", "curl", "-f", "https://vbms-fresh-offical-website-launch.onrender.com/api/test"]
       interval: 30s
       timeout: 10s
       retries: 3

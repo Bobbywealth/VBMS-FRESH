@@ -38,7 +38,7 @@ EXPOSE 5050
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD node -e "require('http').get('http://localhost:5050/api/test', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) }).on('error', () => process.exit(1))"
+    CMD node -e "require('http').get('https://vbms-fresh-offical-website-launch.onrender.com/api/test', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) }).on('error', () => process.exit(1))"
 
 # Start application with PM2
 CMD ["pm2-runtime", "start", "ecosystem.config.js", "--env", "production"]

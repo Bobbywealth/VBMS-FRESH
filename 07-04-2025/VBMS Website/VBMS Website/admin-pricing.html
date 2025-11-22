@@ -641,7 +641,7 @@ async function initializePricingManagement() {
 async function loadPricingPlans() {
   try {
     const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-      ? 'http://localhost:5050'
+      ? 'https://vbms-fresh-offical-website-launch.onrender.com'
       : 'https://vbms-backend.onrender.com';
 
     const token = localStorage.getItem('vbmsToken') || sessionStorage.getItem('vbmsToken');
@@ -852,7 +852,7 @@ async function savePlan() {
     console.log('💾 Saving plan:', formData);
     
     const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-      ? 'http://localhost:5050'
+      ? 'https://vbms-fresh-offical-website-launch.onrender.com'
       : 'https://vbms-backend.onrender.com';
 
     const token = localStorage.getItem('vbmsToken') || sessionStorage.getItem('vbmsToken');
@@ -899,7 +899,7 @@ async function deletePlan(planId) {
   
   try {
     const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-      ? 'http://localhost:5050'
+      ? 'https://vbms-fresh-offical-website-launch.onrender.com'
       : 'https://vbms-backend.onrender.com';
 
     const token = localStorage.getItem('vbmsToken') || sessionStorage.getItem('vbmsToken');
@@ -932,7 +932,7 @@ async function syncWithStripe() {
     console.log('🔄 Syncing with Stripe...');
     
     const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-      ? 'http://localhost:5050'
+      ? 'https://vbms-fresh-offical-website-launch.onrender.com'
       : 'https://vbms-backend.onrender.com';
 
     const token = localStorage.getItem('vbmsToken') || sessionStorage.getItem('vbmsToken');
@@ -967,7 +967,7 @@ async function createPlanInStripe(planId) {
     console.log('☁️ Creating plan in Stripe...');
     
     const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-      ? 'http://localhost:5050'
+      ? 'https://vbms-fresh-offical-website-launch.onrender.com'
       : 'https://vbms-backend.onrender.com';
 
     const token = localStorage.getItem('vbmsToken') || sessionStorage.getItem('vbmsToken');

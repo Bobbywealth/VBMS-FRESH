@@ -147,7 +147,7 @@ server {
     ssl_certificate_key /etc/letsencrypt/live/api.yourdomain.com/privkey.pem;
 
     location / {
-        proxy_pass http://localhost:5050;
+        proxy_pass https://vbms-fresh-offical-website-launch.onrender.com;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';
@@ -274,7 +274,7 @@ node -e "require('mongoose').connect(process.env.MONGO_URI).then(() => console.l
 echo $STRIPE_WEBHOOK_SECRET
 
 # Test webhook endpoint
-curl -X POST http://localhost:5050/webhook -H "Content-Type: application/json" -d '{}'
+curl -X POST https://vbms-fresh-offical-website-launch.onrender.com/webhook -H "Content-Type: application/json" -d '{}'
 ```
 
 **PM2 Process Issues:**

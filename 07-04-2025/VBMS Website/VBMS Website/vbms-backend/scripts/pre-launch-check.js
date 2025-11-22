@@ -9,7 +9,7 @@ class PreLaunchChecker {
     this.checks = [];
     this.errors = [];
     this.warnings = [];
-    this.baseURL = process.env.BASE_URL || 'http://localhost:5050';
+    this.baseURL = process.env.BASE_URL || 'https://vbms-fresh-offical-website-launch.onrender.com';
   }
 
   async runAllChecks() {

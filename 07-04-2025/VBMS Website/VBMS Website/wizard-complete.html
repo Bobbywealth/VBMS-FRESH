@@ -170,7 +170,7 @@
 window.addEventListener("DOMContentLoaded", async () => {
   // decide whether we're running locally or in prod
   const API_BASE = window.location.hostname === 'localhost'
-    ? 'http://localhost:5050'
+    ? 'https://vbms-fresh-offical-website-launch.onrender.com'
     : 'https://vbms-backend.onrender.com';
 
   const wizardData = JSON.parse(localStorage.getItem("vbmsWizard") || "{}");

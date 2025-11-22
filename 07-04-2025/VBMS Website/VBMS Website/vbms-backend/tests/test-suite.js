@@ -10,7 +10,7 @@ const VAPICall = require('../models/VAPICall');
 
 class VBMSTestSuite {
   constructor() {
-    this.baseURL = process.env.BASE_URL || 'http://localhost:5050';
+    this.baseURL = process.env.BASE_URL || 'https://vbms-fresh-offical-website-launch.onrender.com';
     this.testResults = [];
     this.testUser = null;
     this.authToken = null;

@@ -108,7 +108,7 @@ health_check() {
     print_status "Performing health check..."
     sleep 5 # Wait for server to start
     
-    if curl -f http://localhost:5050/health > /dev/null 2>&1; then
+    if curl -f https://vbms-fresh-offical-website-launch.onrender.com/health > /dev/null 2>&1; then
         print_status "Health check passed"
         return 0
     else
@@ -177,8 +177,8 @@ main() {
         print_status "Deployment completed successfully! 🎉"
         echo -e "${GREEN}"
         echo "VBMS Backend is now running:"
-        echo "- Health Check: http://localhost:5050/health"
-        echo "- API Test: http://localhost:5050/api/test"
+        echo "- Health Check: https://vbms-fresh-offical-website-launch.onrender.com/health"
+        echo "- API Test: https://vbms-fresh-offical-website-launch.onrender.com/api/test"
         echo "- PM2 Status: pm2 status"
         echo "- Logs: pm2 logs vbms-backend"
         echo -e "${NC}"

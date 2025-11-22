@@ -4,7 +4,7 @@
 window.vbmsNotifications = {
   // API Configuration
   API_BASE: window.location.hostname === 'localhost' 
-    ? 'http://localhost:5050' 
+    ? 'https://vbms-fresh-offical-website-launch.onrender.com' 
     : 'https://vbms-backend.onrender.com',
 
   // Activity Categories

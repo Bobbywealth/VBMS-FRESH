@@ -4,7 +4,7 @@ require('dotenv').config();
 console.log('🧪 VBMS Email API Test');
 console.log('======================');
 
-const API_BASE = 'http://localhost:5050';
+const API_BASE = 'https://vbms-fresh-offical-website-launch.onrender.com';
 
 async function testEmailAPI() {
   try {
