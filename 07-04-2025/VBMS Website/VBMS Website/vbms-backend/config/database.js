@@ -84,6 +84,77 @@ const createTables = async () => {
         `);
     console.log('✅ Users table created successfully');
 
+    // Create tasks table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS tasks (
+        id SERIAL PRIMARY KEY,
+        title VARCHAR(255) NOT NULL,
+        description TEXT,
+        status VARCHAR(50) DEFAULT 'pending',
+        priority VARCHAR(20) DEFAULT 'medium',
+        due_date TIMESTAMP,
+        assigned_to INTEGER REFERENCES users(id),
+        created_by INTEGER REFERENCES users(id),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    // Create calendar_events table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS calendar_events (
+        id SERIAL PRIMARY KEY,
+        title VARCHAR(255) NOT NULL,
+        description TEXT,
+        start_time TIMESTAMP NOT NULL,
+        end_time TIMESTAMP NOT NULL,
+        user_id INTEGER REFERENCES users(id),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    // Create emails table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS emails (
+        id SERIAL PRIMARY KEY,
+        subject VARCHAR(255),
+        sender VARCHAR(255),
+        recipient VARCHAR(255),
+        body TEXT,
+        received_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        user_id INTEGER REFERENCES users(id)
+      );
+    `);
+
+    // --- SEED INITIAL USERS ---
+    const bcrypt = require('bcryptjs');
+
+    // Check if admin exists
+    const adminCheck = await client.query("SELECT * FROM users WHERE email = 'admin@vbms.com'");
+    if (adminCheck.rows.length === 0) {
+      console.log('🌱 Seeding Admin User...');
+      const adminHash = await bcrypt.hash('admin123', 10);
+      await client.query(`
+        INSERT INTO users (email, password, first_name, last_name, role, is_active, email_verified)
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
+      `, ['admin@vbms.com', adminHash, 'Admin', 'User', 'admin', true, true]);
+      console.log('✅ Admin User Created');
+    }
+
+    // Check if customer exists
+    const customerCheck = await client.query("SELECT * FROM users WHERE email = 'customer@vbms.com'");
+    if (customerCheck.rows.length === 0) {
+      console.log('🌱 Seeding Customer User...');
+      const customerHash = await bcrypt.hash('customer123', 10);
+      await client.query(`
+        INSERT INTO users (email, password, first_name, last_name, role, is_active, email_verified)
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
+      `, ['customer@vbms.com', customerHash, 'Test', 'Customer', 'customer', true, true]);
+      console.log('✅ Customer User Created');
+    }
+
+    console.log('✅ Database initialized successfully');
+
     // Notifications table
     await client.query(`
             CREATE TABLE IF NOT EXISTS notifications (
