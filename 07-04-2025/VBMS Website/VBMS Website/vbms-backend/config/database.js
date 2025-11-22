@@ -126,6 +126,23 @@ const createTables = async () => {
       );
     `);
 
+    // Create time_logs table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS time_logs (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id),
+        clock_in TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        clock_out TIMESTAMP,
+        status VARCHAR(20) DEFAULT 'active', -- 'active' or 'completed'
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    // Add pin_code to users if not exists
+    await client.query(`
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS pin_code VARCHAR(10);
+    `);
+
     // --- SEED INITIAL USERS ---
     const bcrypt = require('bcryptjs');
 
@@ -135,10 +152,13 @@ const createTables = async () => {
       console.log('🌱 Seeding Admin User...');
       const adminHash = await bcrypt.hash('admin123', 10);
       await client.query(`
-        INSERT INTO users (email, password, first_name, last_name, role, is_active, email_verified)
-        VALUES ($1, $2, $3, $4, $5, $6, $7)
-      `, ['admin@vbms.com', adminHash, 'Admin', 'User', 'admin', true, true]);
+        INSERT INTO users (email, password, first_name, last_name, role, is_active, email_verified, pin_code)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      `, ['admin@vbms.com', adminHash, 'Admin', 'User', 'admin', true, true, '1234']);
       console.log('✅ Admin User Created');
+    } else {
+      // Ensure admin has a PIN
+      await client.query("UPDATE users SET pin_code = '1234' WHERE email = 'admin@vbms.com' AND pin_code IS NULL");
     }
 
     // Check if customer exists
@@ -147,10 +167,13 @@ const createTables = async () => {
       console.log('🌱 Seeding Customer User...');
       const customerHash = await bcrypt.hash('customer123', 10);
       await client.query(`
-        INSERT INTO users (email, password, first_name, last_name, role, is_active, email_verified)
-        VALUES ($1, $2, $3, $4, $5, $6, $7)
-      `, ['customer@vbms.com', customerHash, 'Test', 'Customer', 'customer', true, true]);
+        INSERT INTO users (email, password, first_name, last_name, role, is_active, email_verified, pin_code)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      `, ['customer@vbms.com', customerHash, 'Test', 'Customer', 'customer', true, true, '0000']);
       console.log('✅ Customer User Created');
+    } else {
+      // Ensure customer has a PIN
+      await client.query("UPDATE users SET pin_code = '0000' WHERE email = 'customer@vbms.com' AND pin_code IS NULL");
     }
 
     console.log('✅ Database initialized successfully');

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -23,7 +24,7 @@
             --cyan: #06b6d4;
             --light: #f8f9fa;
             --dark: #212529;
-            --glass: rgba(255,255,255,0.95);
+            --glass: rgba(255, 255, 255, 0.95);
             --glass-glow: rgba(240, 185, 11, 0.15);
             --border: #e9ecef;
             --text: #212529;
@@ -31,7 +32,7 @@
             --card-bg: #ffffff;
             --card-shadow: 0 8px 32px rgba(240, 185, 11, 0.1);
             --bg: linear-gradient(135deg, #f8f9fa 0%, #f0f8ff 50%, #f8f4ff 100%);
-            --sidebar-bg: rgba(255,255,255,0.98);
+            --sidebar-bg: rgba(255, 255, 255, 0.98);
             --sidebar-link: #333;
             --sidebar-link-active: #000;
         }
@@ -86,7 +87,12 @@
             --cyan: #4dd0e1;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             font-family: 'Segoe UI', sans-serif;
             background: var(--bg);
@@ -106,7 +112,7 @@
             width: 100%;
             height: 100%;
             z-index: -2;
-            background: 
+            background:
                 radial-gradient(circle at 20% 30%, rgba(240, 185, 11, 0.08) 0%, transparent 50%),
                 radial-gradient(circle at 80% 70%, rgba(59, 130, 246, 0.05) 0%, transparent 50%),
                 radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.03) 0%, transparent 60%);
@@ -114,7 +120,7 @@
         }
 
         [data-theme="light"] body::before {
-            background: 
+            background:
                 radial-gradient(circle at 20% 30%, rgba(240, 185, 11, 0.12) 0%, transparent 50%),
                 radial-gradient(circle at 80% 70%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
                 radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.06) 0%, transparent 60%);
@@ -122,7 +128,7 @@
 
         /* Dark theme animated background */
         [data-theme="dark"] body::before {
-            background: 
+            background:
                 radial-gradient(circle at 15% 25%, rgba(100, 181, 246, 0.15) 0%, transparent 40%),
                 radial-gradient(circle at 85% 75%, rgba(63, 81, 181, 0.12) 0%, transparent 50%),
                 radial-gradient(circle at 50% 50%, rgba(121, 134, 203, 0.08) 0%, transparent 60%),
@@ -149,18 +155,23 @@
         }
 
         @keyframes darkThemeGlow {
-            0%, 100% {
+
+            0%,
+            100% {
                 opacity: 0.8;
                 transform: rotate(0deg) scale(1);
             }
+
             25% {
                 opacity: 1;
                 transform: rotate(90deg) scale(1.1);
             }
+
             50% {
                 opacity: 0.9;
                 transform: rotate(180deg) scale(1.05);
             }
+
             75% {
                 opacity: 1;
                 transform: rotate(270deg) scale(1.08);
@@ -172,18 +183,22 @@
                 transform: translateY(0px) rotate(0deg);
                 opacity: 1;
             }
+
             25% {
                 transform: translateY(-10px) rotate(90deg);
                 opacity: 0.8;
             }
+
             50% {
                 transform: translateY(-5px) rotate(180deg);
                 opacity: 0.6;
             }
+
             75% {
                 transform: translateY(-15px) rotate(270deg);
                 opacity: 0.9;
             }
+
             100% {
                 transform: translateY(0px) rotate(360deg);
                 opacity: 1;
@@ -191,14 +206,18 @@
         }
 
         @keyframes enhancedGlow {
-            0%, 100% {
+
+            0%,
+            100% {
                 opacity: 0.6;
                 transform: rotate(0deg) scale(1);
             }
+
             33% {
                 opacity: 0.8;
                 transform: rotate(120deg) scale(1.05);
             }
+
             66% {
                 opacity: 0.7;
                 transform: rotate(240deg) scale(0.95);
@@ -214,7 +233,7 @@
             position: fixed;
             height: 100vh;
             overflow-y: auto;
-            box-shadow: 
+            box-shadow:
                 2px 0 30px rgba(240, 185, 11, 0.15),
                 inset 1px 0 0 rgba(255, 255, 255, 0.1);
             z-index: 1000;
@@ -223,7 +242,9 @@
             -ms-overflow-style: none;
         }
 
-        .sidebar::-webkit-scrollbar { display: none; }
+        .sidebar::-webkit-scrollbar {
+            display: none;
+        }
 
         .logo {
             text-align: center;
@@ -269,7 +290,8 @@
             transition: left 0.5s ease;
         }
 
-        .sidebar-link:hover, .sidebar-link.active {
+        .sidebar-link:hover,
+        .sidebar-link.active {
             background: var(--glass-glow);
             color: var(--accent);
             border-left-color: var(--accent);
@@ -289,7 +311,10 @@
             left: 100%;
         }
 
-        .sidebar-link i { margin-right: 10px; width: 20px; }
+        .sidebar-link i {
+            margin-right: 10px;
+            width: 20px;
+        }
 
         .btn-logout {
             width: 100%;
@@ -577,7 +602,7 @@
 
         .business-profile-card:hover {
             transform: translateY(-8px);
-            box-shadow: 
+            box-shadow:
                 0 20px 50px rgba(240, 185, 11, 0.2),
                 0 0 0 1px rgba(240, 185, 11, 0.1);
         }
@@ -590,7 +615,7 @@
 
         [data-theme="light"] .business-profile-card:hover {
             transform: translateY(-8px);
-            box-shadow: 
+            box-shadow:
                 0 20px 50px rgba(245, 158, 11, 0.15),
                 0 0 0 1px rgba(245, 158, 11, 0.2);
         }
@@ -607,8 +632,15 @@
         }
 
         @keyframes shimmer {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.7;
+            }
         }
 
         .business-logo img {
@@ -739,7 +771,7 @@
 
         .activity-card:hover {
             transform: translateY(-5px);
-            box-shadow: 
+            box-shadow:
                 0 20px 50px rgba(240, 185, 11, 0.15),
                 0 0 0 1px rgba(240, 185, 11, 0.1);
         }
@@ -767,7 +799,9 @@
             gap: 8px;
         }
 
-        .btn-refresh, .btn-filter, .btn-customize {
+        .btn-refresh,
+        .btn-filter,
+        .btn-customize {
             width: 36px;
             height: 36px;
             border: none;
@@ -782,7 +816,9 @@
             font-size: 0.9rem;
         }
 
-        .btn-refresh:hover, .btn-filter:hover, .btn-customize:hover {
+        .btn-refresh:hover,
+        .btn-filter:hover,
+        .btn-customize:hover {
             background: var(--accent);
             color: #000;
             transform: scale(1.1);
@@ -1028,7 +1064,7 @@
 
         .quick-actions-card:hover {
             transform: translateY(-5px);
-            box-shadow: 
+            box-shadow:
                 0 20px 50px rgba(59, 130, 246, 0.15),
                 0 0 0 1px rgba(59, 130, 246, 0.1);
         }
@@ -1084,12 +1120,29 @@
             transform: scaleX(1);
         }
 
-        .quick-action-item.primary::before { background: var(--accent); }
-        .quick-action-item.secondary::before { background: var(--info); }
-        .quick-action-item.success::before { background: var(--success); }
-        .quick-action-item.info::before { background: var(--cyan); }
-        .quick-action-item.warning::before { background: var(--warning); }
-        .quick-action-item.purple::before { background: var(--purple); }
+        .quick-action-item.primary::before {
+            background: var(--accent);
+        }
+
+        .quick-action-item.secondary::before {
+            background: var(--info);
+        }
+
+        .quick-action-item.success::before {
+            background: var(--success);
+        }
+
+        .quick-action-item.info::before {
+            background: var(--cyan);
+        }
+
+        .quick-action-item.warning::before {
+            background: var(--warning);
+        }
+
+        .quick-action-item.purple::before {
+            background: var(--purple);
+        }
 
         .action-icon {
             width: 50px;
@@ -1353,7 +1406,7 @@
 
         .stat-card:hover {
             transform: translateY(-10px) scale(1.05);
-            box-shadow: 
+            box-shadow:
                 0 25px 60px rgba(240, 185, 11, 0.25),
                 0 0 0 1px rgba(240, 185, 11, 0.2);
         }
@@ -1381,8 +1434,17 @@
         }
 
         @keyframes glow {
-            0%, 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(0.8); }
-            50% { opacity: 0.8; transform: translate(-50%, -50%) scale(1.2); }
+
+            0%,
+            100% {
+                opacity: 0.5;
+                transform: translate(-50%, -50%) scale(0.8);
+            }
+
+            50% {
+                opacity: 0.8;
+                transform: translate(-50%, -50%) scale(1.2);
+            }
         }
 
         /* Enhanced Stat Card Styles */
@@ -1430,13 +1492,25 @@
         }
 
         @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
         }
 
         @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
         }
 
         @keyframes fadeInDown {
@@ -1444,6 +1518,7 @@
                 opacity: 0;
                 transform: translateY(-20px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -1455,6 +1530,7 @@
                 opacity: 0;
                 transform: translateY(20px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -1565,8 +1641,13 @@
         }
 
         @keyframes shimmerProgress {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
+            0% {
+                transform: translateX(-100%);
+            }
+
+            100% {
+                transform: translateX(100%);
+            }
         }
 
         .progress-text {
@@ -1641,11 +1722,25 @@
             background: var(--accent);
         }
 
-        .performance-card.primary::before { background: var(--accent); }
-        .performance-card.secondary::before { background: var(--success); }
-        .performance-card.accent::before { background: var(--info); }
-        .performance-card.success::before { background: var(--success); }
-        .performance-card.info::before { background: var(--info); }
+        .performance-card.primary::before {
+            background: var(--accent);
+        }
+
+        .performance-card.secondary::before {
+            background: var(--success);
+        }
+
+        .performance-card.accent::before {
+            background: var(--info);
+        }
+
+        .performance-card.success::before {
+            background: var(--success);
+        }
+
+        .performance-card.info::before {
+            background: var(--info);
+        }
 
         .performance-card:hover {
             transform: translateY(-5px);
@@ -1741,8 +1836,13 @@
         }
 
         @keyframes chartGrow {
-            from { height: 0; }
-            to { height: var(--final-height); }
+            from {
+                height: 0;
+            }
+
+            to {
+                height: var(--final-height);
+            }
         }
 
         .circular-progress {
@@ -1838,13 +1938,18 @@
         }
 
         @keyframes topShine {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
+            0% {
+                transform: translateX(-100%);
+            }
+
+            100% {
+                transform: translateX(100%);
+            }
         }
 
         .content-card:hover {
             transform: translateY(-5px);
-            box-shadow: 
+            box-shadow:
                 0 15px 40px rgba(240, 185, 11, 0.15),
                 0 0 0 1px rgba(240, 185, 11, 0.1);
         }
@@ -1895,7 +2000,7 @@
             background: linear-gradient(135deg, var(--accent), var(--accent-light));
             color: #000;
             transform: translateY(-8px) scale(1.05);
-            box-shadow: 
+            box-shadow:
                 0 15px 30px rgba(240, 185, 11, 0.4),
                 0 0 20px rgba(240, 185, 11, 0.2);
             border-color: var(--accent);
@@ -1910,7 +2015,7 @@
         [data-theme="light"] .action-btn:hover {
             background: linear-gradient(135deg, #f59e0b, #fbbf24);
             color: #1a202c;
-            box-shadow: 
+            box-shadow:
                 0 15px 30px rgba(245, 158, 11, 0.25),
                 0 0 20px rgba(245, 158, 11, 0.15);
             border-color: #f59e0b;
@@ -2206,6 +2311,7 @@
         }
 
         @media (max-width: 480px) {
+
             .header-main-row,
             .header-bottom-row {
                 padding: 15px;
@@ -2222,6 +2328,7 @@
         }
     </style>
 </head>
+
 <body>
     <!-- Sidebar Container -->
     <div id="sidebar-container"></div>
@@ -2234,7 +2341,9 @@
                 <div class="header-left">
                     <div class="business-profile-main">
                         <div class="business-logo-large">
-                            <img id="businessLogo" src="https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=80&h=80&fit=crop&crop=center" alt="Business Logo">
+                            <img id="businessLogo"
+                                src="https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=80&h=80&fit=crop&crop=center"
+                                alt="Business Logo">
                         </div>
                         <div class="business-info-main">
                             <h2 id="businessName">Your Business Name</h2>
@@ -2246,10 +2355,11 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="header-right">
                     <div class="header-controls">
-                        <button class="btn btn-outline-warning btn-sm" onclick="toggleTheme()" title="Toggle light/dark theme">
+                        <button class="btn btn-outline-warning btn-sm" onclick="toggleTheme()"
+                            title="Toggle light/dark theme">
                             <i id="themeIcon" class="bi bi-moon-fill"></i>
                         </button>
                         <div class="notifications-container">
@@ -2299,14 +2409,15 @@
                                 </div>
                             </div>
                         </div>
-                        <button class="account-btn" onclick="window.location.href='customer-settings.html'" title="Account Settings">
+                        <button class="account-btn" onclick="window.location.href='customer-settings.html'"
+                            title="Account Settings">
                             <i class="bi bi-person-circle"></i>
                             <span>Account</span>
                         </button>
                     </div>
                 </div>
             </div>
-            
+
             <div class="header-bottom-row">
                 <div class="business-stats-compact">
                     <div class="business-stat">
@@ -2748,337 +2859,367 @@
     <script src="load-sidebar.js"></script>
     <script src="theme-manager.js"></script>
     <script src="notifications-manager.js"></script>
-  <script>
-    // Authentication Check with race condition protection
-    function checkCustomerAuthWithRetry(maxRetries = 3, delay = 100) {
-      let retries = 0;
-      
-      function attemptAuth() {
-        if (!vbmsAuth.isAuthenticated()) {
-          window.location.href = 'customer-login.html';
-          return;
+    <script>
+        // Authentication Check with race condition protection
+        function checkCustomerAuthWithRetry(maxRetries = 3, delay = 100) {
+            let retries = 0;
+
+            function attemptAuth() {
+                if (!vbmsAuth.isAuthenticated()) {
+                    window.location.href = 'customer-login.html';
+                    return;
+                }
+
+                const userRole = vbmsAuth.getCurrentRole();
+
+                // If role is empty/undefined and we haven't exhausted retries, wait and try again
+                if ((!userRole || userRole === '') && retries < maxRetries) {
+                    retries++;
+                    setTimeout(attemptAuth, delay);
+                    return;
+                }
+
+                // If still no role after retries, redirect to customer login
+                if (!userRole || userRole === '') {
+                    console.log('Customer auth check failed - no role found after retries');
+                    window.location.href = 'customer-login.html';
+                    return;
+                }
+
+                // Check if user has customer privileges
+                if (userRole !== 'customer' && userRole !== 'client') {
+                    alert('Access Denied: Customer access required');
+                    // Use direct role-based redirect instead of getRoleRedirectUrl to avoid conflicts
+                    if (userRole === 'admin' || userRole === 'main_admin') {
+                        window.location.href = 'dashboard.html';
+                    } else {
+                        window.location.href = 'customer-login.html';
+                    }
+                    return;
+                }
+
+                // Auth successful - continue with page initialization
+                initializeDashboard();
+            }
+
+            attemptAuth();
         }
 
-        const userRole = vbmsAuth.getCurrentRole();
-        
-        // If role is empty/undefined and we haven't exhausted retries, wait and try again
-        if ((!userRole || userRole === '') && retries < maxRetries) {
-          retries++;
-          setTimeout(attemptAuth, delay);
-          return;
+        // Theme functions now handled by theme-manager.js
+
+        function initializeDashboard() {
+            // Initialize dashboard components
+            // Theme preference now handled by theme-manager.js
+            loadDashboardStats();
+            loadRecentOrders();
+            loadQuickActions();
+            updateDateTime();
+            setInterval(updateDateTime, 1000); // Update time every second
         }
-        
-        // If still no role after retries, redirect to customer login
-        if (!userRole || userRole === '') {
-          console.log('Customer auth check failed - no role found after retries');
-          window.location.href = 'customer-login.html';
-          return;
+
+        function updateDateTime() {
+            const now = new Date();
+            const dateOptions = {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            };
+            const timeOptions = {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            };
+
+            const dateElement = document.getElementById('currentDate');
+            const timeElement = document.getElementById('currentTime');
+
+            if (dateElement) {
+                dateElement.textContent = now.toLocaleDateString('en-US', dateOptions);
+            }
+            if (timeElement) {
+                timeElement.textContent = now.toLocaleTimeString('en-US', timeOptions);
+            }
         }
-        
-        // Check if user has customer privileges
-        if (userRole !== 'customer' && userRole !== 'client') {
-          alert('Access Denied: Customer access required');
-          // Use direct role-based redirect instead of getRoleRedirectUrl to avoid conflicts
-          if (userRole === 'admin' || userRole === 'main_admin') {
-            window.location.href = 'dashboard.html';
-          } else {
-            window.location.href = 'customer-login.html';
-          }
-          return;
+
+        function toggleNotifications() {
+            const dropdown = document.getElementById('notificationsDropdown');
+            if (dropdown) {
+                const isVisible = dropdown.style.display === 'block';
+                dropdown.style.display = isVisible ? 'none' : 'block';
+            }
         }
-        
-        // Auth successful - continue with page initialization
-        initializeDashboard();
-      }
-      
-      attemptAuth();
-    }
 
-    // Theme functions now handled by theme-manager.js
-
-      function initializeDashboard() {
-        // Initialize dashboard components
-    // Theme preference now handled by theme-manager.js
-        loadDashboardStats();
-        loadRecentOrders();
-        loadQuickActions();
-        updateDateTime();
-        setInterval(updateDateTime, 1000); // Update time every second
-      }
-
-      function updateDateTime() {
-        const now = new Date();
-        const dateOptions = { 
-          weekday: 'long', 
-          year: 'numeric', 
-          month: 'long', 
-          day: 'numeric' 
-        };
-        const timeOptions = { 
-          hour: '2-digit', 
-          minute: '2-digit', 
-          second: '2-digit' 
-        };
-
-        const dateElement = document.getElementById('currentDate');
-        const timeElement = document.getElementById('currentTime');
-
-        if (dateElement) {
-          dateElement.textContent = now.toLocaleDateString('en-US', dateOptions);
+        function editBusinessProfile() {
+            window.location.href = 'customer-settings.html';
         }
-        if (timeElement) {
-          timeElement.textContent = now.toLocaleTimeString('en-US', timeOptions);
+
+        function viewBusinessInsights() {
+            alert('Business Insights feature coming soon!');
         }
-      }
 
-      function toggleNotifications() {
-        const dropdown = document.getElementById('notificationsDropdown');
-        if (dropdown) {
-          const isVisible = dropdown.style.display === 'block';
-          dropdown.style.display = isVisible ? 'none' : 'block';
+        function loadDashboardStats() {
+            // Simulate loading dashboard statistics
+            const stats = {
+                totalOrders: 127,
+                pendingTasks: 8,
+                monthlyRevenue: 15420,
+                activeDevices: 12,
+                ordersToday: 138,
+                revenueToday: 2410,
+                revenueMonth: 15420
+            };
+
+            document.getElementById('totalOrders').textContent = stats.totalOrders;
+            document.getElementById('pendingTasks').textContent = stats.pendingTasks;
+            document.getElementById('monthlyRevenue').textContent = '$' + stats.monthlyRevenue;
+            document.getElementById('activeDevices').textContent = stats.activeDevices;
+            document.getElementById('ordersToday').textContent = stats.ordersToday;
+            document.getElementById('revenueToday').textContent = '$' + stats.revenueToday;
+            document.getElementById('revenueMonth').textContent = '$' + stats.revenueMonth;
         }
-      }
 
-      function editBusinessProfile() {
-        window.location.href = 'customer-settings.html';
-      }
-
-      function viewBusinessInsights() {
-        alert('Business Insights feature coming soon!');
-      }
-
-      function loadDashboardStats() {
-        // Simulate loading dashboard statistics
-        const stats = {
-          totalOrders: 127,
-          pendingTasks: 8,
-          monthlyRevenue: 15420,
-          activeDevices: 12,
-          ordersToday: 138,
-          revenueToday: 2410,
-          revenueMonth: 15420
-        };
-
-        document.getElementById('totalOrders').textContent = stats.totalOrders;
-        document.getElementById('pendingTasks').textContent = stats.pendingTasks;
-        document.getElementById('monthlyRevenue').textContent = '$' + stats.monthlyRevenue;
-        document.getElementById('activeDevices').textContent = stats.activeDevices;
-        document.getElementById('ordersToday').textContent = stats.ordersToday;
-        document.getElementById('revenueToday').textContent = '$' + stats.revenueToday;
-        document.getElementById('revenueMonth').textContent = '$' + stats.revenueMonth;
-      }
-
-      function loadRecentOrders() {
-        // Simulate loading recent orders
-        console.log('Loading recent orders...');
-      }
-
-      function loadQuickActions() {
-        // Initialize quick action buttons
-        console.log('Quick actions initialized');
-      }
-
-      // Enhanced Recent Activity Functions
-      function refreshActivity() {
-        const refreshBtn = document.querySelector('.btn-refresh i');
-        refreshBtn.style.animation = 'spin 1s linear';
-
-        // Simulate loading
-        setTimeout(() => {
-          refreshBtn.style.animation = '';
-          showToast('Activity refreshed successfully!', 'success');
-        }, 1000);
-      }
-
-      function toggleActivityFilter() {
-        const filterBar = document.getElementById('activityFilterBar');
-        const isVisible = filterBar.style.display !== 'none';
-        filterBar.style.display = isVisible ? 'none' : 'block';
-
-        if (!isVisible) {
-          filterBar.style.animation = 'fadeInDown 0.3s ease';
+        function loadRecentOrders() {
+            // Simulate loading recent orders
+            console.log('Loading recent orders...');
         }
-      }
 
-      function customizeActivity() {
-        showToast('Activity customization coming soon!', 'info');
-      }
+        function loadQuickActions() {
+            // Initialize quick action buttons
+            console.log('Quick actions initialized');
+        }
 
-      function viewAllActivity() {
-        window.location.href = 'customer-tasks.html';
-      }
+        // Enhanced Recent Activity Functions
+        function refreshActivity() {
+            const refreshBtn = document.querySelector('.btn-refresh i');
+            refreshBtn.style.animation = 'spin 1s linear';
 
-      // Activity Filter Functions
-      document.addEventListener('DOMContentLoaded', function() {
-        const filterButtons = document.querySelectorAll('.filter-btn');
-        filterButtons.forEach(btn => {
-          btn.addEventListener('click', function() {
-            filterButtons.forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
+            // Simulate loading
+            setTimeout(() => {
+                refreshBtn.style.animation = '';
+                showToast('Activity refreshed successfully!', 'success');
+            }, 1000);
+        }
 
-            const filter = this.dataset.filter;
-            filterActivities(filter);
-          });
+        function toggleActivityFilter() {
+            const filterBar = document.getElementById('activityFilterBar');
+            const isVisible = filterBar.style.display !== 'none';
+            filterBar.style.display = isVisible ? 'none' : 'block';
+
+            if (!isVisible) {
+                filterBar.style.animation = 'fadeInDown 0.3s ease';
+            }
+        }
+
+        function customizeActivity() {
+            showToast('Activity customization coming soon!', 'info');
+        }
+
+        function viewAllActivity() {
+            window.location.href = 'customer-tasks.html';
+        }
+
+        // Activity Filter Functions
+        document.addEventListener('DOMContentLoaded', function () {
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            filterButtons.forEach(btn => {
+                btn.addEventListener('click', function () {
+                    filterButtons.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+
+                    const filter = this.dataset.filter;
+                    filterActivities(filter);
+                });
+            });
         });
-      });
 
-      function filterActivities(filter) {
-        const activities = document.querySelectorAll('.activity-item-enhanced');
-        activities.forEach(activity => {
-          const type = activity.dataset.type;
-          if (filter === 'all' || type === filter) {
-            activity.style.display = 'flex';
-            activity.style.animation = 'fadeInUp 0.3s ease';
-          } else {
-            activity.style.display = 'none';
-          }
-        });
-      }
-
-      // Activity Action Functions
-      function viewOrder(orderId) {
-        showToast(`Viewing order ${orderId}`, 'info');
-        setTimeout(() => {
-          window.location.href = `customer-orders.html?order=${orderId}`;
-        }, 500);
-      }
-
-      function processOrder(orderId) {
-        showToast(`Processing order ${orderId}`, 'success');
-      }
-
-      function viewInvoice(invoiceId) {
-        showToast(`Opening invoice ${invoiceId}`, 'info');
-      }
-
-      function downloadReceipt(invoiceId) {
-        showToast(`Downloading receipt for ${invoiceId}`, 'success');
-      }
-
-      function viewInventory() {
-        window.location.href = 'customer-inventory.html';
-      }
-
-      function generateReport(type) {
-        showToast(`Generating ${type} report...`, 'info');
-      }
-
-      function viewSecurityReport() {
-        showToast('Opening security report', 'info');
-      }
-
-      function scheduleScan() {
-        showToast('Security scan scheduled', 'success');
-      }
-
-      function trackOrder(trackingId) {
-        showToast(`Tracking order: ${trackingId}`, 'info');
-      }
-
-      function notifyCustomer(orderId) {
-        showToast(`Customer notified for order ${orderId}`, 'success');
-      }
-
-      // Enhanced Quick Actions Functions
-      function customizeQuickActions() {
-        showToast('Quick Actions customization coming soon!', 'info');
-      }
-
-      function repeatAction(action) {
-        const actions = {
-          'new-order': 'Creating new order...',
-          'inventory-update': 'Updating inventory...',
-          'generate-report': 'Generating report...'
-        };
-
-        showToast(actions[action] || 'Performing action...', 'info');
-      }
-
-      function showAddTaskModal() {
-        showToast('Add Task Modal opening...', 'info');
-        // Here you would implement the actual modal
-        setTimeout(() => {
-          window.location.href = 'customer-tasks.html?action=new';
-        }, 500);
-      }
-
-      // Keyboard Shortcuts
-      document.addEventListener('keydown', function(e) {
-        if (e.ctrlKey) {
-          switch(e.key) {
-            case 'n':
-              e.preventDefault();
-              window.location.href = 'customer-orders.html';
-              break;
-            case 'i':
-              e.preventDefault();
-              window.location.href = 'customer-inventory.html';
-              break;
-            case 'm':
-              e.preventDefault();
-              window.location.href = 'customer-monitoring.html';
-              break;
-            case 'a':
-              e.preventDefault();
-              window.location.href = 'customer-ai-chat.html';
-              break;
-            case 't':
-              if (e.shiftKey) {
-                e.preventDefault();
-                showAddTaskModal();
-              } else {
-                e.preventDefault();
-                window.location.href = 'customer-tasks.html';
-              }
-              break;
-          }
+        function filterActivities(filter) {
+            const activities = document.querySelectorAll('.activity-item-enhanced');
+            activities.forEach(activity => {
+                const type = activity.dataset.type;
+                if (filter === 'all' || type === filter) {
+                    activity.style.display = 'flex';
+                    activity.style.animation = 'fadeInUp 0.3s ease';
+                } else {
+                    activity.style.display = 'none';
+                }
+            });
         }
-      });
 
-      // Toast Notification System
-      function showToast(message, type = 'info') {
-        const toast = document.createElement('div');
-        toast.className = `toast toast-${type}`;
-        toast.innerHTML = `
+        // Activity Action Functions
+        function viewOrder(orderId) {
+            showToast(`Viewing order ${orderId}`, 'info');
+            setTimeout(() => {
+                window.location.href = `customer-orders.html?order=${orderId}`;
+            }, 500);
+        }
+
+        function processOrder(orderId) {
+            showToast(`Processing order ${orderId}`, 'success');
+        }
+
+        function viewInvoice(invoiceId) {
+            showToast(`Opening invoice ${invoiceId}`, 'info');
+        }
+
+        function downloadReceipt(invoiceId) {
+            showToast(`Downloading receipt for ${invoiceId}`, 'success');
+        }
+
+        function viewInventory() {
+            window.location.href = 'customer-inventory.html';
+        }
+
+        function generateReport(type) {
+            showToast(`Generating ${type} report...`, 'info');
+        }
+
+        function viewSecurityReport() {
+            showToast('Opening security report', 'info');
+        }
+
+        function scheduleScan() {
+            showToast('Security scan scheduled', 'success');
+        }
+
+        function trackOrder(trackingId) {
+            showToast(`Tracking order: ${trackingId}`, 'info');
+        }
+
+        function notifyCustomer(orderId) {
+            showToast(`Customer notified for order ${orderId}`, 'success');
+        }
+
+        // Enhanced Quick Actions Functions
+        function customizeQuickActions() {
+            showToast('Quick Actions customization coming soon!', 'info');
+        }
+
+        function repeatAction(action) {
+            const actions = {
+                'new-order': 'Creating new order...',
+                'inventory-update': 'Updating inventory...',
+                'generate-report': 'Generating report...'
+            };
+
+            showToast(actions[action] || 'Performing action...', 'info');
+        }
+
+        function showAddTaskModal() {
+            showToast('Add Task Modal opening...', 'info');
+            // Here you would implement the actual modal
+            setTimeout(() => {
+                window.location.href = 'customer-tasks.html?action=new';
+            }, 500);
+        }
+
+        // Keyboard Shortcuts
+        document.addEventListener('keydown', function (e) {
+            if (e.ctrlKey) {
+                switch (e.key) {
+                    case 'n':
+                        e.preventDefault();
+                        window.location.href = 'customer-orders.html';
+                        break;
+                    case 'i':
+                        e.preventDefault();
+                        window.location.href = 'customer-inventory.html';
+                        break;
+                    case 'm':
+                        e.preventDefault();
+                        window.location.href = 'customer-monitoring.html';
+                        break;
+                    case 'a':
+                        e.preventDefault();
+                        window.location.href = 'customer-ai-chat.html';
+                        break;
+                    case 't':
+                        if (e.shiftKey) {
+                            e.preventDefault();
+                            showAddTaskModal();
+                        } else {
+                            e.preventDefault();
+                            window.location.href = 'customer-tasks.html';
+                        }
+                        break;
+                }
+            }
+        });
+
+        // Toast Notification System
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.innerHTML = `
           <div class="toast-content">
             <i class="bi bi-${getToastIcon(type)}"></i>
             <span>${message}</span>
           </div>
         `;
 
-        // Add toast styles if not already present
-        if (!document.querySelector('.toast-container')) {
-          const container = document.createElement('div');
-          container.className = 'toast-container';
-          document.body.appendChild(container);
+            // Add toast styles if not already present
+            if (!document.querySelector('.toast-container')) {
+                const container = document.createElement('div');
+                container.className = 'toast-container';
+                document.body.appendChild(container);
+            }
+
+            const container = document.querySelector('.toast-container');
+            container.appendChild(toast);
+
+            // Animate in
+            setTimeout(() => toast.classList.add('show'), 100);
+
+            // Remove after 3 seconds
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => container.removeChild(toast), 300);
+            }, 3000);
         }
 
-        const container = document.querySelector('.toast-container');
-        container.appendChild(toast);
+        function getToastIcon(type) {
+            const icons = {
+                'success': 'check-circle-fill',
+                'error': 'exclamation-triangle-fill',
+                'warning': 'exclamation-circle-fill',
+                'info': 'info-circle-fill'
+            };
+            return icons[type] || 'info-circle-fill';
+        }
 
-        // Animate in
-        setTimeout(() => toast.classList.add('show'), 100);
-
-        // Remove after 3 seconds
-        setTimeout(() => {
-          toast.classList.remove('show');
-          setTimeout(() => container.removeChild(toast), 300);
-        }, 3000);
-      }
-
-      function getToastIcon(type) {
-        const icons = {
-          'success': 'check-circle-fill',
-          'error': 'exclamation-triangle-fill',
-          'warning': 'exclamation-circle-fill',
-          'info': 'info-circle-fill'
-        };
-        return icons[type] || 'info-circle-fill';
-      }
-
-      // Start the customer authentication check with retry logic
-      checkCustomerAuthWithRetry();
+        // Start the customer authentication check with retry logic
+        checkCustomerAuthWithRetry();
     </script>
     <script src="theme-manager.js"></script>
+
+    <!-- Load Sidebar Dynamically -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            fetch('customer-sidebar.html')
+                .then(response => response.text())
+                .then(html => {
+                    document.getElementById('sidebar-container').innerHTML = html;
+
+                    // Re-run any scripts in the sidebar (like active link highlighting)
+                    const scripts = document.getElementById('sidebar-container').querySelectorAll('script');
+                    scripts.forEach(script => {
+                        const newScript = document.createElement('script');
+                        if (script.src) {
+                            newScript.src = script.src;
+                        } else {
+                            newScript.textContent = script.textContent;
+                        }
+                        document.body.appendChild(newScript);
+                    });
+
+                    // Initialize sidebar functionality
+                    if (typeof setActiveSidebarLink === 'function') {
+                        setActiveSidebarLink();
+                    }
+                })
+                .catch(err => console.error('Error loading sidebar:', err));
+        });
+    </script>
 </body>
+
 </html>

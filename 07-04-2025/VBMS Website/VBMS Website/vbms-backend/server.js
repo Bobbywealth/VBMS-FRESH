@@ -158,6 +158,7 @@ app.use('/api/affiliates', affiliateRoutes);
 app.use('/api/calendar', calendarRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/payments', paymentRoutes);
+app.use('/api/timesheet', require('./routes/timesheet')); // New Timesheet Route
 app.use('/api', aiChatRoutes); // Mounts at /api/chat because the router defines /chat
 app.use('/api', taskSchedulerRoutes); // Mounts at /api because routes define full paths like /tasks/upcoming
 app.use('/', webhookRoutes); // Mounts at root because the route is /webhook

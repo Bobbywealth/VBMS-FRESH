@@ -217,16 +217,25 @@
             btn.textContent = 'Processing...';
             btn.disabled = true;
 
+            const API_BASE = window.location.hostname === 'localhost'
+                ? 'https://vbms-fresh-offical-website-launch.onrender.com'
+                : 'https://vbms-fresh-offical-website-launch.onrender.com';
+
             try {
-                // In a real app, this would call the backend
-                // const res = await fetch('/api/clock', { ... });
+                const res = await fetch(`${API_BASE}/api/timesheet/clock`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ pin: currentPin, type })
+                });
 
-                // Simulating API call
-                await new Promise(r => setTimeout(r, 1000));
+                const data = await res.json();
 
-                // Mock success
-                showStatus(`Successfully Clocked ${type === 'in' ? 'IN' : 'OUT'} at ${new Date().toLocaleTimeString()}`, 'text-success');
-                clearPin();
+                if (res.ok) {
+                    showStatus(data.message, 'text-success');
+                    clearPin();
+                } else {
+                    showStatus(data.message || 'Error', 'text-danger');
+                }
             } catch (err) {
                 showStatus('Error connecting to server', 'text-danger');
             } finally {
