@@ -202,6 +202,11 @@ app.get('/', (req, res) => {
   res.send('VBMS Backend is running!');
 });
 
+// Friendly route for kiosk (serve single kiosk.html file)
+app.get(['/kiosk', '/kiosk/'], (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'kiosk.html'));
+});
+
 // --- TEST ROUTE ---
 app.get('/api/test', (req, res) => {
   res.json({ message: "API connection is working! 🎉" });
