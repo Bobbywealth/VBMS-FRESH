@@ -3,6 +3,7 @@ services:
     name: vbms-backend-api
     env: node
     plan: starter
+    healthCheckPath: /render-health
     buildCommand: npm install
     startCommand: npm start
     envVars:

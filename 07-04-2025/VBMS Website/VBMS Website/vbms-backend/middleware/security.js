@@ -9,6 +9,9 @@ const compression = require('compression');
 class SecurityMiddleware {
   // Rate limiting configurations
   static getGeneralRateLimit() {
+    const healthCheckPaths = ['/', '/render-health', '/health', '/security-check'];
+    const privateNetworkPrefixes = ['10.', '192.168.', '172.'];
+
     return rateLimit({
       windowMs: 15 * 60 * 1000, // 15 minutes
       max: 100, // limit each IP to 100 requests per windowMs
@@ -18,12 +21,25 @@ class SecurityMiddleware {
       },
       standardHeaders: true,
       legacyHeaders: false,
-      // Skip rate limiting for trusted IPs in development
+      // Skip rate limiting for health checks, Render infra IPs, and trusted dev IPs
       skip: (req) => {
+        const reqPath = req.path || req.originalUrl || '';
+        const reqIpRaw = req.ip || '';
+        const reqIp = reqIpRaw.startsWith('::ffff:') ? reqIpRaw.replace('::ffff:', '') : reqIpRaw;
+
+        if (healthCheckPaths.includes(reqPath)) {
+          return true;
+        }
+
+        if (privateNetworkPrefixes.some((prefix) => reqIp.startsWith(prefix))) {
+          return true;
+        }
+
         if (process.env.NODE_ENV !== 'production') {
           const trustedIPs = ['127.0.0.1', '::1', 'localhost'];
-          return trustedIPs.includes(req.ip);
+          return trustedIPs.includes(reqIp);
         }
+
         return false;
       }
     });
