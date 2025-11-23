@@ -162,4 +162,80 @@ router.post('/employees', authenticate, async (req, res) => {
     }
 });
 
+// List Employees (Protected)
+router.get('/employees', authenticate, async (req, res) => {
+    const client = await pgPool.connect();
+    try {
+        const result = await client.query(
+            `SELECT id, first_name, last_name, email, pin_code, created_at
+             FROM users
+             WHERE employer_id = $1
+             ORDER BY first_name ASC, last_name ASC`,
+            [req.user.id]
+        );
+
+        res.json(result.rows);
+    } catch (err) {
+        console.error('List employees error:', err);
+        res.status(500).json({ message: 'Server error' });
+    } finally {
+        client.release();
+    }
+});
+
+// Delete Employee (Protected)
+router.delete('/employees/:id', authenticate, async (req, res) => {
+    const employeeId = parseInt(req.params.id, 10);
+    if (Number.isNaN(employeeId)) {
+        return res.status(400).json({ message: 'Invalid employee ID' });
+    }
+
+    const client = await pgPool.connect();
+    try {
+        await client.query('BEGIN');
+
+        const employee = await client.query(
+            'SELECT id FROM users WHERE id = $1 AND employer_id = $2',
+            [employeeId, req.user.id]
+        );
+
+        if (employee.rows.length === 0) {
+            await client.query('ROLLBACK');
+            return res.status(404).json({ message: 'Employee not found' });
+        }
+
+        const logIdsResult = await client.query(
+            'SELECT id FROM time_logs WHERE user_id = $1',
+            [employeeId]
+        );
+        const logIds = logIdsResult.rows.map(row => row.id);
+
+        if (logIds.length > 0) {
+            await client.query(
+                'DELETE FROM breaks WHERE time_log_id = ANY($1::int[])',
+                [logIds]
+            );
+        }
+
+        await client.query(
+            'DELETE FROM time_logs WHERE user_id = $1',
+            [employeeId]
+        );
+
+        await client.query(
+            'DELETE FROM users WHERE id = $1',
+            [employeeId]
+        );
+
+        await client.query('COMMIT');
+        res.json({ message: 'Employee deleted successfully' });
+    } catch (err) {
+        await client.query('ROLLBACK');
+        console.error('Delete employee error:', err);
+        res.status(500).json({ message: 'Server error' });
+    } finally {
+        client.release();
+    }
+});
+
 module.exports = router;

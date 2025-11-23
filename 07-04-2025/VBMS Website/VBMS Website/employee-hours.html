@@ -118,6 +118,32 @@
                 </table>
             </div>
         </div>
+
+        <div class="card p-4 mt-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 class="mb-0"><i class="bi bi-people text-warning"></i> Active Employees</h4>
+                <small class="text-muted" id="employeeCount">Loading...</small>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>PIN</th>
+                            <th>Added</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="employeesBody">
+                        <tr>
+                            <td colspan="5" class="text-center">Loading employees...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </main>
 
     <!-- Add Employee Modal -->
@@ -174,6 +200,7 @@
                 });
 
             fetchHours();
+            fetchEmployees();
         });
 
         const API_BASE = window.location.hostname === 'localhost'
@@ -271,6 +298,7 @@
 
                     e.target.reset();
                     fetchHours(); // Refresh list
+                    fetchEmployees();
                 } else {
                     alert('❌ Error: ' + (result.message || 'Unknown error'));
                 }
@@ -279,6 +307,91 @@
                 alert('❌ Server connection error. Please try again.');
             }
         });
+
+        async function fetchEmployees() {
+            const token = localStorage.getItem('vbmsToken');
+            if (!token) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const tbody = document.getElementById('employeesBody');
+            const countEl = document.getElementById('employeeCount');
+
+            try {
+                const res = await fetch(`${API_BASE}/api/timesheet/employees`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!res.ok) throw new Error('Failed to load employees');
+
+                const employees = await res.json();
+                tbody.innerHTML = '';
+
+                if (employees.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="text-center">No employees yet. Use the button above to add your first team member.</td></tr>';
+                    countEl.textContent = '0 employees';
+                    return;
+                }
+
+                countEl.textContent = `${employees.length} employee${employees.length === 1 ? '' : 's'}`;
+
+                employees.forEach(emp => {
+                    const created = emp.created_at ? new Date(emp.created_at).toLocaleDateString() : '--';
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${emp.first_name || ''} ${emp.last_name || ''}</td>
+                            <td>${emp.email}</td>
+                            <td><span class="badge bg-dark">${emp.pin_code || '----'}</span></td>
+                            <td>${created}</td>
+                            <td class="text-end">
+                                <button class="btn btn-sm btn-outline-danger" onclick="deleteEmployee(${emp.id}, '${emp.first_name || ''} ${emp.last_name || ''}')">
+                                    <i class="bi bi-trash"></i> Delete
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            } catch (error) {
+                console.error('Employees load error:', error);
+                countEl.textContent = 'Error';
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Unable to load employees. Please refresh.</td></tr>';
+            }
+        }
+
+        async function deleteEmployee(id, name) {
+            const token = localStorage.getItem('vbmsToken');
+            if (!token) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const confirmed = confirm(`Delete ${name.trim() || 'this employee'}? This will remove their time logs as well.`);
+            if (!confirmed) return;
+
+            try {
+                const res = await fetch(`${API_BASE}/api/timesheet/employees/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                const result = await res.json();
+
+                if (!res.ok) {
+                    alert(result.message || 'Failed to delete employee.');
+                    return;
+                }
+
+                alert('Employee deleted successfully.');
+                fetchEmployees();
+                fetchHours();
+            } catch (error) {
+                console.error('Delete employee error:', error);
+                alert('Server error. Please try again later.');
+            }
+        }
+
+        window.deleteEmployee = deleteEmployee;
     </script>
 </body>
 
