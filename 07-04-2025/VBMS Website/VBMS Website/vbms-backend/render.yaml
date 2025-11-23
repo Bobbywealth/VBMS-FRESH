@@ -15,4 +15,4 @@ services:
       - key: CORS_ORIGINS
         sync: false
       - key: PORT
-        value: 10000
+        sync: false
