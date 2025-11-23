@@ -119,6 +119,7 @@ const paymentRoutes = require('./routes/payments');
 const aiChatRoutes = require('./routes/ai-chat');
 const taskSchedulerRoutes = require('./routes/tasks-scheduler');
 const webhookRoutes = require('./routes/webhooks');
+const businessRoutes = require('./routes/business');
 
 // Debug endpoint to check users (REMOVE IN PRODUCTION)
 app.get('/api/debug/users', async (req, res) => {
@@ -159,6 +160,7 @@ app.use('/api/calendar', calendarRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/timesheet', require('./routes/timesheet')); // New Timesheet Route
+app.use('/api/business', businessRoutes);
 app.use('/api', aiChatRoutes); // Mounts at /api/chat because the router defines /chat
 app.use('/api', taskSchedulerRoutes); // Mounts at /api because routes define full paths like /tasks/upcoming
 app.use('/', webhookRoutes); // Mounts at root because the route is /webhook
