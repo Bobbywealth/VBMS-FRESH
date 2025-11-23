@@ -73,6 +73,35 @@
             background: #e67e22;
             color: #fff;
         }
+
+        .summary-card {
+            background: linear-gradient(135deg, #fff7e6, #fff);
+        }
+
+        [data-theme="dark"] .summary-card {
+            background: linear-gradient(135deg, #1e1506, #241a07);
+        }
+
+        .summary-label {
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+
+        [data-theme="dark"] .summary-label {
+            color: #f0b90b;
+        }
+
+        .summary-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #ff9d00;
+        }
+
+        [data-theme="dark"] .summary-value {
+            color: #ffd666;
+        }
     </style>
 </head>
 
@@ -90,12 +119,46 @@
         </div>
 
         <div class="card p-4">
-            <div class="d-flex gap-3 mb-4">
-                <input type="date" class="form-control" style="max-width: 200px;">
-                <select class="form-select" style="max-width: 200px;">
-                    <option>All Employees</option>
+            <div class="d-flex flex-wrap gap-3 mb-4">
+                <input type="date" class="form-control" id="dateFilter" style="max-width: 200px;">
+                <select class="form-select" id="employeeFilter" style="max-width: 220px;">
+                    <option value="all">All Employees</option>
                 </select>
-                <button class="btn btn-outline-primary">Filter</button>
+                <button class="btn btn-outline-primary" id="filterBtn" type="button">Filter</button>
+                <button class="btn btn-outline-secondary" id="clearFilters" type="button">Reset</button>
+            </div>
+
+            <div class="card summary-card p-4 mb-4">
+                <div class="row g-4 text-center">
+                    <div class="col-md-6">
+                        <div class="summary-label">Hours Worked Today</div>
+                        <div class="summary-value" id="todayTotal">0h 0m</div>
+                        <div class="text-muted small">Based on selected filters</div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="summary-label">Hours This Week</div>
+                        <div class="summary-value" id="weekTotal">0h 0m</div>
+                        <div class="text-muted small">Rolling 7-day window</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-responsive mb-4">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Employee</th>
+                            <th>Today's Hours</th>
+                            <th>Hours This Week</th>
+                            <th>Total Logged</th>
+                        </tr>
+                    </thead>
+                    <tbody id="summaryBody">
+                        <tr>
+                            <td colspan="4" class="text-center">Calculating summary...</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
 
             <div class="table-responsive">
@@ -206,6 +269,7 @@
         const API_BASE = window.location.hostname === 'localhost'
             ? 'https://vbms-fresh-offical-website-launch.onrender.com'
             : 'https://vbms-fresh-offical-website-launch.onrender.com';
+        let cachedLogs = [];
 
         async function fetchHours() {
             const token = localStorage.getItem('vbmsToken'); // Get token from auth.js storage
@@ -221,39 +285,156 @@
 
                 if (!res.ok) throw new Error('Failed to fetch');
 
-                const logs = await res.json();
-                const tbody = document.getElementById('hoursBody');
-                tbody.innerHTML = '';
-
-                if (logs.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="6" class="text-center">No records found</td></tr>';
-                    return;
-                }
-
-                logs.forEach(log => {
-                    const clockIn = new Date(log.clock_in).toLocaleTimeString();
-                    const clockOut = log.clock_out ? new Date(log.clock_out).toLocaleTimeString() : '--';
-
-                    let statusBadge = '<span class="badge badge-out">Clocked Out</span>';
-                    if (log.status === 'active') statusBadge = '<span class="badge badge-in">Clocked In</span>';
-                    if (log.status === 'on_break') statusBadge = '<span class="badge badge-break">On Break</span>';
-
-                    tbody.innerHTML += `
-            <tr>
-              <td>${log.user_name}</td>
-              <td>${new Date(log.clock_in).toLocaleDateString()}</td>
-              <td>${clockIn}</td>
-              <td>${clockOut}</td>
-              <td>${log.break_count || 0}</td>
-              <td>${statusBadge}</td>
-            </tr>
-          `;
-                });
+                cachedLogs = await res.json();
+                populateEmployeeFilter(cachedLogs);
+                applyFilters();
             } catch (err) {
                 console.error('Error:', err);
                 document.getElementById('hoursBody').innerHTML = '<tr><td colspan="6" class="text-center text-danger">Error loading data. Please log in again.</td></tr>';
             }
         }
+
+        function renderHoursTable(logs) {
+            const tbody = document.getElementById('hoursBody');
+            tbody.innerHTML = '';
+
+            if (logs.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center">No records found</td></tr>';
+                return;
+            }
+
+            logs.forEach(log => {
+                const clockIn = new Date(log.clock_in).toLocaleTimeString();
+                const clockOut = log.clock_out ? new Date(log.clock_out).toLocaleTimeString() : '--';
+
+                let statusBadge = '<span class="badge badge-out">Clocked Out</span>';
+                if (log.status === 'active') statusBadge = '<span class="badge badge-in">Clocked In</span>';
+                if (log.status === 'on_break') statusBadge = '<span class="badge badge-break">On Break</span>';
+
+                tbody.innerHTML += `
+                    <tr>
+                      <td>${log.user_name}</td>
+                      <td>${new Date(log.clock_in).toLocaleDateString()}</td>
+                      <td>${clockIn}</td>
+                      <td>${clockOut}</td>
+                      <td>${log.break_count || 0}</td>
+                      <td>${statusBadge}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        function calculateSummaries(logs) {
+            const todayStart = new Date();
+            todayStart.setHours(0, 0, 0, 0);
+
+            const weekStart = new Date(todayStart);
+            weekStart.setDate(todayStart.getDate() - 6);
+
+            let overallToday = 0;
+            let overallWeek = 0;
+            const map = {};
+
+            logs.forEach(log => {
+                const user = log.user_name || 'Unknown';
+                const clockInDate = new Date(log.clock_in);
+                const duration = calculateDurationMinutes(log.clock_in, log.clock_out);
+
+                if (!map[user]) {
+                    map[user] = { today: 0, week: 0, total: 0 };
+                }
+
+                map[user].total += duration;
+
+                if (clockInDate >= todayStart) {
+                    map[user].today += duration;
+                    overallToday += duration;
+                }
+
+                if (clockInDate >= weekStart) {
+                    map[user].week += duration;
+                    overallWeek += duration;
+                }
+            });
+
+            document.getElementById('todayTotal').textContent = formatHours(overallToday);
+            document.getElementById('weekTotal').textContent = formatHours(overallWeek);
+
+            const summaryBody = document.getElementById('summaryBody');
+            summaryBody.innerHTML = '';
+
+            if (Object.keys(map).length === 0) {
+                summaryBody.innerHTML = '<tr><td colspan="4" class="text-center">No summary data yet.</td></tr>';
+                return;
+            }
+
+            Object.entries(map)
+                .sort((a, b) => a[0].localeCompare(b[0]))
+                .forEach(([name, stats]) => {
+                    summaryBody.innerHTML += `
+                        <tr>
+                            <td>${name}</td>
+                            <td>${formatHours(stats.today)}</td>
+                            <td>${formatHours(stats.week)}</td>
+                            <td>${formatHours(stats.total)}</td>
+                        </tr>
+                    `;
+                });
+        }
+
+        function calculateDurationMinutes(clockIn, clockOut) {
+            const start = new Date(clockIn);
+            const end = clockOut ? new Date(clockOut) : new Date();
+            return Math.max(0, (end - start) / 60000);
+        }
+
+        function formatHours(minutes) {
+            if (!minutes || minutes <= 0) return '0h 0m';
+            const hrs = Math.floor(minutes / 60);
+            const mins = Math.round(minutes % 60);
+            return `${hrs}h ${mins}m`;
+        }
+
+        function populateEmployeeFilter(logs) {
+            const select = document.getElementById('employeeFilter');
+            const currentValue = select.value;
+            const names = Array.from(new Set(logs.map(log => log.user_name).filter(Boolean))).sort();
+            select.innerHTML = '<option value="all">All Employees</option>';
+            names.forEach(name => {
+                const option = document.createElement('option');
+                option.value = name;
+                option.textContent = name;
+                select.appendChild(option);
+            });
+            if (names.includes(currentValue)) {
+                select.value = currentValue;
+            }
+        }
+
+        function applyFilters() {
+            let filtered = [...cachedLogs];
+            const dateValue = document.getElementById('dateFilter').value;
+            const employeeValue = document.getElementById('employeeFilter').value;
+
+            if (dateValue) {
+                filtered = filtered.filter(log => new Date(log.clock_in).toISOString().slice(0, 10) === dateValue);
+            }
+
+            if (employeeValue && employeeValue !== 'all') {
+                filtered = filtered.filter(log => log.user_name === employeeValue);
+            }
+
+            renderHoursTable(filtered);
+            calculateSummaries(filtered);
+            return filtered;
+        }
+
+        document.getElementById('filterBtn').addEventListener('click', applyFilters);
+        document.getElementById('clearFilters').addEventListener('click', () => {
+            document.getElementById('dateFilter').value = '';
+            document.getElementById('employeeFilter').value = 'all';
+            applyFilters();
+        });
 
         // Handle Add Employee
         document.getElementById('addEmployeeForm').addEventListener('submit', async (e) => {
